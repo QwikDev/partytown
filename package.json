@@ -98,7 +98,7 @@
     "fs-extra": "^11.1.1",
     "gzip-size": "^6.0.0",
     "np": "^7.6.1",
-    "playwright": "^1.17.2",
+    "playwright": "^1.17.3",
     "prettier": "^2.6.0",
     "rollup": "^3.29.1",
     "tslib": "^2.3.1",

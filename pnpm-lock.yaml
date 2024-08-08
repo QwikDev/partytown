@@ -42,7 +42,7 @@ importers:
         specifier: ^7.6.1
         version: 7.7.0
       playwright:
-        specifier: ^1.17.2
+        specifier: ^1.17.3
         version: 1.39.0
       prettier:
         specifier: ^2.6.0
