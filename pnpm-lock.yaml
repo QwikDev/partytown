@@ -1,7 +1,7 @@
 lockfileVersion: '9.0'
 
 settings:
-  autoInstallPeers: true
+  autoInstallPeers: false
   excludeLinksFromLockfile: false
 
 importers:
@@ -57,7 +57,7 @@ importers:
         specifier: ^2.2.1
         version: 2.3.0
       typescript:
-        specifier: ^4.6.2
+        specifier: ^4.9.5
         version: 4.9.5
       uvu:
         specifier: ^0.5.3
@@ -2008,14 +2008,14 @@ snapshots:
 
   '@rollup/plugin-terser@0.4.4(rollup@3.29.4)':
     dependencies:
-      rollup: 3.29.4
       serialize-javascript: 6.0.1
       smob: 1.4.1
       terser: 5.21.0
+    optionalDependencies:
+      rollup: 3.29.4
 
   '@rushstack/node-core-library@3.61.0(@types/node@18.18.4)':
     dependencies:
-      '@types/node': 18.18.4
       colors: 1.2.5
       fs-extra: 7.0.1
       import-lazy: 4.0.0
@@ -2023,6 +2023,8 @@ snapshots:
       resolve: 1.22.8
       semver: 7.5.4
       z-schema: 5.0.5
+    optionalDependencies:
+      '@types/node': 18.18.4
 
   '@rushstack/rig-package@0.5.1':
     dependencies:
@@ -2039,6 +2041,7 @@ snapshots:
   '@samverschueren/stream-to-observable@0.3.1(rxjs@6.6.7)':
     dependencies:
       any-observable: 0.3.0(rxjs@6.6.7)
+    optionalDependencies:
       rxjs: 6.6.7
     transitivePeerDependencies:
       - zenObservable
@@ -2146,11 +2149,11 @@ snapshots:
       color-convert: 2.0.1
 
   any-observable@0.3.0(rxjs@6.6.7):
-    dependencies:
+    optionalDependencies:
       rxjs: 6.6.7
 
   any-observable@0.5.1(rxjs@6.6.7):
-    dependencies:
+    optionalDependencies:
       rxjs: 6.6.7
 
   argparse@1.0.10:
