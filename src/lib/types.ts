@@ -445,6 +445,11 @@ export interface PartytownConfig {
    */
   forward?: PartytownForwardProperty[];
   /**
+   * Timeout in ms before the initialization considered failed and the fallback solution is executed
+   * Default: 9999
+   */
+  fallbackTimeout?: number;
+  /**
    * The css selector where the sandbox should be placed.
    * Default: body
    */
