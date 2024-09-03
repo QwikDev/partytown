@@ -7,11 +7,12 @@ Partytown does not require a config for it to work, however a config can be set 
 | Config       | Description                                                                                                                                                                                                               |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `debug`      | When `true`, Partytown scripts are not inlined and not minified. See the [Debugging](/debugging) docs on how to enable more logging.                                                                                      |
-| `forward`    | An array of strings representing function calls on the main thread to forward to the web worker. See [Forwarding Events and Triggers](/forwarding-events) for more info.                                                  |
+| `forward`    | An array of strings representing function calls on the main thread to forward to the web worker. See [Forwarding Events and Triggers](/forwarding-events) for more info.      |
 | `lib`        | Path where the Partytown library can be found your server. Note that the path must both start and end with a `/` character, and the files must be hosted from the same origin as the webpage. Default is `/~partytown/`   |
 | `loadScriptsOnMainThread` | An array of strings or regular expressions (RegExp) used to filter out which script are executed via Partytown and the main thread. An example is as follows: `loadScriptsOnMainThread: ["https://test.com/analytics.js", "inline-script-id", /regex-matched-script\.js/]`.|
 | `resolveUrl` | Hook that is called to resolve URLs which can be used to modify URLs. The hook uses the API: `resolveUrl(url: URL, location: URL, method: string)`. See the [Proxying Requests](/proxying-requests) for more information. |
 | `nonce` | The nonce property may be set on script elements created by Partytown. This should be set only when dealing with content security policies and when the use of `unsafe-inline` is disabled (using `nonce-*` instead). |
+| `fallbackTimeout`    | A timeout in ms until Partytown initialization is considered as failed & fallbacks to the regular execution in main thread. Default is 9999 |
 
 ## Vanilla Config
 
