@@ -20,6 +20,7 @@ export interface PartytownConfig {
     // (undocumented)
     apply?: ApplyHook;
     debug?: boolean;
+    fallbackTimeout?: number;
     forward?: PartytownForwardProperty[];
     // (undocumented)
     get?: GetHook;
