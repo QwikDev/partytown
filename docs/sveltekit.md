@@ -75,7 +75,7 @@ Putting it together with the previous changes, our `+layout.svelte` looks like:
 
 	{@html '<script>' + partytownSnippet() + '</script>'}
 
-	<script type="text/partytown" src="https://www.googletagmanager.com/gtag/js?id=G-ZX7H2KPXNZ"></script>
+	<script type="text/partytown" src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
 	<script type="text/partytown">
 		window.dataLayer = window.dataLayer || [];
 		window.gtag = function(){dataLayer.push(arguments);}
