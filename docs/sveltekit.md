@@ -80,7 +80,7 @@ Putting it together with the previous changes, our `+layout.svelte` looks like:
 		window.dataLayer = window.dataLayer || [];
 		window.gtag = function(){dataLayer.push(arguments);}
 		gtag('js', new Date());
-		gtag('config', 'G-ZX7H2KPXNZ');
+		gtag('config', 'G-XXXXXXXXXX');
 	</script>
 </svelte:head>
 ```
