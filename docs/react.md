@@ -8,6 +8,8 @@ The Partytown NPM package already comes with a React component, which is a thin 
 
 ```bash
 npm install @builder.io/partytown
+yarn add @builder.io/partytown
+pnpm install @builder.io/partytown
 ```
 
 ## Configure
