@@ -32,7 +32,7 @@ export function snippet(
         libPath = (config!.lib || '/~partytown/') + (config!.debug ? 'debug/' : '');
       }
 
-      if (libPath[0] == '/') {
+      if (libPath[0] == '/' || libPath[0] == '.') {
         // grab all the partytown scripts
         scripts = doc.querySelectorAll('script[type="text/partytown"]');
 
@@ -72,7 +72,7 @@ export function snippet(
           }
         }
       } else if (debug) {
-        console.warn('Partytown config.lib url must start with "/"');
+        console.warn('Partytown config.lib url must start with "/" or "."');
       }
     }
   }
