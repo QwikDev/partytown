@@ -8,6 +8,8 @@ The [Shopify Hydrogen](https://hydrogen.shopify.dev/) setup is largely the same 
 
 ```bash
 npm install @builder.io/partytown
+yarn add @builder.io/partytown
+pnpm install @builder.io/partytown
 ```
 
 ## Configure
