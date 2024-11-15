@@ -9,7 +9,9 @@ To setup Partytown in an Angular project take the following steps.
 Run the command below to install the dependencies
 
 ```bash
-npm install @builder.io/partytown # or yarn add @builder.io/partytown
+npm install @builder.io/partytown
+yarn add @builder.io/partytown
+pnpm install @builder.io/partytown
 ```
 
 Add the path to the Partytown JS files into the assets array in your `angular.json` file
