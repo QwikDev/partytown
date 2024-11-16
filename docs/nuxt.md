@@ -9,7 +9,9 @@ There is a first-class [Nuxt integration for partytown](https://github.com/nuxt-
 Add `@nuxtjs/partytown` dependency to your project.
 
 ```bash
-yarn add --dev @nuxtjs/partytown # or npm install --save-dev @nuxtjs/partytown
+npm install --save-dev @nuxtjs/partytown
+yarn add --dev @nuxtjs/partytown
+pnpm install --save-dev @nuxtjs/partytown
 ```
 
 ## Configure
