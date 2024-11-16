@@ -1,5 +1,5 @@
 import { CreatedKey, InstanceIdKey, instances, winCtxs, windowIds } from './main-constants';
-import { InstanceId, MainWindowContext, WinDocId, WinId } from '../types';
+import { type InstanceId, type MainWindowContext, WinDocId, type WinId } from '../types';
 import { randomId } from '../utils';
 
 export const getAndSetInstanceId = (instance: any, instanceId?: InstanceId) => {

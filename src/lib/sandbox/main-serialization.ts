@@ -2,14 +2,14 @@ import { getConstructorName, getNodeName, isValidMemberName, startsWith } from '
 import { getInstance, getAndSetInstanceId } from './main-instances';
 import { mainRefs } from './main-constants';
 import {
-  PartytownWebWorker,
-  SerializedCSSRule,
-  SerializedInstance,
-  SerializedObject,
-  SerializedRefTransferData,
-  SerializedTransfer,
+  type PartytownWebWorker,
+  type SerializedCSSRule,
+  type SerializedInstance,
+  type SerializedObject,
+  type SerializedRefTransferData,
+  type SerializedTransfer,
   SerializedType,
-  WinId,
+  type WinId,
   WorkerMessageType,
 } from '../types';
 

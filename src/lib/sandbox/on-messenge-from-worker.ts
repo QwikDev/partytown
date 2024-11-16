@@ -1,10 +1,10 @@
 import { initializedWorkerScript, readNextScript } from './read-main-scripts';
 import { mainWindow } from './main-globals';
 import {
-  MainWindowContext,
-  MessageFromWorkerToSandbox,
-  PartytownWebWorker,
-  WinId,
+  type MainWindowContext,
+  type MessageFromWorkerToSandbox,
+  type PartytownWebWorker,
+  type WinId,
   WorkerMessageType,
 } from '../types';
 import { randomId } from '../utils';

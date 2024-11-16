@@ -1,9 +1,9 @@
 import {
   CallType,
-  MediaSelf,
-  WebWorkerEnvironment,
-  WorkerConstructor,
-  WorkerWindow,
+  type MediaSelf,
+  type WebWorkerEnvironment,
+  type WorkerConstructor,
+  type WorkerWindow,
 } from '../../types';
 import {
   defineCstr,

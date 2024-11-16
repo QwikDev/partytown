@@ -3,9 +3,8 @@ import {
   CallType,
   NodeName,
   StateProp,
-  WebWorkerEnvironment,
-  WinDocId,
-  WorkerNode,
+  type WebWorkerEnvironment,
+  type WorkerNode,
 } from '../types';
 import {
   cachedProps,

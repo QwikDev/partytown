@@ -1,10 +1,10 @@
 import { debug, SCRIPT_TYPE, SCRIPT_TYPE_EXEC } from '../utils';
 import { getAndSetInstanceId } from './main-instances';
 import {
-  InitializeScriptData,
-  InstanceId,
-  MainWindowContext,
-  PartytownWebWorker,
+  type InitializeScriptData,
+  type InstanceId,
+  type MainWindowContext,
+  type PartytownWebWorker,
   WorkerMessageType,
 } from '../types';
 import { mainForwardTrigger } from './main-forward-trigger';
