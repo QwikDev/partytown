@@ -93,11 +93,11 @@ const readImplementations = (impls: any[], interfaces: InterfaceInfo[]) => {
       const impl = implData[0];
       const interfaceType: InterfaceType = implData[1] as any;
       const cstrName = getConstructorName(impl);
-      const CstrPrototype = (mainWindow as any)[cstrName].prototype;
+      const CstrPrototype = cstrName === 'History' ? History.prototype : (mainWindow as any)[cstrName].prototype;
       return [cstrName, CstrPrototype, impl, interfaceType];
-    });
-
-  cstrImpls.map(([cstrName, CstrPrototype, impl, intefaceType]) =>
+    });  
+  
+  cstrImpls.filter(([cstrName, CstrPrototype, impl, intefaceType])=> !!CstrPrototype).map(([cstrName, CstrPrototype, impl, intefaceType]) =>
     readOwnImplementation(cstrs, interfaces, cstrName, CstrPrototype, impl, intefaceType)
   );
 
@@ -121,7 +121,7 @@ const readOwnImplementation = (
   impl: any,
   interfaceType: InterfaceType
 ) => {
-  if (!cstrs.has(cstrName)) {
+  if (!cstrs.has(cstrName) && CstrPrototype) {
     cstrs.add(cstrName);
     const SuperCstr = Object.getPrototypeOf(CstrPrototype);
     const superCstrName = getConstructorName(SuperCstr);

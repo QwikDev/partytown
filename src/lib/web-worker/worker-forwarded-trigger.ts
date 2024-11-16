@@ -18,7 +18,7 @@ export const workerForwardedTriggerHandle = ({
       if (i + 1 < l) {
         target = target[$forward$[i]];
       } else {
-        target[$forward$[i]].apply(target, deserializeFromMain(null, $winId$, [], $args$));
+        target[$forward$[i]]?.apply(target, deserializeFromMain(null, $winId$, [], $args$));
       }
     }
   } catch (e) {
