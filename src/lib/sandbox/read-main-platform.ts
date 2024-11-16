@@ -7,7 +7,12 @@ import {
   serializeConfig,
 } from '../utils';
 import { config, docImpl, libPath, mainWindow } from './main-globals';
-import { InterfaceType, type InterfaceInfo, type InterfaceMember, type InitWebWorkerData } from '../types';
+import {
+  InterfaceType,
+  type InterfaceInfo,
+  type InterfaceMember,
+  type InitWebWorkerData,
+} from '../types';
 
 export const readMainPlatform = () => {
   const elm = docImpl.createElement('i');
