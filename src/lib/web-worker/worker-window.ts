@@ -354,6 +354,7 @@ export const createWindow = (
         patchDocumentElementChild(win.HTMLBodyElement, env);
         patchHTMLHtmlElement(win.HTMLHtmlElement, env);
         createCSSStyleSheetConstructor(win, 'CSSStyleSheet');
+        createCSSStyleSheetConstructor(win, 'CSSMediaRule');
 
         definePrototypeNodeType(win.Comment, 8);
         definePrototypeNodeType(win.DocumentType, 10);

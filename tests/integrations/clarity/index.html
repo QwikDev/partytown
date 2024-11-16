@@ -22,28 +22,6 @@
   </script>
   <script src='/~partytown/debug/partytown.js'></script>
 
-  <script>
-    const observer = new MutationObserver(mutations => {
-      mutations.forEach(({ addedNodes }) => {
-        addedNodes.forEach(node => {
-          // For each added script tag
-          if (node.nodeType === 1 && node.tagName === 'SCRIPT') {
-            const src = node.src || '';
-            if (node.src.includes('clarity.js')) {
-              node.type = 'text/partytown';
-              node.src = './clarity.bundle.js';
-            }
-          }
-        });
-      });
-    });
-    // Starts the monitoring
-    observer.observe(document.documentElement, {
-      childList: true,
-      subtree: true,
-    });
-  </script>
-
   <style>
       body {
           font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif,
