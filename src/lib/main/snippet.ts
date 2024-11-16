@@ -96,7 +96,7 @@ export function snippet(
     doc.querySelector(config!.sandboxParent || 'body')!.appendChild(sandbox);
   }
 
-  function fallback(i?: number, script?: HTMLScriptElement) {
+  function fallback() {
     // no support or timeout reached
     // basically "undo" all of the text/partytown scripts
     // so they act as normal scripts
@@ -114,16 +114,19 @@ export function snippet(
       });
     }
 
-    for (i = 0; i < scripts!.length; i++) {
-      script = doc.createElement('script');
-      script.innerHTML = scripts![i].innerHTML;
-      // We don't need to set a `nonce` on sandbox script since it is loaded via
-      // the `src` attribute. However, we do need to set a `nonce` on the current
-      // script because it contains an inline script. This action ensures that the
-      // script can still be executed even when inline scripts are blocked
-      // (assuming `unsafe-inline` is disabled and `nonce-*` is used instead).
-      script.nonce = config!.nonce;
-      doc.head.appendChild(script);
+    for (let i = 0; i < scripts!.length; i++) {
+      const script = scripts![i];
+      if (script.getAttribute('ptScope') !== 'worker') {
+        const fallbackScript = doc.createElement('script');
+        fallbackScript.innerHTML = script.innerHTML;
+        // We don't need to set a `nonce` on sandbox script since it is loaded via
+        // the `src` attribute. However, we do need to set a `nonce` on the current
+        // script because it contains an inline script. This action ensures that the
+        // script can still be executed even when inline scripts are blocked
+        // (assuming `unsafe-inline` is disabled and `nonce-*` is used instead).
+        fallbackScript.nonce = config!.nonce;
+        doc.head.appendChild(fallbackScript);
+      }
     }
 
     if (sandbox) {
