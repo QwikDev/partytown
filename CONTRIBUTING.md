@@ -1,6 +1,6 @@
 # Local Development
 
-Welcome 🎉!! If you've found a bug, or have an idea to add a feature we'd love to hear from you. It may save time to first ping the group on [Partytown's Discord channel](https://discord.gg/bNVSQmPzqy) to talk through any ideas or any issues that may be a bug.
+Welcome 🎉!! If you've found a bug, or have an idea to add a feature we'd love to hear from you. It may save time to first ping the group on [Partytown's Discord channel](https://discord.com/invite/uhNcF6k6) to talk through any ideas or any issues that may be a bug.
 
 ## Installation
 
