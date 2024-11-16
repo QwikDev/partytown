@@ -8,6 +8,8 @@ The Remix setup is largely the same as the [React integration guide](/react), ex
 
 ```bash
 npm install @builder.io/partytown
+yarn add @builder.io/partytown
+pnpm install @builder.io/partytown
 ```
 
 ## Configure
