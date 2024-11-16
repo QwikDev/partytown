@@ -9,7 +9,9 @@ There is a first-class [Astro integration for partytown](https://github.com/with
 Astro includes a CLI tool for adding integrations. Using the `astro add` command will automatically install Partytown and configure your project.
 
 ```bash
-yarn astro add partytown # or npx astro add partytown
+npx astro add partytown
+yarn astro add partytown
+pnpx astro add partytown
 ```
 
 ## Partytown Script
