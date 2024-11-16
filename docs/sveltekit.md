@@ -23,9 +23,7 @@ import { partytownVite } from '@builder.io/partytown/utils';
 const config = {
   plugins: [
     sveltekit(),
-    partytownVite({
-      dest: join(__dirname, 'static', '~partytown'),
-    }),
+    partytownVite(),
   ],
 };
 
