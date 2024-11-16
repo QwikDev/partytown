@@ -16,7 +16,9 @@ The Next.js `<Script/>` component provides an experimental `worker` strategy, wh
 ## Install
 
 ```bash
-npm install "@builder.io/partytown"
+npm install @builder.io/partytown
+yarn add @builder.io/partytown
+pnpm install @builder.io/partytown
 ```
 
 ## Configure

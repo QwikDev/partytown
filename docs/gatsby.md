@@ -10,6 +10,8 @@ For additional information, please see [How to Add Google Analytics gtag to Gats
 
 ```bash
 npm install @builder.io/partytown
+yarn add @builder.io/partytown
+pnpm install @builder.io/partytown
 ```
 
 ## Configure
