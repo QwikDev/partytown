@@ -57,6 +57,7 @@ export const patchHTMLIFrameElement = (WorkerHTMLIFrameElement: any, env: WebWor
 
           env.$location$.href = src = resolveUrl(env, src, 'iframe');
           env.$isLoading$ = 1;
+          env.$isSameOrigin$ = webWorkerCtx.$origin$ === env.$location$.origin;
 
           setInstanceStateValue(this, StateProp.loadErrorStatus, undefined);
 

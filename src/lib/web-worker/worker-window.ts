@@ -354,6 +354,7 @@ export const createWindow = (
         patchDocumentElementChild(win.HTMLBodyElement, env);
         patchHTMLHtmlElement(win.HTMLHtmlElement, env);
         createCSSStyleSheetConstructor(win, 'CSSStyleSheet');
+        createCSSStyleSheetConstructor(win, 'CSSMediaRule');
 
         definePrototypeNodeType(win.Comment, 8);
         definePrototypeNodeType(win.DocumentType, 10);
@@ -417,8 +418,8 @@ export const createWindow = (
         win.cancelIdleCallback = (id: number) => clearTimeout(id);
 
         // add storage APIs to the window
-        addStorageApi(win, 'localStorage', $isSameOrigin$, env);
-        addStorageApi(win, 'sessionStorage', $isSameOrigin$, env);
+        addStorageApi(win, 'localStorage', env);
+        addStorageApi(win, 'sessionStorage', env);
 
         if (!$isSameOrigin$) {
           win.indexeddb = undefined;

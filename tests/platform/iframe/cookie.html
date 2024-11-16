@@ -1,0 +1,25 @@
+<html>
+  <head>
+    <style>
+      body {
+        background-color: skyblue;
+        margin: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <span>iframe origin:</span>
+      <span id="iframe-origin"></span>
+    </div>
+    <div>
+      <span>cookie value:</span>
+      <span id="test-cookie"></span>
+    </div>
+    <script>
+      document.getElementById('iframe-origin').textContent = window.origin;
+      document.cookie = 'foo=88';
+      document.getElementById('test-cookie').textContent = document.cookie;
+    </script>
+  </body>
+</html>

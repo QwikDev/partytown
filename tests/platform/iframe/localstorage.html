@@ -1,0 +1,25 @@
+<html>
+  <head>
+    <style>
+      body {
+        background-color: skyblue;
+        margin: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <span>iframe origin:</span>
+      <span id="iframe-origin"></span>
+    </div>
+    <div>
+      <span>localStorage value:</span>
+      <span id="test-localstorage"></span>
+    </div>
+    <script>
+      document.getElementById('iframe-origin').textContent = window.origin;
+      window.localStorage.setItem('bar', '88');
+      document.getElementById('test-localstorage').textContent = window.localStorage.getItem('bar');
+    </script>
+  </body>
+</html>

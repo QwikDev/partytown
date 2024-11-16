@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Partytown Test Page" />
+  <title>Iframe origin</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif,
+        Apple Color Emoji, Segoe UI Emoji;
+      font-size: 12px;
+    }
+
+    h1 {
+      margin: 0 0 15px 0;
+    }
+
+    ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    a {
+      display: block;
+      padding: 16px 8px;
+    }
+
+    a:link,
+    a:visited {
+      text-decoration: none;
+      color: blue;
+    }
+
+    a:hover {
+      background-color: #eee;
+    }
+
+    li {
+      display: block;
+      height: 80px;
+    }
+
+    li strong,
+    li code,
+    li button {
+      white-space: nowrap;
+      margin: 0 5px;
+      min-width: 10px;
+    }
+
+    iframe {
+      width: 100%;
+      height: 36px;
+      border: none;
+    }
+  </style>
+  <script>
+    window.name = 'Main';
+  </script>
+  <script>
+    partytown = {
+      logCalls: true,
+      logGetters: true,
+      logSetters: true,
+      logImageRequests: true,
+      logSendBeaconRequests: true,
+      logStackTraces: false,
+      logScriptExecution: true,
+    };
+  </script>
+  <script src="/~partytown/debug/partytown.js"></script>
+</head>
+
+<body>
+  <h1>Iframe cookie & localStorage</h1>
+  <ul>
+    <li>
+      <strong>Same origin cookie set/get</strong>
+      <button id="sameOriginCookieButton">Create iframe</button>
+      <code id="testSameOriginCookie"></code>
+      <script type="text/partytown">
+        (function () {
+          const btn = document.getElementById('sameOriginCookieButton');
+          btn.addEventListener('click', function (ev) {
+            const elm = document.getElementById('testSameOriginCookie');
+            const iframe = document.createElement('iframe');
+            iframe.id = 'iframe-same-origin-cookie';
+            iframe.style.height = '60px';
+            const url = new URL('/tests/platform/iframe/cookie.html', location.origin);
+            iframe.src = url.href;
+            elm.parentNode.appendChild(iframe);
+          });
+        })();
+      </script>
+    </li>
+
+    <li>
+      <strong>Same origin localStorage set/get</strong>
+      <button id="sameOriginLocalStorageButton">Create iframe</button>
+      <code id="testSameOriginLocalStorage"></code>
+      <script type="text/partytown">
+        (function () {
+          const btn = document.getElementById('sameOriginLocalStorageButton');
+          btn.addEventListener('click', function (ev) {
+            const elm = document.getElementById('testSameOriginLocalStorage');
+            const iframe = document.createElement('iframe');
+            iframe.id = 'iframe-same-origin-localstorage';
+            iframe.style.height = '60px';
+            const url = new URL('/tests/platform/iframe/localstorage.html', location.origin);
+            iframe.src = url.href;
+            elm.parentNode.appendChild(iframe);
+          });
+        })();
+      </script>
+    </li>
+
+    <li>
+      <strong>Cross origin cookie set/get</strong>
+      <button id="crossOriginCookieButton">Create iframe</button>
+      <code id="testCrossOriginCookie"></code>
+      <script type="text/partytown">
+        (function () {
+          const btn = document.getElementById('crossOriginCookieButton');
+          btn.addEventListener('click', function (ev) {
+            const url = new URL('/tests/platform/iframe/cookie.html', location.origin);
+            fetch(url)
+              .then(response => response.text())
+              .then(htmlContent => {
+                // simulating cross origin iframe by using a datauri
+                // which won't have the same origin
+                const dataUri = `data:text/html;base64,${btoa(htmlContent)}`;
+                const elm = document.getElementById('testCrossOriginCookie');
+                const iframe = document.createElement('iframe');
+                iframe.id = 'iframe-cross-origin-cookie';
+                iframe.style.height = '60px';
+                iframe.src = dataUri;
+                elm.parentNode.appendChild(iframe);
+              });
+          });
+        })();
+      </script>
+    </li>
+
+    <li>
+      <strong>Cross origin localStorage set/get</strong>
+      <button id="crossOriginLocalStorageButton">Create iframe</button>
+      <code id="testCrossOriginLocalStorage"></code>
+      <script type="text/partytown">
+        (function () {
+          const btn = document.getElementById('crossOriginLocalStorageButton');
+          btn.addEventListener('click', function (ev) {
+            const url = new URL('/tests/platform/iframe/localstorage.html', location.origin);
+            fetch(url)
+              .then(response => response.text())
+              .then(htmlContent => {
+                // simulating cross origin iframe by using a datauri
+                // which won't have the same origin
+                const dataUri = `data:text/html;base64,${btoa(htmlContent)}`;
+                const elm = document.getElementById('testCrossOriginLocalStorage');
+                const iframe = document.createElement('iframe');
+                iframe.id = 'iframe-cross-origin-localstorage';
+                iframe.style.height = '60px';
+                iframe.src = dataUri;
+                elm.parentNode.appendChild(iframe);
+              });
+          });
+        })();
+      </script>
+    </li>
+  </ul>
+
+  <script type="text/partytown">
+    (function () {
+      document.body.classList.add('completed');
+    })();
+  </script>
+  <hr />
+  <p><a href="/tests/">All Tests</a></p>
+</body>
+
+</html>

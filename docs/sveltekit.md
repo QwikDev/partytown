@@ -24,7 +24,7 @@ const config = {
   plugins: [
     sveltekit(),
     partytownVite({
-      dest: join(__dirname, 'dist', '~partytown'),
+      dest: join(__dirname, 'static', '~partytown'),
     }),
   ],
 };

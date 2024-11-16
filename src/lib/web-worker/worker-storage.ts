@@ -6,12 +6,11 @@ import { warnCrossOrigin } from '../log';
 export const addStorageApi = (
   win: any,
   storageName: 'localStorage' | 'sessionStorage',
-  isSameOrigin: boolean,
   env: WebWorkerEnvironment
 ) => {
   let storage: Storage = {
     getItem(key) {
-      if (isSameOrigin) {
+      if (env.$isSameOrigin$) {
         return callMethod(win, [storageName, 'getItem'], [key], CallType.Blocking);
       } else {
         warnCrossOrigin('get', storageName, env);
@@ -19,7 +18,7 @@ export const addStorageApi = (
     },
 
     setItem(key, value) {
-      if (isSameOrigin) {
+      if (env.$isSameOrigin$) {
         callMethod(win, [storageName, 'setItem'], [key, value], CallType.Blocking);
       } else {
         warnCrossOrigin('set', storageName, env);
@@ -27,7 +26,7 @@ export const addStorageApi = (
     },
 
     removeItem(key) {
-      if (isSameOrigin) {
+      if (env.$isSameOrigin$) {
         callMethod(win, [storageName, 'removeItem'], [key], CallType.Blocking);
       } else {
         warnCrossOrigin('remove', storageName, env);
@@ -35,7 +34,7 @@ export const addStorageApi = (
     },
 
     key(index) {
-      if (isSameOrigin) {
+      if (env.$isSameOrigin$) {
         return callMethod(win, [storageName, 'key'], [index], CallType.Blocking);
       } else {
         warnCrossOrigin('key', storageName, env);
@@ -43,7 +42,7 @@ export const addStorageApi = (
     },
 
     clear() {
-      if (isSameOrigin) {
+      if (env.$isSameOrigin$) {
         callMethod(win, [storageName, 'clear'], EMPTY_ARRAY, CallType.Blocking);
       } else {
         warnCrossOrigin('clear', storageName, env);
@@ -51,7 +50,7 @@ export const addStorageApi = (
     },
 
     get length() {
-      if (isSameOrigin) {
+      if (env.$isSameOrigin$) {
         return getter(win, [storageName, 'length']);
       } else {
         warnCrossOrigin('length', storageName, env);

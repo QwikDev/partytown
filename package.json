@@ -1,6 +1,6 @@
 {
   "name": "@builder.io/partytown",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "Relocate resource intensive third-party scripts off of the main thread and into a web worker.",
   "license": "MIT",
   "main": "index.cjs",
@@ -10,7 +10,7 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "pnpm@8.12.1",
+  "packageManager": "pnpm@9.0.5",
   "exports": {
     "./integration": {
       "types": "./integration/index.d.ts",

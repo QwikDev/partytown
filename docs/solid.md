@@ -4,7 +4,13 @@ title: Solid
 
 To setup Partytown in an Solid project take the following steps.
 
-## Installation
+## Install
+
+```bash
+npm install @builder.io/partytown
+yarn add @builder.io/partytown
+pnpm install @builder.io/partytown
+```
 
 Use your favorite package manager to install `@builder.io/partytown` dependency and
 copy the Partytown files to the local filesystem using the Vite plugin.
