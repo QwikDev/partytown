@@ -13,10 +13,10 @@ import { HTMLSrcElementDescriptorMap } from './worker-src-element';
 import { setInstanceStateValue, getInstanceStateValue } from './worker-state';
 import {
   StateProp,
-  WebWorkerEnvironment,
-  WorkerInstance,
+  type WebWorkerEnvironment,
+  type WorkerInstance,
   WorkerMessageType,
-  WorkerNode,
+  type WorkerNode,
 } from '../types';
 
 export const patchHTMLIFrameElement = (WorkerHTMLIFrameElement: any, env: WebWorkerEnvironment) => {

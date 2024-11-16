@@ -1,6 +1,6 @@
 import type { RollupOptions } from 'rollup';
 import {
-  BuildOptions,
+  type BuildOptions,
   fileSize,
   jsBannerPlugin,
   syncCommunicationModulesPlugin,

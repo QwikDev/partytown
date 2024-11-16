@@ -1,4 +1,4 @@
-import { BuildOptions, submodulePackageJson, submodulePath } from './utils.js';
+import { type BuildOptions, submodulePackageJson, submodulePath } from './utils.js';
 import { join } from 'node:path';
 import type { RollupOptions } from 'rollup';
 

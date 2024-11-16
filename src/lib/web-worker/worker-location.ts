@@ -1,4 +1,4 @@
-import { LocationUpdateData, LocationUpdateType, WebWorkerEnvironment } from '../types';
+import { type LocationUpdateData, LocationUpdateType, type WebWorkerEnvironment } from '../types';
 
 export function forwardLocationChange(
   $winId$: number,

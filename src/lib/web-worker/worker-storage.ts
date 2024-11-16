@@ -1,5 +1,5 @@
 import { callMethod, getter } from './worker-proxy';
-import { CallType, WebWorkerEnvironment } from '../types';
+import { CallType, type WebWorkerEnvironment } from '../types';
 import { EMPTY_ARRAY } from '../utils';
 import { warnCrossOrigin } from '../log';
 

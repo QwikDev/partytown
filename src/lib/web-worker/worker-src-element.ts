@@ -1,6 +1,6 @@
 import { callMethod } from './worker-proxy';
 import { commaSplit } from './worker-constants';
-import { EventHandler, StateProp, WorkerNode } from '../types';
+import { type EventHandler, StateProp, type WorkerNode } from '../types';
 import { getInstanceStateValue, setInstanceStateValue } from './worker-state';
 import { noop } from '../utils';
 
