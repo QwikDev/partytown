@@ -8,6 +8,8 @@ The Next.js setup is largely the same as the [React integration guide](/react), 
 
 The Next.js `<Script/>` component provides an experimental `worker` strategy, which uses Partytown under-the-hood. Please see the Next.js [Script documentation](https://nextjs.org/docs/api-reference/next/script#worker) for more information.
 
+> Note: The `worker` strategy is currently unsupported with the Next.js 13+ `app` directory.
+
 --- 
 > Below are the instructions if you are not using the experimental [Worker Strategy](#worker-strategy).
 
