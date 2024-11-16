@@ -1,11 +1,11 @@
 import {
-  ApplyPath,
+  type ApplyPath,
   CallType,
-  InstanceId,
+  type InstanceId,
   InterfaceType,
   NodeName,
-  WebWorkerEnvironment,
-  WinId,
+  type WebWorkerEnvironment,
+  type WinId,
 } from './types';
 import {
   ApplyPathKey,
