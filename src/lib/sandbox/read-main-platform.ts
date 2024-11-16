@@ -79,7 +79,15 @@ export const readMainInterfaces = () => {
   // and create each element to get their implementation
   const elms = Object.getOwnPropertyNames(mainWindow)
     .map((interfaceName) => createElementFromConstructor(docImpl, interfaceName))
-    .filter((elm) => elm)
+    .filter((elm) => {
+      if (!elm) {
+        return false;
+      }
+      const constructorName = getConstructorName(elm);
+      return !(
+        constructorName === 'HTMLUnknownElement' && elm.nodeName.toUpperCase() !== 'UNKNOWN'
+      );
+    })
     .map((elm) => [elm]);
 
   return readImplementations(elms, []);
