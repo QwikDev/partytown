@@ -148,13 +148,13 @@ export const run = (env: WebWorkerEnvironment, scriptContent: string, scriptUrl?
   env.$runWindowLoadEvent$ = 1;
 
   // First we want to replace all `this` symbols
-  let sourceWithReplacedThis = replaceThisInSource(scriptContent, '(thi$(this)?window:this)');
+  let sourceWithReplacedThis = replaceThisInSource(scriptContent, 'getThi$(this)');
 
   scriptContent =
     `with(this){${sourceWithReplacedThis.replace(
       /\/\/# so/g,
       '//Xso'
-    )}\n;function thi$(t){return t===this}};${(webWorkerCtx.$config$.globalFns || [])
+    )}\n;function getThi$(t){return t===this?window:this}};${(webWorkerCtx.$config$.globalFns || [])
       .filter((globalFnName) => /[a-zA-Z_$][0-9a-zA-Z_$]*/.test(globalFnName))
       .map((g) => `(typeof ${g}=='function'&&(this.${g}=${g}))`)
       .join(';')};` + (scriptUrl ? '\n//# sourceURL=' + scriptUrl : '');
