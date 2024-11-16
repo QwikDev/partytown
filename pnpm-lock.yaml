@@ -12,8 +12,8 @@ importers:
         specifier: ^7.19.5
         version: 7.38.0(@types/node@18.18.4)
       '@playwright/test':
-        specifier: ^1.17.1
-        version: 1.39.0
+        specifier: ^1.48.2
+        version: 1.48.2
       '@rollup/plugin-terser':
         specifier: ^0.4.3
         version: 0.4.4(rollup@3.29.4)
@@ -139,9 +139,9 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@playwright/test@1.39.0':
-    resolution: {integrity: sha512-3u1iFqgzl7zr004bGPYiN/5EZpRUSFddQBra8Rqll5N0/vfpqlP9I9EXqAoGacuAbX6c9Ulg/Cjqglp5VkK6UQ==}
-    engines: {node: '>=16'}
+  '@playwright/test@1.48.2':
+    resolution: {integrity: sha512-54w1xCWfXuax7dz4W2M9uw0gDyh+ti/0K/MxcCUxChFh37kkdxPdfZDw5QBbuPUJHr1CiHJ1hXgSs+GgeQc5Zw==}
+    engines: {node: '>=18'}
     hasBin: true
 
   '@rollup/plugin-terser@0.4.4':
@@ -1422,19 +1422,9 @@ packages:
     resolution: {integrity: sha512-NPE8TDbzl/3YQYY7CSS228s3g2ollTFnc+Qi3tqmqJp9Vg2ovUpixcJEo2HJScN2Ez+kEaal6y70c0ehqJBJeA==}
     engines: {node: '>=10'}
 
-  playwright-core@1.39.0:
-    resolution: {integrity: sha512-+k4pdZgs1qiM+OUkSjx96YiKsXsmb59evFoqv8SKO067qBA+Z2s/dCzJij/ZhdQcs2zlTAgRKfeiiLm8PQ2qvw==}
-    engines: {node: '>=16'}
-    hasBin: true
-
   playwright-core@1.48.2:
     resolution: {integrity: sha512-sjjw+qrLFlriJo64du+EK0kJgZzoQPsabGF4lBvsid+3CNIZIYLgnMj9V6JY5VhM2Peh20DJWIVpVljLLnlawA==}
     engines: {node: '>=18'}
-    hasBin: true
-
-  playwright@1.39.0:
-    resolution: {integrity: sha512-naE5QT11uC/Oiq0BwZ50gDmy8c8WLPRTEWuSSFVG2egBka/1qMoSqYQcROMT9zLwJ86oPofcTH2jBY/5wWOgIw==}
-    engines: {node: '>=16'}
     hasBin: true
 
   playwright@1.48.2:
@@ -2012,9 +2002,9 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.15.0
 
-  '@playwright/test@1.39.0':
+  '@playwright/test@1.48.2':
     dependencies:
-      playwright: 1.39.0
+      playwright: 1.48.2
 
   '@rollup/plugin-terser@0.4.4(rollup@3.29.4)':
     dependencies:
@@ -3279,15 +3269,7 @@ snapshots:
     dependencies:
       find-up: 5.0.0
 
-  playwright-core@1.39.0: {}
-
   playwright-core@1.48.2: {}
-
-  playwright@1.39.0:
-    dependencies:
-      playwright-core: 1.39.0
-    optionalDependencies:
-      fsevents: 2.3.2
 
   playwright@1.48.2:
     dependencies:
