@@ -50,11 +50,7 @@ Adapting from [the HTML integration guide](https://partytown.builder.io/html)
 
 ## 3. Then add 3rd party scripts
 
-This is where we use partytown to add those scripts (note `type="text/partytown"` below). If your script declares global functions or variables, make sure they are explicitly declared with `window` and forwarded to the web worker.
-
-This example shows Google Tag Manager. Note `window.gtag = function()` instead of `function gtag()`.
-
-Putting it together with the previous changes, our `+layout.svelte` looks like:
+This is where we use partytown to add those scripts (note `type="text/partytown"` below). This example shows Google Tag Manager. Putting it together with the previous changes, our `+layout.svelte` looks like:
 
 ```svelte
 // src/routes/+layout.svelte
@@ -69,7 +65,7 @@ Putting it together with the previous changes, our `+layout.svelte` looks like:
 	<script>
 		// Forward the necessary functions to the web worker layer
 		partytown = {
-			forward: ['dataLayer.push', 'gtag']
+			forward: ['dataLayer.push']
 		};
 	</script>
 
@@ -78,7 +74,7 @@ Putting it together with the previous changes, our `+layout.svelte` looks like:
 	<script type="text/partytown" src="https://www.googletagmanager.com/gtag/js?id=G-ZX7H2KPXNZ"></script>
 	<script type="text/partytown">
 		window.dataLayer = window.dataLayer || [];
-		window.gtag = function(){dataLayer.push(arguments);}
+		function gtag(){dataLayer.push(arguments);}
 		gtag('js', new Date());
 		gtag('config', 'G-ZX7H2KPXNZ');
 	</script>

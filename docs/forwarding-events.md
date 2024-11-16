@@ -28,18 +28,6 @@ However, since GTM and Facebook Pixel were actually loaded in the web worker, th
 
 Notice the forward configs are just strings, not actual objects. We're using strings here so we can easily serialize what service variable was called, along with the function argument values. When the web worker receives the information, it then knows how to correctly apply the call and arguments that were fired from the main thread.
 
-If your script declares global functions or variables, make sure they are explicitly declared with `window` and forwarded to the web worker. This example shows the gtag function from Google Tag Manager. Note `window.gtag = function gtag()` instead of `function gtag()`.
-
-```html
-<script>
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'YOUR-ID-HERE');
-</script>
-```
-
 You can customize each forwarded variable with the following settings:
 
 - ### preserveBehavior
