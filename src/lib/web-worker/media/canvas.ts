@@ -8,7 +8,12 @@ import {
   randomId,
 } from './bridge';
 import { ContextKey, defineCstr, notImpl } from './utils';
-import { CallType, WorkerConstructor, WorkerInstance, WorkerWindow } from '../../types';
+import {
+  CallType,
+  type WorkerConstructor,
+  type WorkerInstance,
+  type WorkerWindow,
+} from '../../types';
 
 export const initCanvas = (WorkerBase: WorkerConstructor, win: WorkerWindow) => {
   const HTMLCanvasDescriptorMap: PropertyDescriptorMap & ThisType<Node> = {

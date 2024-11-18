@@ -1,1 +1,2 @@
-export { Partytown, PartytownProps } from './snippet';
+export { Partytown } from './snippet';
+export type { PartytownProps } from './snippet';

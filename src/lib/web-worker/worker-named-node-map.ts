@@ -1,10 +1,10 @@
 import {
-  ApplyPath,
+  type ApplyPath,
   CallType,
-  InstanceId,
-  WinId,
-  WorkerConstructor,
-  WorkerInstance,
+  type InstanceId,
+  type WinId,
+  type WorkerConstructor,
+  type WorkerInstance,
 } from '../types';
 import { defineConstructorName } from '../utils';
 import { callMethod, getter, setter } from './worker-proxy';

@@ -1,17 +1,17 @@
 import { addStorageApi } from './worker-storage';
 import {
-  ApplyPath,
+  type ApplyPath,
   CallType,
-  InstanceId,
+  type InstanceId,
   InterfaceType,
   NodeName,
-  WebWorkerEnvironment,
+  type WebWorkerEnvironment,
   WinDocId,
-  WinId,
-  WorkerInstance,
-  WorkerNode,
-  WorkerNodeConstructors,
-  WorkerWindow,
+  type WinId,
+  type WorkerInstance,
+  type WorkerNode,
+  type WorkerNodeConstructors,
+  type WorkerWindow,
 } from '../types';
 import {
   ABOUT_BLANK,

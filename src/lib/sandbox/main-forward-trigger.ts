@@ -4,7 +4,7 @@ import {
   len,
   resolvePartytownForwardProperty,
 } from '../utils';
-import { MainWindow, PartytownWebWorker, WinId, WorkerMessageType } from '../types';
+import { type MainWindow, type PartytownWebWorker, type WinId, WorkerMessageType } from '../types';
 import { serializeForWorker } from './main-serialization';
 
 export const mainForwardTrigger = (worker: PartytownWebWorker, $winId$: WinId, win: MainWindow) => {

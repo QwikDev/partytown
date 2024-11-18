@@ -1,8 +1,8 @@
 import {
-  MainAccessRequest,
-  MessageFromWorkerToSandbox,
-  Messenger,
-  PartytownWebWorker,
+  type MainAccessRequest,
+  type MessageFromWorkerToSandbox,
+  type Messenger,
+  type PartytownWebWorker,
   WorkerMessageType,
 } from '../types';
 import { onMessageFromWebWorker } from '../sandbox/on-messenge-from-worker';

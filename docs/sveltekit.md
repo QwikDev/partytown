@@ -73,12 +73,12 @@ Putting it together with the previous changes, our `+layout.svelte` looks like:
 
 	{@html '<script>' + partytownSnippet() + '</script>'}
 
-	<script type="text/partytown" src="https://www.googletagmanager.com/gtag/js?id=G-ZX7H2KPXNZ"></script>
+	<script type="text/partytown" src="https://www.googletagmanager.com/gtag/js?id=YOUR-ID-HERE"></script>
 	<script type="text/partytown">
 		window.dataLayer = window.dataLayer || [];
 		window.gtag = function(){dataLayer.push(arguments);}
 		gtag('js', new Date());
-		gtag('config', 'G-ZX7H2KPXNZ');
+		gtag('config', 'YOUR-ID-HERE');
 	</script>
 </svelte:head>
 ```

@@ -3,7 +3,7 @@ import { definePrototypePropertyDescriptor, isValidUrl } from '../utils';
 import { getInstanceStateValue, setInstanceStateValue } from './worker-state';
 import { getter, setter } from './worker-proxy';
 import { resolveToUrl } from './worker-exec';
-import { StateProp, WebWorkerEnvironment, WorkerNode } from '../types';
+import { StateProp, type WebWorkerEnvironment, type WorkerNode } from '../types';
 
 export const patchHTMLAnchorElement = (WorkerHTMLAnchorElement: any, env: WebWorkerEnvironment) => {
   const HTMLAnchorDescriptorMap: PropertyDescriptorMap & ThisType<WorkerNode> = {};

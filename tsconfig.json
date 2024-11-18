@@ -5,7 +5,7 @@
     "module": "ES2020",
     "lib": ["es2020", "DOM", "WebWorker"],
     "strict": true,
-    "importsNotUsedAsValues": "error",
+    "verbatimModuleSyntax": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
     "outDir": "tsc",

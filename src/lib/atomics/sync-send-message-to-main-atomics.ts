@@ -1,7 +1,7 @@
 import {
-  MainAccessRequest,
-  MainAccessResponse,
-  WebWorkerContext,
+  type MainAccessRequest,
+  type MainAccessResponse,
+  type WebWorkerContext,
   WorkerMessageType,
 } from '../types';
 
