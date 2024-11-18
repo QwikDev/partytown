@@ -1,6 +1,6 @@
 import { cachedDimensions } from './worker-constants';
 import { callMethod, getter } from './worker-proxy';
-import { CallType, StateProp, WorkerNode } from '../types';
+import { CallType, StateProp, type WorkerNode } from '../types';
 import { defineConstructorName, definePrototypePropertyDescriptor } from '../utils';
 import { getInstanceStateValue, setInstanceStateValue } from './worker-state';
 import { logDimensionCacheClearMethod } from '../log';

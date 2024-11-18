@@ -1,5 +1,5 @@
 import type { OutputOptions, RollupOptions } from 'rollup';
-import { BuildOptions, fileSize, jsBannerPlugin, versionPlugin, watchDir } from './utils.js';
+import { type BuildOptions, fileSize, jsBannerPlugin, versionPlugin, watchDir } from './utils.js';
 import { join } from 'node:path';
 import { minifyPlugin } from './minify.js';
 

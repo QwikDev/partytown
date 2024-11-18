@@ -1,9 +1,9 @@
-import { OutputOptions, Plugin, rollup, RollupOptions } from 'rollup';
+import { type OutputOptions, type Plugin, rollup, type RollupOptions } from 'rollup';
 import {
-  BuildOptions,
+  type BuildOptions,
   fileSize,
   jsBannerPlugin,
-  MessageType,
+  type MessageType,
   onwarn,
   syncCommunicationModulesPlugin,
   versionPlugin,

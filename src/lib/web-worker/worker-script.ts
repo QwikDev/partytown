@@ -3,7 +3,7 @@ import { getInstanceStateValue, setInstanceStateValue } from './worker-state';
 import { getter, setter } from './worker-proxy';
 import { HTMLSrcElementDescriptorMap } from './worker-src-element';
 import { resolveUrl } from './worker-exec';
-import { StateProp, WebWorkerEnvironment, WorkerNode } from '../types';
+import { StateProp, type WebWorkerEnvironment, type WorkerNode } from '../types';
 import { webWorkerCtx } from './worker-constants';
 
 export const patchHTMLScriptElement = (WorkerHTMLScriptElement: any, env: WebWorkerEnvironment) => {

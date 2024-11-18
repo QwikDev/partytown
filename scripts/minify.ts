@@ -1,4 +1,4 @@
-import terser, { Options } from '@rollup/plugin-terser';
+import terser, { type Options } from '@rollup/plugin-terser';
 import type { Plugin } from 'rollup';
 import type { BuildOptions } from './utils';
 

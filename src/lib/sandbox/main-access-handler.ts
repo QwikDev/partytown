@@ -1,11 +1,11 @@
 import {
-  ApplyPath,
+  type ApplyPath,
   ApplyPathType,
-  MainAccessRequest,
-  MainAccessResponse,
-  MainAccessTask,
-  PartytownWebWorker,
-  WinId,
+  type MainAccessRequest,
+  type MainAccessResponse,
+  type MainAccessTask,
+  type PartytownWebWorker,
+  type WinId,
 } from '../types';
 import { debug, getConstructorName, isPromise, len } from '../utils';
 import { defineCustomElement } from './main-custom-element';

@@ -1,9 +1,9 @@
 import { debug } from '../utils';
 import { logMain, normalizedWinId } from '../log';
 import {
-  MainWindow,
-  PartytownWebWorker,
-  WinId,
+  type MainWindow,
+  type PartytownWebWorker,
+  type WinId,
   WorkerMessageType,
   LocationUpdateType,
 } from '../types';
