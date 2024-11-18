@@ -4,10 +4,10 @@ import {
   CallType,
   NodeName,
   StateProp,
-  WebWorkerEnvironment,
-  WorkerConstructor,
+  type WebWorkerEnvironment,
+  type WorkerConstructor,
   WorkerMessageType,
-  WorkerNode,
+  type WorkerNode,
 } from '../types';
 import {
   commaSplit,

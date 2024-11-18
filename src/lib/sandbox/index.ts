@@ -4,9 +4,9 @@ import { libPath, mainWindow } from './main-globals';
 import { logMain } from '../log';
 import { mainAccessHandler } from './main-access-handler';
 import {
-  MessageFromWorkerToSandbox,
-  MessengerRequestCallback,
-  PartytownWebWorker,
+  type MessageFromWorkerToSandbox,
+  type MessengerRequestCallback,
+  type PartytownWebWorker,
   WorkerMessageType,
 } from '../types';
 import { registerWindow } from './main-register-window';

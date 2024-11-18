@@ -12,8 +12,8 @@ importers:
         specifier: ^7.19.5
         version: 7.38.0(@types/node@18.18.4)
       '@playwright/test':
-        specifier: ^1.17.1
-        version: 1.39.0
+        specifier: ^1.48.2
+        version: 1.48.2
       '@rollup/plugin-terser':
         specifier: ^0.4.3
         version: 0.4.4(rollup@3.29.4)
@@ -42,8 +42,8 @@ importers:
         specifier: ^7.6.1
         version: 7.7.0
       playwright:
-        specifier: ^1.17.2
-        version: 1.39.0
+        specifier: ^1.48.2
+        version: 1.48.2
       prettier:
         specifier: ^2.6.0
         version: 2.8.8
@@ -57,8 +57,8 @@ importers:
         specifier: ^2.2.1
         version: 2.3.0
       typescript:
-        specifier: ^4.6.2
-        version: 4.9.5
+        specifier: ^5.6.3
+        version: 5.6.3
       uvu:
         specifier: ^0.5.3
         version: 0.5.6
@@ -139,9 +139,9 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@playwright/test@1.39.0':
-    resolution: {integrity: sha512-3u1iFqgzl7zr004bGPYiN/5EZpRUSFddQBra8Rqll5N0/vfpqlP9I9EXqAoGacuAbX6c9Ulg/Cjqglp5VkK6UQ==}
-    engines: {node: '>=16'}
+  '@playwright/test@1.48.2':
+    resolution: {integrity: sha512-54w1xCWfXuax7dz4W2M9uw0gDyh+ti/0K/MxcCUxChFh37kkdxPdfZDw5QBbuPUJHr1CiHJ1hXgSs+GgeQc5Zw==}
+    engines: {node: '>=18'}
     hasBin: true
 
   '@rollup/plugin-terser@0.4.4':
@@ -1422,14 +1422,14 @@ packages:
     resolution: {integrity: sha512-NPE8TDbzl/3YQYY7CSS228s3g2ollTFnc+Qi3tqmqJp9Vg2ovUpixcJEo2HJScN2Ez+kEaal6y70c0ehqJBJeA==}
     engines: {node: '>=10'}
 
-  playwright-core@1.39.0:
-    resolution: {integrity: sha512-+k4pdZgs1qiM+OUkSjx96YiKsXsmb59evFoqv8SKO067qBA+Z2s/dCzJij/ZhdQcs2zlTAgRKfeiiLm8PQ2qvw==}
-    engines: {node: '>=16'}
+  playwright-core@1.48.2:
+    resolution: {integrity: sha512-sjjw+qrLFlriJo64du+EK0kJgZzoQPsabGF4lBvsid+3CNIZIYLgnMj9V6JY5VhM2Peh20DJWIVpVljLLnlawA==}
+    engines: {node: '>=18'}
     hasBin: true
 
-  playwright@1.39.0:
-    resolution: {integrity: sha512-naE5QT11uC/Oiq0BwZ50gDmy8c8WLPRTEWuSSFVG2egBka/1qMoSqYQcROMT9zLwJ86oPofcTH2jBY/5wWOgIw==}
-    engines: {node: '>=16'}
+  playwright@1.48.2:
+    resolution: {integrity: sha512-NjYvYgp4BPmiwfe31j4gHLa3J7bD2WiBz8Lk2RoSsmX38SVIARZ18VYjxLjAcDsAhA+F4iSEXTSGgjua0rrlgQ==}
+    engines: {node: '>=18'}
     hasBin: true
 
   prepend-http@2.0.0:
@@ -1798,14 +1798,14 @@ packages:
   typedarray-to-buffer@3.1.5:
     resolution: {integrity: sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==}
 
-  typescript@4.9.5:
-    resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
-    engines: {node: '>=4.2.0'}
-    hasBin: true
-
   typescript@5.0.4:
     resolution: {integrity: sha512-cW9T5W9xY37cc+jfEnaUvX91foxtHkza3Nw3wkoF4sSlKn0MONdkdEndig/qPBWXNkmplh3NzayQzCiHM4/hqw==}
     engines: {node: '>=12.20'}
+    hasBin: true
+
+  typescript@5.6.3:
+    resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
+    engines: {node: '>=14.17'}
     hasBin: true
 
   unique-string@2.0.0:
@@ -2002,20 +2002,20 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.15.0
 
-  '@playwright/test@1.39.0':
+  '@playwright/test@1.48.2':
     dependencies:
-      playwright: 1.39.0
+      playwright: 1.48.2
 
   '@rollup/plugin-terser@0.4.4(rollup@3.29.4)':
     dependencies:
-      rollup: 3.29.4
       serialize-javascript: 6.0.1
       smob: 1.4.1
       terser: 5.21.0
+    optionalDependencies:
+      rollup: 3.29.4
 
   '@rushstack/node-core-library@3.61.0(@types/node@18.18.4)':
     dependencies:
-      '@types/node': 18.18.4
       colors: 1.2.5
       fs-extra: 7.0.1
       import-lazy: 4.0.0
@@ -2023,6 +2023,8 @@ snapshots:
       resolve: 1.22.8
       semver: 7.5.4
       z-schema: 5.0.5
+    optionalDependencies:
+      '@types/node': 18.18.4
 
   '@rushstack/rig-package@0.5.1':
     dependencies:
@@ -2039,6 +2041,7 @@ snapshots:
   '@samverschueren/stream-to-observable@0.3.1(rxjs@6.6.7)':
     dependencies:
       any-observable: 0.3.0(rxjs@6.6.7)
+    optionalDependencies:
       rxjs: 6.6.7
     transitivePeerDependencies:
       - zenObservable
@@ -2146,11 +2149,11 @@ snapshots:
       color-convert: 2.0.1
 
   any-observable@0.3.0(rxjs@6.6.7):
-    dependencies:
+    optionalDependencies:
       rxjs: 6.6.7
 
   any-observable@0.5.1(rxjs@6.6.7):
-    dependencies:
+    optionalDependencies:
       rxjs: 6.6.7
 
   argparse@1.0.10:
@@ -3266,11 +3269,11 @@ snapshots:
     dependencies:
       find-up: 5.0.0
 
-  playwright-core@1.39.0: {}
+  playwright-core@1.48.2: {}
 
-  playwright@1.39.0:
+  playwright@1.48.2:
     dependencies:
-      playwright-core: 1.39.0
+      playwright-core: 1.48.2
     optionalDependencies:
       fsevents: 2.3.2
 
@@ -3592,9 +3595,9 @@ snapshots:
     dependencies:
       is-typedarray: 1.0.0
 
-  typescript@4.9.5: {}
-
   typescript@5.0.4: {}
+
+  typescript@5.6.3: {}
 
   unique-string@2.0.0:
     dependencies:

@@ -1,4 +1,4 @@
-import { BuildOptions, fileSize, jsBannerPlugin, versionPlugin } from './utils.js';
+import { type BuildOptions, fileSize, jsBannerPlugin, versionPlugin } from './utils.js';
 import { join } from 'node:path';
 import { minifyPlugin } from './minify.js';
 import type { OutputOptions, Plugin, RollupOptions } from 'rollup';

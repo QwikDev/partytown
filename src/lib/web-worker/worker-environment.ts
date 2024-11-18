@@ -1,7 +1,7 @@
 import { createWindow } from './worker-window';
 import { debug } from '../utils';
 import { environments, webWorkerCtx } from './worker-constants';
-import { InitializeEnvironmentData, WorkerMessageType } from '../types';
+import { type InitializeEnvironmentData, WorkerMessageType } from '../types';
 import { logWorker, normalizedWinId } from '../log';
 
 export const createEnvironment = (
