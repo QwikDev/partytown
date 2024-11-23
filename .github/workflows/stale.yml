@@ -15,10 +15,9 @@ jobs:
           days-before-stale: 240       # 8 months
           days-before-close: 0         # Close immediately when marked as stale
           stale-issue-message: >
-            This issue has been automatically marked as stale and closed because it has not had
-            recent activity for 8 months, date of the latest version.
+            This issue was automatically marked as deprecated and closed because it was not detected
+            recent activity for 8 months, date of latest version.
             If this issue is still relevant, feel free to comment below and the maintainers will reopen it.
-            
             Thank you for your contributions.
           close-issue-message: ''      # No close message needed since we're closing immediately
           stale-issue-label: 'stale'
