@@ -1,7 +1,7 @@
 name: Close Stale Issues
 
 on:
-  workflow_dispatch:  
+  workflow_dispatch:
 
 jobs:
   close-stale-issues:
@@ -12,13 +12,15 @@ jobs:
     steps:
       - uses: actions/stale@v9
         with:
-          days-before-stale: 240       # 8 months
-          days-before-close: 0         # Close immediately when marked as stale
+          days-before-stale: 240 # 8 months
+          days-before-close: 0 # Close immediately when marked as stale
           stale-issue-message: >
+            Partytown moves to QwikDev organization, this is a new beginning for the project.
+            So it's time to clarify the status and clean up the current state a bit.
             This issue was automatically marked as deprecated and closed because it was not detected
             recent activity for 8 months, date of latest version.
             If this issue is still relevant, feel free to comment below and the maintainers will reopen it.
             Thank you for your contributions.
-          close-issue-message: ''      # No close message needed since we're closing immediately
+          close-issue-message: ''
           stale-issue-label: 'stale'
           exempt-issue-labels: 'pinned,security'
