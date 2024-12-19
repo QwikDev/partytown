@@ -70,6 +70,55 @@ The same pages found in `tests` are deployed to:
 
 https://partytown.qwik.dev/
 
+
+## Contributing a Pull Request (PR)? Please add a changeset
+
+
+For your convenience, we prepared a video tutorial that covers the process of adding a changeset:
+
+[📽 TUTORIAL: Adding a changeset](https://go.screenpal.com/watch/cZivIcVPJQV)
+
+**1.** Run the following command to create a changeset:
+
+```shell
+pnpm change
+```
+
+**2.** Choose the packages that should be included in the changeset
+
+**3** Choose the specific type of change
+
+(hit `Enter` if you need to skip to the next option)
+
+- `major` for breaking changes
+- `minor` for new features
+- `patch` for bug fixes
+
+**4.** Prefix your change title with one of these:
+
+- `FEAT:` or `feat:` for features
+- `FIX:` or `fix:` for bug fixes
+- `DOCS` or `docs:` for documentation
+
+**5.** Modify the created MD file
+
+After the `change` command runs, a new MD file will be created under the `.changeset` folder.
+
+Please modify this file to include a descriptive message of the changes you made.
+
+You can even add code examples if you need do, to describe a new feature for example. (pun intended 😉)
+
+The prefix and this elaborated description will be used to create the changelog files and release notes, so please give them love. 💗😊
+
+---
+
+#### ❓ "What if my PR is not a significant change?"
+
+If you made small changes like fixing typos, CI config, prettier, etc, you can run `pnpm change add --empty` to generate an empty changeset file to document
+your changes.
+
+---
+
 ## Publishing
 
 ```

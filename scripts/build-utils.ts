@@ -17,12 +17,7 @@ export function buildUtils(opts: BuildOptions): RollupOptions {
     ],
     external: ['fs', 'path', 'url', 'util'],
     plugins: [
-      submodulePackageJson(
-        '@qwik.dev/partytown/utils',
-        opts.srcUtilsDir,
-        opts.distUtilsDir,
-        opts
-      ),
+      submodulePackageJson('@qwik.dev/partytown/utils', opts.srcUtilsDir, opts.distUtilsDir, opts),
     ],
   };
 }
