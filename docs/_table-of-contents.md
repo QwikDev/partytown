@@ -19,7 +19,7 @@
   - [Magento 2](/magento2)
   - [Next.js](/nextjs)
   - [Nuxt](/nuxt)
-  - [Qwik](https://qwik.builder.io/docs/integrations/partytown/)
+  - [Qwik](https://qwik.dev/docs/integrations/partytown/)
   - [React](/react)
   - [Remix](/remix)
   - [Shopify Hydrogen](/shopify-hydrogen)

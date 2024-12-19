@@ -50,7 +50,7 @@ export function buildIntegration(opts: BuildOptions): RollupOptions {
         },
       },
       submodulePackageJson(
-        '@builder.io/partytown/integration',
+        '@qwik.dev/partytown/integration',
         opts.srcIntegrationDir,
         opts.distIntegrationDir,
         opts

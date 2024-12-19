@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import Script from 'next/script';
-import { Partytown } from '@builder.io/partytown/react';
+import { Partytown } from '@qwik.dev/partytown/react';
 
 export default function Home() {
   return (

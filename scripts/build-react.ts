@@ -17,9 +17,9 @@ export function buildReact(opts: BuildOptions): RollupOptions {
     ],
     external: ['react'],
     plugins: [
-      submodulePath('@builder.io/partytown/integration', '../integration/index'),
+      submodulePath('@qwik.dev/partytown/integration', '../integration/index'),
       submodulePackageJson(
-        '@builder.io/partytown/react',
+        '@qwik.dev/partytown/react',
         opts.srcReactDir,
         opts.distReactDir,
         opts

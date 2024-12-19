@@ -2,7 +2,7 @@
 title: Configuration
 ---
 
-Partytown does not require a config for it to work, however a config can be set to change the defaults. At the lowest level, it's configured by setting the `window.partytown = {...}` object before the Partytown snippet script. However, higher-level integrations, such as the `<Partytown/>` component found in `@builder.io/partytown/react`, should provide utilities to make setting the config easier
+Partytown does not require a config for it to work, however a config can be set to change the defaults. At the lowest level, it's configured by setting the `window.partytown = {...}` object before the Partytown snippet script. However, higher-level integrations, such as the `<Partytown/>` component found in `@qwik.dev/partytown/react`, should provide utilities to make setting the config easier
 
 | Config       | Description                                                                                                                                                                                                               |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

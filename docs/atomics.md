@@ -55,8 +55,8 @@ Below is an example of setting the `crossorigin` attribute on an image:
 
 You can test if a browser is capable of enabling Atomics by visiting these test pages which respond with the correct headers.
 
-- [Test COEP "credentialless"](https://partytown.builder.io/tests/atomics/)
-- [Test COEP "require-corp"](https://partytown.builder.io/tests/atomics/?coep=require-corp)
+- [Test COEP "credentialless"](https://partytown.qwik.dev/tests/atomics/)
+- [Test COEP "require-corp"](https://partytown.qwik.dev/tests/atomics/?coep=require-corp)
 
 ## Additional Resources
 

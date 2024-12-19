@@ -391,7 +391,7 @@ export type SendBeaconParameters = Pick<
 >;
 
 /**
- * https://partytown.builder.io/configuration
+ * https://partytown.qwik.dev/configuration
  *
  * @public
  */
@@ -400,7 +400,7 @@ export interface PartytownConfig {
    * The `resolveUrl()` hook can be used to modify the URL about to be
    * requested, which could be used to rewrite urls so they go through a proxy.
    *
-   * https://partytown.builder.io/proxying-requests
+   * https://partytown.qwik.dev/proxying-requests
    *
    * @param url - The URL to be resolved. This is a URL https://developer.mozilla.org/en-US/docs/Web/API/URL, not a string.
    * @param location - The current window location.
@@ -423,7 +423,7 @@ export interface PartytownConfig {
   /**
    * When set to `true`, Partytown scripts are not inlined and not minified.
    *
-   * https://partytown.builder.io/debugging
+   * https://partytown.qwik.dev/debugging
    */
   debug?: boolean;
   /**
@@ -441,7 +441,7 @@ export interface PartytownConfig {
    * ['dataLayer.push', 'fbq']
    * ```
    *
-   * https://partytown.builder.io/forwarding-events
+   * https://partytown.qwik.dev/forwarding-events
    */
   forward?: PartytownForwardProperty[];
   /**
@@ -572,7 +572,7 @@ export type PartytownForwardPropertyWithSettings = [string, PartytownForwardProp
  * A forward property to patch on `window`. The forward config property is an string,
  * representing the call to forward, such as `dataLayer.push` or `fbq`.
  *
- * https://partytown.builder.io/forwarding-events
+ * https://partytown.qwik.dev/forwarding-events
  *
  * @public
  */

@@ -320,7 +320,7 @@
               const eventInfo = `${ev.type} ${ev.data} ${ev.origin} ${
                 ev.source === iframe.contentWindow
               }`;
-              if (ev.data === '88' && ev.origin === 'https://partytown.builder.io') {
+              if (ev.data === '88' && ev.origin === 'https://partytown.qwik.dev') {
                 elm.textContent = eventInfo;
                 elm.className = 'testCrossOrigin';
               }
@@ -328,7 +328,7 @@
 
             iframe.style.height = '45px';
 
-            const url = new URL('https://partytown.builder.io/tests/platform/iframe/cross-origin.html');
+            const url = new URL('https://partytown.qwik.dev/tests/platform/iframe/cross-origin.html');
             url.searchParams.set('parentorigin', window.origin);
             iframe.src = url.href;
             elm.parentNode.appendChild(iframe);

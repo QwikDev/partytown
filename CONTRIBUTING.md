@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-See the [distribution](https://partytown.builder.io/distribution) section about the various files created. Note that both the root directory, and the `tests` directory receive a copy of the build files, such as `tests/~partytown/partytown.js`.
+See the [distribution](https://partytown.qwik.dev/distribution) section about the various files created. Note that both the root directory, and the `tests` directory receive a copy of the build files, such as `tests/~partytown/partytown.js`.
 
 ## Submitting Issues And Writing Tests
 
@@ -26,7 +26,7 @@ If the PR fixes the issue, then creating an [end-to-end test](#e2e-testing) woul
 
 Additionally, Github issues is a place to explain a problem in detail, along with a reproduction case for maintainers. However, Github issues is not the best place to ask how-to questions since project contributors and maintainers don’t have the capacity to debug external websites and the many third-party scripts. Any issues opened asking that are not following these guidelines will be closed.
 
-Please also see the [FAQ section](https://partytown.builder.io/faq) for more info
+Please also see the [FAQ section](https://partytown.qwik.dev/faq) for more info
 
 ## Plugin Authors / Developers
 
@@ -42,7 +42,7 @@ The easiest way to verify is to create a small, standalone replica in our [integ
 
 To get a sense of this, you can take a look at some examples in the `tests/integrations` folder like [Twitter](https://github.com/BuilderIO/partytown/tree/main/tests/integrations/twitter/index.html). Usually, creating a copy of one of these folders and modifying it for a new plugin is the easiest way to get these to setup.
 
-If it works, great! Send us a PR and we'd love to merge it in and highlight it as a working integration on our [Common Services page](https://partytown.builder.io/common-services) . If for any reason it does not work, we would love to help you figure out why it might not be working and figure out a way forward.
+If it works, great! Send us a PR and we'd love to merge it in and highlight it as a working integration on our [Common Services page](https://partytown.qwik.dev/common-services) . If for any reason it does not work, we would love to help you figure out why it might not be working and figure out a way forward.
 
 ## Manual Testing
 
@@ -68,7 +68,7 @@ npm test
 
 The same pages found in `tests` are deployed to:
 
-https://partytown.builder.io/
+https://partytown.qwik.dev/
 
 ## Publishing
 

@@ -19,7 +19,7 @@ export function buildServices(opts: BuildOptions): RollupOptions {
     output,
     plugins: [
       submodulePackageJson(
-        '@builder.io/partytown/services',
+        '@qwik.dev/partytown/services',
         opts.srcServicesDir,
         opts.distServicesDir,
         opts

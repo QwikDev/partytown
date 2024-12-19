@@ -7,19 +7,19 @@ The Remix setup is largely the same as the [React integration guide](/react), ex
 ## Install
 
 ```bash
-npm install @builder.io/partytown
-yarn add @builder.io/partytown
-pnpm install @builder.io/partytown
+npm install @qwik.dev/partytown
+yarn add @qwik.dev/partytown
+pnpm install @qwik.dev/partytown
 ```
 
 ## Configure
 
-The `<Partytown/>` component is imported from the `@builder.io/partytown/react` submodule. The [config properties](/configuration) are JSX props.
+The `<Partytown/>` component is imported from the `@qwik.dev/partytown/react` submodule. The [config properties](/configuration) are JSX props.
 
 The following is an example of including the `<Partytown/>` component in the app's root component. Notice the `<Partytown/>` component is in the `<head>` and before the `<Meta/>` component. The example below is setting the [forward](/forwarding-events) config for [Google Tag Manager](/google-tag-manager).
 
 ```jsx
-import { Partytown } from '@builder.io/partytown/react';
+import { Partytown } from '@qwik.dev/partytown/react';
 import { Links, Meta, Outlet } from '@remix-run/react';
 
 export default function App() {

@@ -13,7 +13,7 @@ export interface PartytownViteOptions extends PartytownRollupOptions {}
  * which must be an absolute file path. When in dev mode, the Partytown
  * lib files will be served using the Vite Dev Server.
  *
- * https://partytown.builder.io/copy-library-files
+ * https://partytown.qwik.dev/copy-library-files
  *
  * @public
  */

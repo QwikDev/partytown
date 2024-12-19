@@ -3,9 +3,9 @@ import { isAbsolute, resolve } from 'path';
 
 /**
  * Absolute path to the Partytown lib directory within the
- * `@builder.io/partytown` package.
+ * `@qwik.dev/partytown` package.
  *
- * https://partytown.builder.io/copy-library-files
+ * https://partytown.qwik.dev/copy-library-files
  *
  * @public
  */
@@ -29,7 +29,7 @@ export function libDirPath(opts?: LibDirOptions) {
  * However, by setting the `debugDir` option to `false`, the debug directory will
  * not be copied.
  *
- * https://partytown.builder.io/copy-library-files
+ * https://partytown.qwik.dev/copy-library-files
  *
  * @public
  */

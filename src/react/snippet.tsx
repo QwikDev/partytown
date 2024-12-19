@@ -1,6 +1,6 @@
 import React from 'react';
 import type { PartytownConfig } from '../lib/types';
-import { partytownSnippet } from '@builder.io/partytown/integration';
+import { partytownSnippet } from '@qwik.dev/partytown/integration';
 
 /**
  * Props for `<Partytown/>`, which extends the Partytown Config.

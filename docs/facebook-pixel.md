@@ -65,7 +65,7 @@ Facebook Pixel uses the [fbq()](https://www.facebook.com/business/help/402791146
 ## Example Config
 
 ```js
-// https://partytown.builder.io/configuration
+// https://partytown.qwik.dev/configuration
 {
   resolveUrl: function(url) {
     if (url.hostname === "connect.facebook.net") {

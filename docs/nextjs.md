@@ -16,20 +16,20 @@ The Next.js `<Script/>` component provides an experimental `worker` strategy, wh
 ## Install
 
 ```bash
-npm install @builder.io/partytown
-yarn add @builder.io/partytown
-pnpm install @builder.io/partytown
+npm install @qwik.dev/partytown
+yarn add @qwik.dev/partytown
+pnpm install @qwik.dev/partytown
 ```
 
 ## Configure
 
-The `<Partytown/>` component is imported from the `@builder.io/partytown/react` submodule. The [config properties](/configuration) are JSX props.
+The `<Partytown/>` component is imported from the `@qwik.dev/partytown/react` submodule. The [config properties](/configuration) are JSX props.
 
 The following is an example of including the `<Partytown/>` component in a Nextjs page. Notice the `<Partytown/>` component is in the `<Head>`, and the example analytics script has the `type="text/partytown"` attribute.
 
 ```jsx
 import Head from 'next/head';
-import { Partytown } from '@builder.io/partytown/react';
+import { Partytown } from '@qwik.dev/partytown/react';
 
 const Home = () => {
   return (
