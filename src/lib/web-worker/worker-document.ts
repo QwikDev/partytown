@@ -3,9 +3,8 @@ import {
   CallType,
   NodeName,
   StateProp,
-  WebWorkerEnvironment,
-  WinDocId,
-  WorkerNode,
+  type WebWorkerEnvironment,
+  type WorkerNode,
 } from '../types';
 import {
   cachedProps,
@@ -14,7 +13,6 @@ import {
   getOrCreateNodeInstance,
 } from './worker-constructors';
 import { createEnvironment } from './worker-environment';
-import { createWindow } from './worker-window';
 import { debug, definePrototypePropertyDescriptor, randomId, SCRIPT_TYPE } from '../utils';
 import { ABOUT_BLANK, elementStructurePropNames, IS_TAG_REG, WinIdKey } from './worker-constants';
 import { getInstanceStateValue } from './worker-state';

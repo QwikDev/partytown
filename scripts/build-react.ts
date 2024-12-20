@@ -1,4 +1,4 @@
-import { BuildOptions, submodulePackageJson, submodulePath } from './utils.js';
+import { type BuildOptions, submodulePackageJson, submodulePath } from './utils.js';
 import { join } from 'node:path';
 import type { RollupOptions } from 'rollup';
 
@@ -17,13 +17,8 @@ export function buildReact(opts: BuildOptions): RollupOptions {
     ],
     external: ['react'],
     plugins: [
-      submodulePath('@builder.io/partytown/integration', '../integration/index'),
-      submodulePackageJson(
-        '@builder.io/partytown/react',
-        opts.srcReactDir,
-        opts.distReactDir,
-        opts
-      ),
+      submodulePath('@qwik.dev/partytown/integration', '../integration/index'),
+      submodulePackageJson('@qwik.dev/partytown/react', opts.srcReactDir, opts.distReactDir, opts),
     ],
   };
 }

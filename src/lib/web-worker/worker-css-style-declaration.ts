@@ -1,4 +1,10 @@
-import { ApplyPath, CallType, InstanceId, WinId, WorkerConstructor } from '../types';
+import {
+  type ApplyPath,
+  CallType,
+  type InstanceId,
+  type WinId,
+  type WorkerConstructor,
+} from '../types';
 import { cachedDimensions, InstanceDataKey } from './worker-constants';
 import { callMethod, getter, setter } from './worker-proxy';
 import { defineConstructorName } from '../utils';

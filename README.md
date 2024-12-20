@@ -11,15 +11,15 @@
 
 Partytown is a lazy-loaded library to help relocate resource intensive scripts into a [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API), and off of the [main thread](https://developer.mozilla.org/en-US/docs/Glossary/Main_thread). Its goal is to help speed up sites by dedicating the main thread to your code, and offloading third-party scripts to a web worker.
 
-> Note: Partytown is still in beta and not guaranteed to work in every scenario. Please see our [FAQ](https://partytown.builder.io/faq) and [Trade-Off](https://partytown.builder.io/trade-offs) sections for more info.
+> Note: Partytown is still in beta and not guaranteed to work in every scenario. Please see our [FAQ](https://partytown.qwik.dev/faq) and [Trade-Off](https://partytown.qwik.dev/trade-offs) sections for more info.
 
 The philosophy is that the main thread should be dedicated to your code, and any scripts that are not required to be in the [critical path](https://developers.google.com/web/fundamentals/performance/critical-rendering-path) should be moved to a web worker. Main thread performance is, without question, more important than web worker thread performance.
 
-- [Getting Started](https://partytown.builder.io/getting-started)
-- [Integrations](https://partytown.builder.io/integrations)
-- [Configuration](https://partytown.builder.io/configuration)
+- [Getting Started](https://partytown.qwik.dev/getting-started)
+- [Integrations](https://partytown.qwik.dev/integrations)
+- [Configuration](https://partytown.qwik.dev/configuration)
 - [Releases](https://github.com/BuilderIO/partytown/releases)
-- [FAQs](https://partytown.builder.io/faq)
+- [FAQs](https://partytown.qwik.dev/faq)
 
 ![Without Partytown and With Partytown: Your code and third-party code compete for main thread resources](https://user-images.githubusercontent.com/452425/152393346-6f721a4f-3f66-410a-8878-a2b49e24307f.png)
 

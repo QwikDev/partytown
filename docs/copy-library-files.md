@@ -2,9 +2,9 @@
 title: Copy Library Files
 ---
 
-The [@builder.io/partytown](https://www.npmjs.com/package/@builder.io/partytown) NPM package provides the static `lib` files that need to be served from your site. Since Partytown is using a service worker, these files must be served from the same origin as your site, and cannot be hosted from a CDN. Each site is different, and how the Partytown `lib` files are hosted depends on individual setup.
+The [@qwik.dev/partytown](https://www.npmjs.com/package/@qwik.dev/partytown) NPM package provides the static `lib` files that need to be served from your site. Since Partytown is using a service worker, these files must be served from the same origin as your site, and cannot be hosted from a CDN. Each site is different, and how the Partytown `lib` files are hosted depends on individual setup.
 
-The `/~partytown/` directory should serve the static files found within [@builder.io/partytown/lib](/distribution). The quickest way is to copy the `lib` directory into a public `/~partytown` directory within your static server. Another option would be to set up a copy task within the project's bundler, or create a build step.
+The `/~partytown/` directory should serve the static files found within [@qwik.dev/partytown/lib](/distribution). The quickest way is to copy the `lib` directory into a public `/~partytown` directory within your static server. Another option would be to set up a copy task within the project's bundler, or create a build step.
 
 You can also use the [lib config](/configuration) if your site must host these files from a directory other than the default `/~partytown/`. Please see the [integration guides](/integrations) for more info on copying library files.
 
@@ -29,11 +29,11 @@ This command can be used before a build script. Below is an example of copying t
 
 ## Copy Task API
 
-The same code that the `partytown copylib` CLI task uses, is also exposed as an API and can be imported by any NodeJS script. Below is an example of importing the `@builder.io/partytown/utils` API and copying the lib files to the given directory. Both examples of an ESM import or CommonJS require should work.
+The same code that the `partytown copylib` CLI task uses, is also exposed as an API and can be imported by any NodeJS script. Below is an example of importing the `@qwik.dev/partytown/utils` API and copying the lib files to the given directory. Both examples of an ESM import or CommonJS require should work.
 
 ```js
-import { copyLibFiles } from '@builder.io/partytown/utils'; // ESM
-// const { copyLibFiles } = require('@builder.io/partytown/utils'); // CommonJS
+import { copyLibFiles } from '@qwik.dev/partytown/utils'; // ESM
+// const { copyLibFiles } = require('@qwik.dev/partytown/utils'); // CommonJS
 
 async function myBuildTask() {
   await copyLibFiles('path/to/public/~partytown');
@@ -44,7 +44,7 @@ async function myBuildTask() {
 
 > Available as of Partytown 0.3.6
 
-Import the `partytownRollup` plugin from `@builder.io/partytown/utils` into your `rollup.config.js` config file. Next, add `partytownRollup(opts)` to the `plugins` [option](https://rollupjs.org/guide/en/#using-plugins).
+Import the `partytownRollup` plugin from `@qwik.dev/partytown/utils` into your `rollup.config.js` config file. Next, add `partytownRollup(opts)` to the `plugins` [option](https://rollupjs.org/guide/en/#using-plugins).
 
 The Rollup plugin will copy Partytown `lib` directory to the given destination, which must be an absolute file path. The copying will happen at the time of the `writeBundle()` hook.
 
@@ -53,7 +53,7 @@ Below is an example of using a [Rollup config](https://rollupjs.org/guide/en/#us
 ```js
 // rollup.config.js
 import path from 'path';
-import { partytownRollup } from '@builder.io/partytown/utils';
+import { partytownRollup } from '@qwik.dev/partytown/utils';
 
 export default {
   plugins: [
@@ -68,7 +68,7 @@ export default {
 
 > Available as of Partytown 0.3.6
 
-Import the `partytownVite` plugin from `@builder.io/partytown/utils` into your `vite.config.js` config file. Next, add `partytownVite(opts)` to the `plugins` [option](https://vitejs.dev/config/#plugins).
+Import the `partytownVite` plugin from `@qwik.dev/partytown/utils` into your `vite.config.js` config file. Next, add `partytownVite(opts)` to the `plugins` [option](https://vitejs.dev/config/#plugins).
 
 The Vite plugin will copy Partytown `lib` directory to the given destination, which must be an absolute file path. The copying will happen at the time of the `writeBundle()` hook. When in dev mode, the Partytown lib files will be served using the Vite Dev Server.
 
@@ -77,7 +77,7 @@ Below is an example of using a [Vite config](https://vitejs.dev/config/) to copy
 ```js
 // vite.config.js
 import path from 'path';
-import { partytownVite } from '@builder.io/partytown/utils';
+import { partytownVite } from '@qwik.dev/partytown/utils';
 
 export default ({ command }) => ({
   plugins: [
@@ -90,13 +90,13 @@ export default ({ command }) => ({
 
 ## Webpack
 
-Below is an example of using [Webpack's copy plugin](https://webpack.js.org/plugins/copy-webpack-plugin/) to copy the source `lib` directory found in the [@builder.io/partytown](https://www.npmjs.com/package/@builder.io/partytown) package, to the `public/~partytown/` directory:
+Below is an example of using [Webpack's copy plugin](https://webpack.js.org/plugins/copy-webpack-plugin/) to copy the source `lib` directory found in the [@qwik.dev/partytown](https://www.npmjs.com/package/@qwik.dev/partytown) package, to the `public/~partytown/` directory:
 
 ```js
 // webpack.config.js
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
-const partytown = require('@builder.io/partytown/utils');
+const partytown = require('@qwik.dev/partytown/utils');
 
 module.exports = {
   plugins: [
@@ -114,12 +114,12 @@ module.exports = {
 
 ## Laravel Mix
 
-Below is an example of using [Mix's copy()](https://laravel-mix.com/docs/6.0/copying-files/) to copy the source `lib` directory found in the [@builder.io/partytown](https://www.npmjs.com/package/@builder.io/partytown) package, to the `public/~partytown/` directory:
+Below is an example of using [Mix's copy()](https://laravel-mix.com/docs/6.0/copying-files/) to copy the source `lib` directory found in the [@qwik.dev/partytown](https://www.npmjs.com/package/@qwik.dev/partytown) package, to the `public/~partytown/` directory:
 
 ```js
 // webpack.mix.js
 const mix = require('laravel-mix');
-const partytown = require('@builder.io/partytown/utils');
+const partytown = require('@qwik.dev/partytown/utils');
 
 mix.copy(partytown.libDirPath(), 'public/~partytown');
 ```

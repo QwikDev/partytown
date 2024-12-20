@@ -1,5 +1,5 @@
 {
-  "name": "@builder.io/partytown-services",
+  "name": "@qwik.dev/partytown-services",
   "main": "index.cjs",
   "module": "index.mjs",
   "types": "index.d.ts"

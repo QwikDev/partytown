@@ -37,7 +37,7 @@ test('iframe 2', async ({ page }) => {
 
   await page.waitForSelector('.testCrossOrigin');
   const testCrossOrigin = page.locator('#testCrossOrigin');
-  await expect(testCrossOrigin).toHaveText('message 88 https://partytown.builder.io true');
+  await expect(testCrossOrigin).toHaveText('message 88 https://partytown.qwik.dev true');
 
   // TODO!
   // await page.waitForSelector('.testLocation');

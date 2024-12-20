@@ -8,7 +8,7 @@
     "partytown": "../../bin/partytown.cjs copylib public/~partytown"
   },
   "dependencies": {
-    "@builder.io/partytown": "0.2.3",
+    "@qwik.dev/partytown": "0.11.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "next": "12.0.10"

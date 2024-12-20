@@ -10,6 +10,6 @@ export default defineConfig({
     preact(),
   ],
   build: {
-    site: 'https://partytown.builder.io',
+    site: 'https://partytown.qwik.dev',
   },
 });

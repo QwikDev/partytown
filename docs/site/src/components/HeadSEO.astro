@@ -6,9 +6,9 @@ export interface Props {
 }
 const { content = {} } = Astro.props;
 const formattedContentTitle = content.title ? `${content.title} - ${SITE.title}` : SITE.title;
-const imageSrc = 'https://partytown.builder.io/partytown-media.png';
+const imageSrc = 'https://partytown.qwik.dev/partytown-media.png';
 const pathname = new URL(Astro.request.url).pathname;
-const canonicalURL = new URL(pathname, 'https://partytown.builder.io/');
+const canonicalURL = new URL(pathname, 'https://partytown.qwik.dev/');
 ---
 
 <!-- Page Metadata -->

@@ -18,7 +18,7 @@ export interface PartytownRollupOptions {
  * The Rollup plugin will copy Partytown `lib` directory to the given destination,
  * which must be an absolute file path.
  *
- * https://partytown.builder.io/copy-library-files
+ * https://partytown.qwik.dev/copy-library-files
  *
  * @public
  */

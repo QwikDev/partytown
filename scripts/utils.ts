@@ -112,7 +112,7 @@ export function onwarn(warning: RollupWarning) {
 }
 
 export function getJsBanner(opts: BuildOptions, jsCode: string) {
-  return `/* Partytown ${opts.packageJson.version} - MIT builder.io */\n${jsCode}`;
+  return `/* Partytown ${opts.packageJson.version} - MIT QwikDev */\n${jsCode}`;
 }
 
 export function jsBannerPlugin(opts: BuildOptions): Plugin {

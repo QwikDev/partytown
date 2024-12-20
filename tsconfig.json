@@ -5,7 +5,7 @@
     "module": "ES2020",
     "lib": ["es2020", "DOM", "WebWorker"],
     "strict": true,
-    "importsNotUsedAsValues": "error",
+    "verbatimModuleSyntax": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
     "outDir": "tsc",
@@ -15,8 +15,8 @@
     "jsx": "react",
     "baseUrl": ".",
     "paths": {
-      "@builder.io/partytown/integration": ["src/integration/index.ts"],
-      "@builder.io/partytown/services": ["src/integration/services.ts"],
+      "@qwik.dev/partytown/integration": ["src/integration/index.ts"],
+      "@qwik.dev/partytown/services": ["src/integration/services.ts"],
       "react": ["node_modules/react"]
     }
   },

@@ -7,19 +7,19 @@ The Partytown NPM package already comes with a React component, which is a thin 
 ## Install
 
 ```bash
-npm install @builder.io/partytown
-yarn add @builder.io/partytown
-pnpm install @builder.io/partytown
+npm install @qwik.dev/partytown
+yarn add @qwik.dev/partytown
+pnpm install @qwik.dev/partytown
 ```
 
 ## Configure
 
-The `<Partytown/>` component is imported from the `@builder.io/partytown/react` submodule. The [config properties](/configuration) are JSX props.
+The `<Partytown/>` component is imported from the `@qwik.dev/partytown/react` submodule. The [config properties](/configuration) are JSX props.
 
 Below is an example of setting the `debug` config to `true`, and [forward](/forwarding-events) config for [Google Tag Manager](/google-tag-manager).
 
 ```jsx
-import { Partytown } from '@builder.io/partytown/react';
+import { Partytown } from '@qwik.dev/partytown/react';
 
 export function Head() {
   return (

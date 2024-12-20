@@ -57,6 +57,10 @@
         logScriptExecution: true,
       };
     </script>
+    <script type="text/javascript">
+      class TestDefineOnMainAccessOnWorker extends HTMLElement {}
+      customElements.define('define-on-main-access-on-worker', TestDefineOnMainAccessOnWorker);
+    </script>
     <script src="/~partytown/debug/partytown.js"></script>
   </head>
   <body>
@@ -75,6 +79,19 @@
             const Cstr = customElements.get('test-define');
             elm.textContent = Cstr.name;
             elm.className = 'testDefine';
+          })();
+        </script>
+      </li>
+
+      <li>
+        <strong>define on main, access on worker</strong>
+
+        <define-on-main-access-on-worker id="testDefineOnMainAccessOnWorker"></define-on-main-access-on-worker>
+        <script type="text/partytown">
+          (function () {
+            const elm = document.getElementById('testDefineOnMainAccessOnWorker');
+            elm.textContent = 'it works';
+            elm.className = 'testDefineOnMainAccessOnWorker';
           })();
         </script>
       </li>

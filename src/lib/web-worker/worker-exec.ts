@@ -1,15 +1,15 @@
 import { VERSION } from '../build-modules/version';
 import { logWorker } from '../log';
 import {
-  EventHandler,
-  InitializeScriptData,
-  InstanceId,
+  type EventHandler,
+  type InitializeScriptData,
+  type InstanceId,
   NodeName,
-  ResolveUrlType,
+  type ResolveUrlType,
   StateProp,
-  WebWorkerEnvironment,
-  WinId,
-  WorkerInstance,
+  type WebWorkerEnvironment,
+  type WinId,
+  type WorkerInstance,
   WorkerMessageType,
 } from '../types';
 import { debug } from '../utils';

@@ -9,7 +9,7 @@ What's different from most web development libraries is that Partytown does _not
 ## Install NPM package
 
 ```
-npm install @builder.io/partytown
+npm install @qwik.dev/partytown
 ```
 
 ## Next Steps

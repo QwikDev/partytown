@@ -7,6 +7,10 @@ test('custom-element', async ({ page }) => {
   const testDefine = page.locator('#testDefine');
   await expect(testDefine).toHaveText('TestDefineElement');
 
+  await page.waitForSelector('.testDefineOnMainAccessOnWorker');
+  const testDefineOnMainAccessOnWorker = page.locator('#testDefineOnMainAccessOnWorker');
+  await expect(testDefineOnMainAccessOnWorker).toHaveText('it works');
+
   await page.waitForSelector('.testNoReDefine');
   const testNoReDefine = page.locator('#testNoReDefine');
   await expect(testNoReDefine).toHaveText('TestNoReDefineElement');

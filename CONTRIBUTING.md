@@ -1,6 +1,6 @@
 # Local Development
 
-Welcome 🎉!! If you've found a bug, or have an idea to add a feature we'd love to hear from you. It may save time to first ping the group on [Partytown's Discord channel](https://discord.gg/bNVSQmPzqy) to talk through any ideas or any issues that may be a bug.
+Welcome 🎉!! If you've found a bug, or have an idea to add a feature we'd love to hear from you. It may save time to first ping the group on [Partytown's Discord channel](https://discord.gg/aHKdpdWv7a) to talk through any ideas or any issues that may be a bug.
 
 ## Installation
 
@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-See the [distribution](https://partytown.builder.io/distribution) section about the various files created. Note that both the root directory, and the `tests` directory receive a copy of the build files, such as `tests/~partytown/partytown.js`.
+See the [distribution](https://partytown.qwik.dev/distribution) section about the various files created. Note that both the root directory, and the `tests` directory receive a copy of the build files, such as `tests/~partytown/partytown.js`.
 
 ## Submitting Issues And Writing Tests
 
@@ -26,7 +26,7 @@ If the PR fixes the issue, then creating an [end-to-end test](#e2e-testing) woul
 
 Additionally, Github issues is a place to explain a problem in detail, along with a reproduction case for maintainers. However, Github issues is not the best place to ask how-to questions since project contributors and maintainers don’t have the capacity to debug external websites and the many third-party scripts. Any issues opened asking that are not following these guidelines will be closed.
 
-Please also see the [FAQ section](https://partytown.builder.io/faq) for more info
+Please also see the [FAQ section](https://partytown.qwik.dev/faq) for more info
 
 ## Plugin Authors / Developers
 
@@ -42,7 +42,7 @@ The easiest way to verify is to create a small, standalone replica in our [integ
 
 To get a sense of this, you can take a look at some examples in the `tests/integrations` folder like [Twitter](https://github.com/BuilderIO/partytown/tree/main/tests/integrations/twitter/index.html). Usually, creating a copy of one of these folders and modifying it for a new plugin is the easiest way to get these to setup.
 
-If it works, great! Send us a PR and we'd love to merge it in and highlight it as a working integration on our [Common Services page](https://partytown.builder.io/common-services) . If for any reason it does not work, we would love to help you figure out why it might not be working and figure out a way forward.
+If it works, great! Send us a PR and we'd love to merge it in and highlight it as a working integration on our [Common Services page](https://partytown.qwik.dev/common-services) . If for any reason it does not work, we would love to help you figure out why it might not be working and figure out a way forward.
 
 ## Manual Testing
 
@@ -68,7 +68,56 @@ npm test
 
 The same pages found in `tests` are deployed to:
 
-https://partytown.builder.io/
+https://partytown.qwik.dev/
+
+
+## Contributing a Pull Request (PR)? Please add a changeset
+
+
+For your convenience, we prepared a video tutorial that covers the process of adding a changeset:
+
+[📽 TUTORIAL: Adding a changeset](https://go.screenpal.com/watch/cZivIcVPJQV)
+
+**1.** Run the following command to create a changeset:
+
+```shell
+pnpm change
+```
+
+**2.** Choose the packages that should be included in the changeset
+
+**3** Choose the specific type of change
+
+(hit `Enter` if you need to skip to the next option)
+
+- `major` for breaking changes
+- `minor` for new features
+- `patch` for bug fixes
+
+**4.** Prefix your change title with one of these:
+
+- `FEAT:` or `feat:` for features
+- `FIX:` or `fix:` for bug fixes
+- `DOCS` or `docs:` for documentation
+
+**5.** Modify the created MD file
+
+After the `change` command runs, a new MD file will be created under the `.changeset` folder.
+
+Please modify this file to include a descriptive message of the changes you made.
+
+You can even add code examples if you need do, to describe a new feature for example. (pun intended 😉)
+
+The prefix and this elaborated description will be used to create the changelog files and release notes, so please give them love. 💗😊
+
+---
+
+#### ❓ "What if my PR is not a significant change?"
+
+If you made small changes like fixing typos, CI config, prettier, etc, you can run `pnpm change add --empty` to generate an empty changeset file to document
+your changes.
+
+---
 
 ## Publishing
 

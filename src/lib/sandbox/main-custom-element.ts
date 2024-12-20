@@ -1,4 +1,9 @@
-import { CustomElementData, PartytownWebWorker, WinId, WorkerMessageType } from '../types';
+import {
+  type CustomElementData,
+  type PartytownWebWorker,
+  type WinId,
+  WorkerMessageType,
+} from '../types';
 import { defineConstructorName } from '../utils';
 import { getAndSetInstanceId } from './main-instances';
 import { winCtxs } from './main-constants';

@@ -25,7 +25,7 @@ const handleError = (err: any) => {
 
 const topBarUrl = new URL('https://cdn.builder.io/api/v1/qwik/oss-top-bar');
 topBarUrl.searchParams.set('apiKey', apiKey);
-topBarUrl.searchParams.set('userAttributes.site', 'partytown.builder.io');
+topBarUrl.searchParams.set('userAttributes.site', 'partytown.qwik.dev');
 topBarUrl.searchParams.set('userAttributes.url', new URL(Astro.request.url).pathname);
 topBarUrl.searchParams.set('cachebust', 'true');
 const topBarData = await fetch(topBarUrl.toString())
