@@ -11,13 +11,11 @@ export default extendConfig(baseConfig, () => {
       },
     },
     plugins: [
-      cloudflarePagesAdapter(
-       // 👇 THIS IS WHAT YOU NEED TO ADD 👇
-       {
-         ssg: {
-           include: ['/*'],
-           origin: 'https://partytown.qwik.dev',
-       },
+      cloudflarePagesAdapter({
+        ssg: {
+          include: ["/*"],
+          origin: "https://partytown.qwik.dev",
+        },
       }),
     ],
   };
