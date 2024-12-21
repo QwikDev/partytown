@@ -15,7 +15,7 @@ export const Header = component$<Props>(({ links = [], showMenu = true }) => {
   const showAsideSig = useSignal(false);
   return (
     <header
-      class={`fixed top-0 z-10 h-20 w-full border-b-[2px] border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900`}
+      class={`fixed top-0 z-10 h-20 w-full border-b-[2px] border-slate-200 bg-white dark:border-slate-800 dark:bg-black`}
     >
       <div class="grid h-full max-w-[1200px] grid-cols-12 px-6">
         <div class="col-span-3 flex items-center sm:col-span-4">
@@ -79,9 +79,9 @@ export const Header = component$<Props>(({ links = [], showMenu = true }) => {
         <div class="fixed inset-0 z-10 overflow-hidden">
           <div class="absolute inset-0 overflow-hidden">
             <div class="absolute inset-0 bg-gray-500 bg-opacity-75 opacity-100 transition-opacity"></div>
-            <div class="fixed inset-y-0 left-0 flex h-full w-screen max-w-xs translate-x-0 flex-col overflow-y-scroll bg-white dark:bg-slate-900">
+            <div class="fixed inset-y-0 left-0 flex h-full w-screen max-w-xs translate-x-0 flex-col overflow-y-scroll bg-white dark:bg-black">
               <div
-                class={`flex h-20 items-center border-b-[2px] border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900`}
+                class={`flex h-20 items-center border-b-[2px] border-slate-200 bg-white dark:border-slate-800 dark:bg-black`}
               >
                 <div class="pl-5" onClick$={() => (showAsideSig.value = false)}>
                   <CloseIcon />

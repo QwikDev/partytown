@@ -8,6 +8,8 @@ export const RouterHead = component$(() => {
   const head = useDocumentHead();
   const loc = useLocation();
 
+  const imageSrc = "https://partytown.qwik.dev/partytown-media.png";
+
   return (
     <>
       <title>{head.title}</title>
@@ -15,6 +17,30 @@ export const RouterHead = component$(() => {
       <link rel="canonical" href={loc.url.href} />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+      <link rel="canonical" href={loc.url.href} />
+
+      <meta property="og:title" content={head.frontmatter.title} />
+      <meta property="og:type" content="article" />
+      <meta property="og:url" content={loc.url.href} />
+      <meta property="og:locale" content={"en_US"} />
+      <meta property="og:image" content={imageSrc} />
+      <meta
+        name="description"
+        property="og:description"
+        content={head.frontmatter.description || head.frontmatter.titlen}
+      />
+      <meta property="og:site_name" content={head.frontmatter.title} />
+
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:site" content="@builderio" />
+      <meta name="twitter:title" content={head.frontmatter.title} />
+      <meta
+        name="twitter:description"
+        content={head.frontmatter.description || head.frontmatter.title}
+      />
+      <meta name="twitter:image" content={imageSrc} />
+      <meta name="twitter:image:alt" content="Partytown Logo" />
 
       {head.meta.map((m) => (
         <meta key={m.key} {...m} />

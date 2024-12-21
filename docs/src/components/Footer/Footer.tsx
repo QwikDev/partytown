@@ -3,7 +3,7 @@ import { GitHubIcon } from "../Icons/GitHubIcon";
 
 export const Footer = component$(() => {
   return (
-    <footer class="flex border-t-[2px] border-slate-200 bg-white px-6 py-4 dark:border-slate-800 dark:bg-slate-900">
+    <footer class="flex border-t-[2px] border-slate-200 bg-white px-6 py-4 dark:border-slate-800 dark:bg-black">
       <div class="grid w-full grid-cols-12">
         <div class="col-span-4" />
         <div class="col-span-4" />

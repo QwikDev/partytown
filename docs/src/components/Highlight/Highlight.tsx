@@ -1,4 +1,4 @@
-import type { ClassList, PropsOf } from "@qwik.dev/core";
+import type { PropsOf } from "@qwik.dev/core";
 import {
   $,
   component$,
@@ -12,11 +12,9 @@ import css from "shiki/langs/css.mjs";
 import html from "shiki/langs/html.mjs";
 import tsx from "shiki/langs/tsx.mjs";
 import poimandres from "shiki/themes/poimandres.mjs";
-import { CopyButton } from "../CopyButton/CopyButton";
 
 export type HighlightProps = PropsOf<"div"> & {
   code: string;
-  copyCodeClass?: ClassList;
   language?: "tsx" | "html" | "css";
   splitCommentStart?: string;
   splitCommentEnd?: string;
@@ -25,7 +23,6 @@ export type HighlightProps = PropsOf<"div"> & {
 export const Highlight = component$(
   ({
     code,
-    copyCodeClass,
     language = "tsx",
     splitCommentStart = "{/* start */}",
     splitCommentEnd = "{/* end */}",
@@ -79,13 +76,6 @@ export const Highlight = component$(
 
     return (
       <div class="code-example rounded-base relative max-h-[31.25rem]">
-        <CopyButton
-          class={[
-            "absolute right-3 top-3 text-white hover:bg-slate-800 hover:text-white",
-            copyCodeClass,
-          ]}
-          code={code}
-        />
         <div
           {...props}
           class={[

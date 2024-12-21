@@ -40,9 +40,9 @@ export default component$(() => {
   });
   return (
     <MDXProvider components={components}>
-      <div class="h-screen bg-white dark:bg-slate-900">
+      <div class="h-screen bg-white dark:bg-black">
         <Header />
-        <main class="flex min-h-[100%] bg-white dark:bg-slate-900 lg:grid lg:grid-cols-content">
+        <main class="flex min-h-[100%] bg-white dark:bg-black lg:grid lg:grid-cols-content">
           <aside
             class={`hidden border-r-[2px] border-slate-200 dark:border-slate-800 lg:block`}
           >
