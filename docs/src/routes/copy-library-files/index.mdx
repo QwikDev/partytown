@@ -2,6 +2,8 @@
 title: Copy Library Files
 ---
 
+# Copy Library Files
+
 The [@qwik.dev/partytown](https://www.npmjs.com/package/@qwik.dev/partytown) NPM package provides the static `lib` files that need to be served from your site. Since Partytown is using a service worker, these files must be served from the same origin as your site, and cannot be hosted from a CDN. Each site is different, and how the Partytown `lib` files are hosted depends on individual setup.
 
 The `/~partytown/` directory should serve the static files found within [@qwik.dev/partytown/lib](/distribution). The quickest way is to copy the `lib` directory into a public `/~partytown` directory within your static server. Another option would be to set up a copy task within the project's bundler, or create a build step.

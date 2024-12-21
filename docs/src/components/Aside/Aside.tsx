@@ -1,5 +1,5 @@
 import { component$ } from "@qwik.dev/core";
-import { Link, useContent } from "@qwik.dev/router";
+import { useContent } from "@qwik.dev/router";
 
 export const Aside = component$(() => {
   const { menu } = useContent();
@@ -13,20 +13,20 @@ export const Aside = component$(() => {
         return (
           <ul key={idx} class="mb-6">
             <li>
-              <Link
+              <a
                 class="mb-2 block rounded bg-blue-700 px-4 py-1 text-base font-bold uppercase text-white no-underline"
                 href={href}
               >
                 {title}
-              </Link>
+              </a>
               {(items || []).map(({ text, href }, idx) => (
                 <ul key={idx}>
                   <li class="py-1 text-black dark:text-white">
-                    <Link href={href}>
+                    <a href={href}>
                       <span class="text-md pl-2">
                         <span>{text}</span>
                       </span>
-                    </Link>
+                    </a>
                   </li>
                 </ul>
               ))}

@@ -46,12 +46,7 @@
 - [Facebook Pixel](/facebook-pixel)
 - [Google Tag Manager](/google-tag-manager)
 
-## Tests|/tests
+## Community
 
-- [End-to-end Tests](/tests/)
-- [Services](/tests/benchmarks/services/)
-- [Benchmark](/tests/benchmarks/)
-- [Local Development](https://github.com/BuilderIO/partytown/blob/main/CONTRIBUTING.md)
-- [Github](https://github.com/BuilderIO/partytown)
+- [Discord](https://discord.gg/aHKdpdWv7a)
 - [@QwikDev](https://twitter.com/QwikDev)
-- [@Builderio](https://twitter.com/builderio)
