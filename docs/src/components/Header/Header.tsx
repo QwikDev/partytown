@@ -15,9 +15,9 @@ export const Header = component$<Props>(({ links = [], showMenu = true }) => {
   const showAsideSig = useSignal(false);
   return (
     <header
-      class={`fixed top-0 z-10 h-20 w-full border-b-[2px] border-slate-200 bg-white dark:border-slate-800 dark:bg-black`}
+      class={`fixed top-0 z-10 h-20 w-full border-b-[2px] border-zinc-100 bg-[#F8F8FF] dark:border-zinc-900 dark:bg-[#0D0F12]`}
     >
-      <div class="grid h-full max-w-[1200px] grid-cols-12 px-6">
+      <div class="grid h-full max-w-[1376px] grid-cols-12 px-6">
         <div class="col-span-3 flex items-center sm:col-span-4">
           {showMenu && (
             <button

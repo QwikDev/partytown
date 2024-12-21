@@ -84,10 +84,11 @@
  */
 
 html {
-  height: 100%;
-  &.dark {
-    @apply bg-black;
-  }
+  @apply bg-[#F8F8FF];
+}
+
+.dark {
+  @apply bg-[#0D0F12]
 }
 
 body {

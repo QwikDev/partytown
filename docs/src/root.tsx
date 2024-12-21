@@ -28,7 +28,7 @@ export default component$(() => {
         )}
         <RouterHead />
       </head>
-      <body lang="en" class="m-auto max-w-[1200px]">
+      <body lang="en" class="m-auto max-w-[1376px]">
         <RouterOutlet />
         {!isDev && <ServiceWorkerRegister />}
       </body>

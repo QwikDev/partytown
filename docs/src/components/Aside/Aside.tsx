@@ -6,7 +6,7 @@ export const Aside = component$(() => {
 
   return (
     <div
-      class={`fixed top-20 mt-8 flex h-[calc(100%-12rem)] flex-col overflow-hidden overflow-y-auto px-6 text-xl text-black dark:text-white`}
+      class={`fixed top-20 mt-8 flex h-full flex-col overflow-hidden overflow-y-auto px-6 text-black dark:text-white`}
     >
       {(menu?.items || []).map(({ text, items }, idx) => {
         const [title, href] = text.split("|");
@@ -15,7 +15,7 @@ export const Aside = component$(() => {
             <li>
               {href ? (
                 <a
-                  class="mb-2 block rounded bg-blue-700 px-4 py-1 text-base font-bold uppercase text-white no-underline"
+                  class="mb-2 block rounded bg-blue-700 dark:bg-blue-600 px-4 py-1 text-base font-bold uppercase text-white no-underline"
                   href={href}
                 >
                   {title}
