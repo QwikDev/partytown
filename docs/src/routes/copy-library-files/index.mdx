@@ -15,7 +15,7 @@ You can also use the [lib config](/configuration) if your site must host these f
 For convenience, the Partytown CLI provides a `copylib` task. The last argument should be the directory where the Partytown lib files should be copied to. In the example below, the lib files are copying to the directory `public/~partytown`, relative to the current working directory:
 
 ```bash
-partytown copylib public/~partytown
+partytown copylib 'public/~partytown'
 ```
 
 This command can be used before a build script. Below is an example of copying the Partytown lib files before a Nextjs build command, using npm scripts:
@@ -24,7 +24,7 @@ This command can be used before a build script. Below is an example of copying t
 {
   "scripts": {
     "build": "npm run partytown && next build",
-    "partytown": "partytown copylib public/~partytown"
+    "partytown": "partytown copylib 'public/~partytown'"
   }
 }
 ```
