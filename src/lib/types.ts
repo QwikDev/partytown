@@ -36,7 +36,7 @@ export type MessageFromWorkerToSandbox =
       type: WorkerMessageType.InitializedEnvironmentScript,
       winid: WinId,
       instanceId: InstanceId,
-      errorMsg: string
+      errorMsg: string,
     ]
   | [type: WorkerMessageType.InitializeNextScript, winId: WinId]
   | [type: WorkerMessageType.ForwardWorkerAccessRequest, accessReq: MainAccessRequest]
@@ -57,7 +57,7 @@ export type MessageFromSandboxToWorker =
       winId: WinId,
       instanceId: InstanceId,
       callbackName: string,
-      args: any[]
+      args: any[],
     ];
 
 export const enum WorkerMessageType {
@@ -305,7 +305,7 @@ export type SerializedCSSRuleListTransfer = [SerializedType.CSSRuleList, Seriali
 
 export type SerializedCSSStyleDeclarationTransfer = [
   SerializedType.CSSStyleDeclaration,
-  { [key: string]: SerializedTransfer | undefined }
+  { [key: string]: SerializedTransfer | undefined },
 ];
 
 export type SerializedErrorTransfer = [SerializedType.Error, Error];
@@ -318,12 +318,12 @@ export type SerializedInstanceTransfer = [SerializedType.Instance, SerializedIns
 
 export type SerializedNodeListTransfer = [
   SerializedType.NodeList,
-  (SerializedTransfer | undefined)[]
+  (SerializedTransfer | undefined)[],
 ];
 
 export type SerializedObjectTransfer = [
   SerializedType.Object,
-  { [key: string]: SerializedTransfer | undefined }
+  { [key: string]: SerializedTransfer | undefined },
 ];
 
 export type SerializedAttr = [string, string];
@@ -374,7 +374,7 @@ export type SerializedInstance =
        * Node name for Node instances
        */
       type: string,
-      type?: string
+      type?: string,
     ];
 
 /**
@@ -713,7 +713,7 @@ export type LazyBridge = [
   RandomId,
   typeof WinIdKey,
   typeof InstanceIdKey,
-  typeof ApplyPathKey
+  typeof ApplyPathKey,
 ];
 
 export type InitWindowMedia = (

@@ -103,7 +103,7 @@
     "gzip-size": "^6.0.0",
     "np": "^7.6.1",
     "playwright": "^1.48.2",
-    "prettier": "^2.6.0",
+    "prettier": "^3.5.3",
     "pretty-quick": "^4.0.0",
     "rollup": "^3.29.1",
     "simple-git-hooks": "^2.11.1",

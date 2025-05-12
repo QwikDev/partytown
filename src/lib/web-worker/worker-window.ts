@@ -187,8 +187,8 @@ export const createWindow = (
           const NodeCstr = nodeCstrs[nodeName]
             ? nodeCstrs[nodeName]
             : nodeName.includes('-')
-            ? nodeCstrs.UNKNOWN
-            : nodeCstrs.I;
+              ? nodeCstrs.UNKNOWN
+              : nodeCstrs.I;
 
           cstrInstanceId = instanceId;
           cstrNodeName = nodeName;
@@ -213,10 +213,10 @@ export const createWindow = (
             const SuperCstr = TrapConstructors[cstrName]
               ? WorkerTrapProxy
               : superCstrName === 'EventTarget'
-              ? WorkerEventTargetProxy
-              : superCstrName === 'Object'
-              ? WorkerBase
-              : win[superCstrName];
+                ? WorkerEventTargetProxy
+                : superCstrName === 'Object'
+                  ? WorkerBase
+                  : win[superCstrName];
 
             const Cstr = (win[cstrName] = defineConstructorName(
               interfaceType === InterfaceType.EnvGlobalConstructor
