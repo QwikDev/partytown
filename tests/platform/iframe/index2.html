@@ -328,7 +328,7 @@
 
             iframe.style.height = '45px';
 
-            const url = new URL('https://partytown.qwik.dev/cross-origin.html');
+            const url = new URL('https://partytown.qwik.dev/cross-origin');
             url.searchParams.set('parentorigin', window.origin);
             iframe.src = url.href;
             elm.parentNode.appendChild(iframe);
