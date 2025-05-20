@@ -1,5 +1,11 @@
 # @qwik.dev/partytown
 
+## 0.11.1
+
+### Patch Changes
+
+- Add adoptedStyleSheets.get() to patched `document` in worker. (by [@leeroybrun](https://github.com/leeroybrun) in [#674](https://github.com/QwikDev/partytown/pull/674))
+
 ## 0.11.0
 
 ### Minor Changes

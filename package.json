@@ -1,6 +1,6 @@
 {
   "name": "@qwik.dev/partytown",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "description": "Relocate resource intensive third-party scripts off of the main thread and into a web worker.",
   "license": "MIT",
   "main": "index.cjs",
