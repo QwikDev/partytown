@@ -46,6 +46,9 @@ export const createImageConstructor = (env: WebWorkerEnvironment) =>
       );
     }
 
+    setAttribute(_name: string, _value: string) {
+    }
+
     addEventListener(eventName: HTMLImageElementEvents, cb: EventHandler) {
       if (eventName === 'load') {
         this.l.push(cb);
