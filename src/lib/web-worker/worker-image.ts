@@ -12,12 +12,14 @@ export const createImageConstructor = (env: WebWorkerEnvironment) =>
     l: EventHandler[];
     e: EventHandler[];
     style: Record<string, string>;
+    attributes: Map<string, string>;
 
     constructor() {
       this.s = '';
       this.l = [];
       this.e = [];
       this.style = {};
+      this.attributes = new Map();
     }
 
     get src() {
@@ -46,7 +48,49 @@ export const createImageConstructor = (env: WebWorkerEnvironment) =>
       );
     }
 
-    setAttribute(_name: string, _value: string) {
+    getAttribute(name: string): string | null {
+      const value = this.attributes.get(name.toLowerCase());
+      return value !== undefined ? value : null;
+    }
+
+    setAttribute(name: string, value: string): void {
+      this.attributes.set(name.toLowerCase(), String(value));
+      if (name.toLowerCase() === 'src') {
+        this.src = value;
+      }
+    }
+
+    hasAttribute(name: string): boolean {
+      return this.attributes.has(name.toLowerCase());
+    }
+
+    removeAttribute(name: string): void {
+      this.attributes.delete(name.toLowerCase());
+    }
+
+    toggleAttribute(name: string, force?: boolean): boolean {
+      const normalizedName = name.toLowerCase();
+      const hasAttr = this.attributes.has(normalizedName);
+      
+      if (force !== undefined) {
+        if (force) {
+          if (!hasAttr) {
+            this.attributes.set(normalizedName, '');
+          }
+          return true;
+        } else {
+          this.attributes.delete(normalizedName);
+          return false;
+        }
+      }
+      
+      if (hasAttr) {
+        this.attributes.delete(normalizedName);
+        return false;
+      } else {
+        this.attributes.set(normalizedName, '');
+        return true;
+      }
     }
 
     addEventListener(eventName: HTMLImageElementEvents, cb: EventHandler) {
