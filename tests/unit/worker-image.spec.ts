@@ -32,6 +32,15 @@ test('getAttribute/setAttribute', ({ env }) => {
   assert.is(img.getAttribute('ALT'), 'uppercase');
 });
 
+test('setAttribute with src attribute', ({ env }) => {
+  const HTMLImageElement = createImageConstructor(env);
+  const img = new HTMLImageElement();
+  
+  img.setAttribute('src', 'http://example.com/test.jpg');
+  assert.is(img.getAttribute('src'), 'http://example.com/test.jpg');
+  assert.is(img.src, 'http://example.com/test.jpg');
+});
+
 test('hasAttribute', ({ env }) => {
   const HTMLImageElement = createImageConstructor(env);
   const img = new HTMLImageElement();
@@ -150,15 +159,6 @@ test('onerror getter/setter', ({ env }) => {
   assert.is(img.onerror, handler);
   assert.is(img.e.length, 1);
   assert.is(img.e[0], handler);
-});
-
-test('setAttribute with src attribute', ({ env }) => {
-  const HTMLImageElement = createImageConstructor(env);
-  const img = new HTMLImageElement();
-  
-  img.setAttribute('src', 'http://example.com/test.jpg');
-  assert.is(img.getAttribute('src'), 'http://example.com/test.jpg');
-  assert.is(img.src, 'http://example.com/test.jpg');
 });
 
 test.run();
