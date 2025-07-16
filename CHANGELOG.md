@@ -1,5 +1,13 @@
 # @qwik.dev/partytown
 
+## 0.11.2
+
+### Patch Changes
+
+- ✨ Implement full attribute methods for HTMLImageElement (by [@mws19901118](https://github.com/mws19901118) in [#681](https://github.com/QwikDev/partytown/pull/681))
+
+  Implemented complete attribute handling for HTMLImageElement class including getAttribute(), setAttribute(), hasAttribute(), removeAttribute(), and toggleAttribute() methods. Added attributes Map to store element attributes and enhanced setAttribute() to properly handle src attribute. Includes comprehensive unit tests covering all attribute methods.
+
 ## 0.11.1
 
 ### Patch Changes
