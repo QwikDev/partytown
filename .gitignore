@@ -24,3 +24,4 @@ node_modules/
 .idea
 .history
 tests/integrations/load-scripts-on-main-thread/snippet.js
+lib.tar.gz
