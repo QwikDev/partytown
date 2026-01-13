@@ -13,6 +13,7 @@ import { deserializeFromWorker, serializeForWorker } from './main-serialization'
 import { getInstance, setInstanceId } from './main-instances';
 import { normalizedWinId } from '../log';
 import { winCtxs } from './main-constants';
+import { mainWindow, shouldLoadIframeOnMainThread } from './main-globals';
 
 export const mainAccessHandler = async (
   worker: PartytownWebWorker,
@@ -169,7 +170,50 @@ const applyToInstance = (
           // previous is the setter name
           // current is the setter value
           // next tells us this was a setter
-          instance[previous] = deserializeFromWorker(worker, current);
+          const value = deserializeFromWorker(worker, current);
+
+          // Check if this is an iframe src being set that should load on main thread
+          const isIframeSrc = previous === 'src' && instance?.nodeName === 'IFRAME';
+          if (isIframeSrc && debug) {
+            console.log('[Partytown] iframe src setter:', {
+              value,
+              nodeName: instance?.nodeName,
+              shouldLoad: typeof value === 'string' ? shouldLoadIframeOnMainThread(value) : false,
+            });
+          }
+          if (
+            previous === 'src' &&
+            instance?.nodeName === 'IFRAME' &&
+            typeof value === 'string' &&
+            shouldLoadIframeOnMainThread(value)
+          ) {
+            // Create iframe directly in the main document (parent of sandbox)
+            // so it can register service workers and access cookies properly
+            const mainThreadIframe = mainWindow.document.createElement('iframe');
+            mainThreadIframe.src = value;
+            mainThreadIframe.style.display = 'none';
+            mainThreadIframe.setAttribute('data-partytown-main-thread', 'true');
+
+            // Append to body or sandboxParent in main document
+            const sandboxParent =
+              mainWindow.document.querySelector(
+                mainWindow.partytown?.sandboxParent || 'body'
+              ) || mainWindow.document.body;
+            sandboxParent.appendChild(mainThreadIframe);
+
+            if (debug) {
+              console.log(
+                '[Partytown] Created main-thread iframe:',
+                value
+              );
+            }
+
+            // Don't set src on the sandbox iframe to avoid duplicate loading
+            // The worker state will still reference this iframe but it won't load
+            return;
+          }
+
+          instance[previous] = value;
 
           // setters never return a value
           return;
