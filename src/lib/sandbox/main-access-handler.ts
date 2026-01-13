@@ -173,14 +173,6 @@ const applyToInstance = (
           const value = deserializeFromWorker(worker, current);
 
           // Check if this is an iframe src being set that should load on main thread
-          const isIframeSrc = previous === 'src' && instance?.nodeName === 'IFRAME';
-          if (isIframeSrc && debug) {
-            console.log('[Partytown] iframe src setter:', {
-              value,
-              nodeName: instance?.nodeName,
-              shouldLoad: typeof value === 'string' ? shouldLoadIframeOnMainThread(value) : false,
-            });
-          }
           if (
             previous === 'src' &&
             instance?.nodeName === 'IFRAME' &&
@@ -200,13 +192,6 @@ const applyToInstance = (
                 mainWindow.partytown?.sandboxParent || 'body'
               ) || mainWindow.document.body;
             sandboxParent.appendChild(mainThreadIframe);
-
-            if (debug) {
-              console.log(
-                '[Partytown] Created main-thread iframe:',
-                value
-              );
-            }
 
             // Don't set src on the sandbox iframe to avoid duplicate loading
             // The worker state will still reference this iframe but it won't load
