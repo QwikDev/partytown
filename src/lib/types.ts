@@ -472,6 +472,37 @@ export interface PartytownConfig {
    * // Loads the `https://test.com/analytics.js` script on the main thread
    */
   loadScriptsOnMainThread?: (string | RegExp)[];
+  /**
+   * This array can be used to filter which iframes are loaded via
+   * Partytown's worker and which should load directly on the main thread.
+   * This is particularly useful for iframes that require service worker
+   * registration, cross-origin cookie access, or other main-thread-only
+   * capabilities (e.g., Google Tag Manager's sw_iframe.html).
+   *
+   * When an iframe's `src` matches a pattern in this list, Partytown will:
+   * - Create the iframe on the main thread
+   * - Allow it to load naturally without worker interception
+   * - Enable full browser capabilities (service workers, cookies, etc.)
+   *
+   * @example loadIframesOnMainThread:['https://www.googletagmanager.com/static/service_worker', /googletagmanager\.com/]
+   * // Allows GTM service worker iframes to load on the main thread
+   */
+  loadIframesOnMainThread?: (string | RegExp)[];
+  /**
+   * An array of URL patterns for which fetch() requests should use
+   * `mode: 'no-cors'`. This is useful for third-party tracking pixels
+   * and conversion tracking URLs that don't need response data but
+   * fail due to CORS when running in the worker context.
+   *
+   * Note: With `no-cors` mode, the response body cannot be read, but the
+   * request is still sent to the server (fire-and-forget). This is suitable
+   * for tracking/analytics requests where you just need the request to reach
+   * the server.
+   *
+   * @example noCorsUrls: [/googleads\.g\.doubleclick\.net/, /google-analytics\.com/]
+   * // Makes fetch requests to Google Ads and Analytics use no-cors mode
+   */
+  noCorsUrls?: (string | RegExp)[];
   get?: GetHook;
   set?: SetHook;
   apply?: ApplyHook;
@@ -552,8 +583,13 @@ export interface PartytownConfig {
   nonce?: string;
 }
 
-export type PartytownInternalConfig = Omit<PartytownConfig, 'loadScriptsOnMainThread'> & {
+export type PartytownInternalConfig = Omit<
+  PartytownConfig,
+  'loadScriptsOnMainThread' | 'loadIframesOnMainThread' | 'noCorsUrls'
+> & {
   loadScriptsOnMainThread?: ['regexp' | 'string', string][];
+  loadIframesOnMainThread?: ['regexp' | 'string', string][];
+  noCorsUrls?: ['regexp' | 'string', string][];
 };
 
 /**

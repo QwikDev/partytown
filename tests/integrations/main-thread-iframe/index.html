@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Partytown Test Page" />
+    <title>Load iframes on main thread</title>
+
+    <script>
+      partytown = {
+        logCalls: true,
+        logGetters: true,
+        logSetters: true,
+        logStackTraces: false,
+        logScriptExecution: true,
+        loadIframesOnMainThread: [
+          // Match the test iframe URL
+          `${location.protocol}//${location.host}/tests/integrations/main-thread-iframe/test-iframe.html`,
+          // Also test regex matching
+          /main-thread-target\.html/,
+        ],
+      };
+    </script>
+    <script src="/~partytown/debug/partytown.js"></script>
+
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif,
+          Apple Color Emoji, Segoe UI Emoji;
+        font-size: 12px;
+      }
+
+      h1 {
+        margin: 0 0 15px 0;
+      }
+
+      ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      li {
+        display: flex;
+        margin: 15px 0;
+      }
+
+      li strong,
+      li code {
+        white-space: nowrap;
+        flex: 1;
+        margin: 0 5px;
+      }
+
+      iframe {
+        border: 1px solid #ccc;
+        width: 300px;
+        height: 100px;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Load iframes on main thread</h1>
+
+    <ul>
+      <li>
+        <strong>Main thread iframe loaded:</strong>
+        <code id="mainThreadIframeLoaded">waiting...</code>
+      </li>
+      <li>
+        <strong>Main thread iframe (regex) loaded:</strong>
+        <code id="regexIframeLoaded">waiting...</code>
+      </li>
+      <li>
+        <strong>Worker iframe loaded:</strong>
+        <code id="workerIframeLoaded">waiting...</code>
+      </li>
+    </ul>
+
+    <div id="iframeContainer"></div>
+
+    <!-- Create iframes from within Partytown worker -->
+    <script type="text/partytown">
+      (function() {
+        // This iframe should load on main thread (string match)
+        const mainThreadIframe = document.createElement('iframe');
+        mainThreadIframe.id = 'mainThreadIframe';
+        mainThreadIframe.src = './test-iframe.html';
+        document.getElementById('iframeContainer').appendChild(mainThreadIframe);
+
+        mainThreadIframe.onload = function() {
+          document.getElementById('mainThreadIframeLoaded').textContent = 'loaded';
+          // Check if iframe loaded correctly by trying to access its src
+          document.getElementById('mainThreadIframeLoaded').dataset.src = mainThreadIframe.src;
+        };
+        mainThreadIframe.onerror = function() {
+          document.getElementById('mainThreadIframeLoaded').textContent = 'error';
+        };
+
+        // This iframe should load on main thread (regex match)
+        const regexIframe = document.createElement('iframe');
+        regexIframe.id = 'regexIframe';
+        regexIframe.src = './main-thread-target.html';
+        document.getElementById('iframeContainer').appendChild(regexIframe);
+
+        regexIframe.onload = function() {
+          document.getElementById('regexIframeLoaded').textContent = 'loaded';
+        };
+        regexIframe.onerror = function() {
+          document.getElementById('regexIframeLoaded').textContent = 'error';
+        };
+
+        // This iframe should be handled by the worker (no match)
+        const workerIframe = document.createElement('iframe');
+        workerIframe.id = 'workerIframe';
+        workerIframe.src = './worker-handled-iframe.html';
+        document.getElementById('iframeContainer').appendChild(workerIframe);
+
+        workerIframe.onload = function() {
+          document.getElementById('workerIframeLoaded').textContent = 'loaded';
+        };
+        workerIframe.onerror = function() {
+          document.getElementById('workerIframeLoaded').textContent = 'error';
+        };
+
+        // Mark page as completed after a delay to allow iframes to load
+        setTimeout(function() {
+          document.body.classList.add('completed');
+        }, 2000);
+      })();
+    </script>
+
+    <hr />
+    <p><a href="/tests/">All Tests</a></p>
+  </body>
+</html>

@@ -223,6 +223,28 @@ export function testIfMustLoadScriptOnMainThread(
   );
 }
 
+export function testIfMustLoadIframeOnMainThread(
+  config: PartytownInternalConfig,
+  value: string
+): boolean {
+  return (
+    config.loadIframesOnMainThread
+      ?.map(([type, value]) => new RegExp(type === 'string' ? escapeRegExp(value) : value))
+      .some((regexp) => regexp.test(value)) ?? false
+  );
+}
+
+export function testIfShouldUseNoCors(
+  config: PartytownInternalConfig,
+  value: string
+): boolean {
+  return (
+    config.noCorsUrls
+      ?.map(([type, value]) => new RegExp(type === 'string' ? escapeRegExp(value) : value))
+      .some((regexp) => regexp.test(value)) ?? false
+  );
+}
+
 export function serializeConfig(config: PartytownConfig) {
   return JSON.stringify(config, (key, value) => {
     if (typeof value === 'function') {
@@ -242,6 +264,30 @@ export function serializeConfig(config: PartytownConfig) {
               typeof scriptUrl === 'string' ? scriptUrl : scriptUrl.source,
             ]
       ) satisfies Required<PartytownInternalConfig>['loadScriptsOnMainThread'];
+    }
+    if (key === 'loadIframesOnMainThread') {
+      value = (
+        value as Required<PartytownConfig | PartytownInternalConfig>['loadIframesOnMainThread']
+      ).map((iframeUrl) =>
+        Array.isArray(iframeUrl)
+          ? iframeUrl
+          : [
+              typeof iframeUrl === 'string' ? 'string' : 'regexp',
+              typeof iframeUrl === 'string' ? iframeUrl : iframeUrl.source,
+            ]
+      ) satisfies Required<PartytownInternalConfig>['loadIframesOnMainThread'];
+    }
+    if (key === 'noCorsUrls') {
+      value = (
+        value as Required<PartytownConfig | PartytownInternalConfig>['noCorsUrls']
+      ).map((url) =>
+        Array.isArray(url)
+          ? url
+          : [
+              typeof url === 'string' ? 'string' : 'regexp',
+              typeof url === 'string' ? url : url.source,
+            ]
+      ) satisfies Required<PartytownInternalConfig>['noCorsUrls'];
     }
     return value;
   });

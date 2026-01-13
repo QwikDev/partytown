@@ -26,6 +26,7 @@ export interface PartytownConfig {
     get?: GetHook;
     globalFns?: string[];
     lib?: string;
+    loadIframesOnMainThread?: (string | RegExp)[];
     loadScriptsOnMainThread?: (string | RegExp)[];
     logCalls?: boolean;
     logGetters?: boolean;
@@ -37,6 +38,7 @@ export interface PartytownConfig {
     logStackTraces?: boolean;
     // (undocumented)
     mainWindowAccessors?: string[];
+    noCorsUrls?: (string | RegExp)[];
     nonce?: string;
     // Warning: (ae-forgotten-export) The symbol "SendBeaconParameters" needs to be exported by the entry point index.d.ts
     resolveSendBeaconRequestParameters?(url: URL, location: Location): SendBeaconParameters | undefined | null;

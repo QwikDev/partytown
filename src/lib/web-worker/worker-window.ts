@@ -51,6 +51,7 @@ import {
   getConstructorName,
   len,
   randomId,
+  testIfShouldUseNoCors,
 } from '../utils';
 import {
   getInstanceStateValue,
@@ -486,7 +487,16 @@ export const createWindow = (
 
       fetch(input: string | URL | Request, init: any) {
         input = typeof input === 'string' || input instanceof URL ? String(input) : input.url;
-        return fetch(resolveUrl(env, input, 'fetch'), init);
+        const resolvedUrl = resolveUrl(env, input, 'fetch');
+
+        // Check if this URL should use no-cors mode
+        // This is useful for tracking/analytics URLs that fail due to CORS
+        // but don't need response data (fire-and-forget requests)
+        if (testIfShouldUseNoCors(webWorkerCtx.$config$, input)) {
+          init = { ...init, mode: 'no-cors', credentials: 'include' };
+        }
+
+        return fetch(resolvedUrl, init);
       }
 
       get frames() {

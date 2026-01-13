@@ -1,5 +1,9 @@
 import * as assert from 'uvu/assert';
-import { createElementFromConstructor } from '../../src/lib/utils';
+import {
+  createElementFromConstructor,
+  testIfMustLoadIframeOnMainThread,
+  testIfMustLoadScriptOnMainThread,
+} from '../../src/lib/utils';
 import { suite } from './utils';
 
 const test = suite();
@@ -49,6 +53,73 @@ test('createElementFromConstructor, HTML', ({ doc }) => {
   assert.is(createElementFromConstructor(doc, 'HTMLConstructor'), undefined);
   assert.is(createElementFromConstructor(doc, 'ConstructorElement'), undefined);
   assert.is(createElementFromConstructor(doc, 'IntersectionObserver'), undefined);
+});
+
+test('testIfMustLoadIframeOnMainThread - string match', ({ config }) => {
+  config.loadIframesOnMainThread = [
+    ['string', 'https://www.googletagmanager.com/static/service_worker'],
+  ];
+  assert.is(
+    testIfMustLoadIframeOnMainThread(
+      config,
+      'https://www.googletagmanager.com/static/service_worker/123/sw_iframe.html'
+    ),
+    true
+  );
+  assert.is(
+    testIfMustLoadIframeOnMainThread(config, 'https://example.com/iframe.html'),
+    false
+  );
+});
+
+test('testIfMustLoadIframeOnMainThread - regex match', ({ config }) => {
+  config.loadIframesOnMainThread = [['regexp', 'googletagmanager\\.com.*sw_iframe']];
+  assert.is(
+    testIfMustLoadIframeOnMainThread(
+      config,
+      'https://www.googletagmanager.com/static/service_worker/123/sw_iframe.html'
+    ),
+    true
+  );
+  assert.is(
+    testIfMustLoadIframeOnMainThread(config, 'https://www.googletagmanager.com/gtm.js'),
+    false
+  );
+});
+
+test('testIfMustLoadIframeOnMainThread - multiple patterns', ({ config }) => {
+  config.loadIframesOnMainThread = [
+    ['string', 'https://example.com/special-iframe.html'],
+    ['regexp', 'googletagmanager\\.com'],
+  ];
+  assert.is(
+    testIfMustLoadIframeOnMainThread(config, 'https://example.com/special-iframe.html'),
+    true
+  );
+  assert.is(
+    testIfMustLoadIframeOnMainThread(
+      config,
+      'https://www.googletagmanager.com/sw_iframe.html'
+    ),
+    true
+  );
+  assert.is(testIfMustLoadIframeOnMainThread(config, 'https://other.com/iframe.html'), false);
+});
+
+test('testIfMustLoadIframeOnMainThread - empty config', ({ config }) => {
+  config.loadIframesOnMainThread = undefined;
+  assert.is(
+    testIfMustLoadIframeOnMainThread(config, 'https://www.googletagmanager.com/sw_iframe.html'),
+    false
+  );
+});
+
+test('testIfMustLoadIframeOnMainThread - empty array', ({ config }) => {
+  config.loadIframesOnMainThread = [];
+  assert.is(
+    testIfMustLoadIframeOnMainThread(config, 'https://www.googletagmanager.com/sw_iframe.html'),
+    false
+  );
 });
 
 test.run();
