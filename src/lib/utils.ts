@@ -214,34 +214,34 @@ function escapeRegExp(input: string) {
 
 export function testIfMustLoadScriptOnMainThread(
   config: PartytownInternalConfig,
-  value: string
+  url: string
 ): boolean {
   return (
     config.loadScriptsOnMainThread
-      ?.map(([type, value]) => new RegExp(type === 'string' ? escapeRegExp(value) : value))
-      .some((regexp) => regexp.test(value)) ?? false
+      ?.map(([type, pattern]) => new RegExp(type === 'string' ? escapeRegExp(pattern) : pattern))
+      .some((regexp) => regexp.test(url)) ?? false
   );
 }
 
 export function testIfMustLoadIframeOnMainThread(
   config: PartytownInternalConfig,
-  value: string
+  url: string
 ): boolean {
   return (
     config.loadIframesOnMainThread
-      ?.map(([type, value]) => new RegExp(type === 'string' ? escapeRegExp(value) : value))
-      .some((regexp) => regexp.test(value)) ?? false
+      ?.map(([type, pattern]) => new RegExp(type === 'string' ? escapeRegExp(pattern) : pattern))
+      .some((regexp) => regexp.test(url)) ?? false
   );
 }
 
 export function testIfShouldUseNoCors(
   config: PartytownInternalConfig,
-  value: string
+  url: string
 ): boolean {
   return (
     config.noCorsUrls
-      ?.map(([type, value]) => new RegExp(type === 'string' ? escapeRegExp(value) : value))
-      .some((regexp) => regexp.test(value)) ?? false
+      ?.map(([type, pattern]) => new RegExp(type === 'string' ? escapeRegExp(pattern) : pattern))
+      .some((regexp) => regexp.test(url)) ?? false
   );
 }
 
