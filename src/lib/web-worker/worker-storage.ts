@@ -10,14 +10,24 @@ export const addStorageApi = (
 ) => {
   let storage: Storage = {
     getItem(key) {
+      // Log Mixpanel localStorage operations with full value
+      const isMixpanel = key?.includes('mp_') || key?.includes('mixpanel');
       if (env.$isSameOrigin$) {
-        return callMethod(win, [storageName, 'getItem'], [key], CallType.Blocking);
+        const value = callMethod(win, [storageName, 'getItem'], [key], CallType.Blocking);
+        if (isMixpanel) {
+          console.warn(`[PT-LS] 📖 ${storageName}.getItem('${key}') =`, value ? value.substring(0, 100) + '...' : 'NULL');
+        }
+        return value;
       } else {
         warnCrossOrigin('get', storageName, env);
       }
     },
 
     setItem(key, value) {
+      const isMixpanel = key?.includes('mp_') || key?.includes('mixpanel');
+      if (isMixpanel) {
+        console.warn(`[PT-LS] ✏️ ${storageName}.setItem('${key}') =`, value?.substring?.(0, 100) + '...');
+      }
       if (env.$isSameOrigin$) {
         callMethod(win, [storageName, 'setItem'], [key, value], CallType.Blocking);
       } else {
@@ -26,6 +36,10 @@ export const addStorageApi = (
     },
 
     removeItem(key) {
+      const isMixpanel = key?.includes('mp_') || key?.includes('mixpanel');
+      if (isMixpanel) {
+        console.error(`[PT-LS] 🗑️ ${storageName}.removeItem('${key}') - BEING REMOVED!`);
+      }
       if (env.$isSameOrigin$) {
         callMethod(win, [storageName, 'removeItem'], [key], CallType.Blocking);
       } else {
@@ -59,18 +73,26 @@ export const addStorageApi = (
   };
 
   win[storageName] = new Proxy(storage, {
-    get(target, key: string) {
+    get(target, key: PropertyKey) {
+      // Handle Symbol keys (like Symbol.iterator, Symbol.toStringTag) - return undefined
+      if (typeof key === 'symbol') {
+        return undefined;
+      }
       if (Reflect.has(target, key)) {
         return Reflect.get(target, key);
       } else {
-        return target.getItem(key);
+        return target.getItem(key as string);
       }
     },
-    set(target, key: string, value: string): boolean {
-      target.setItem(key, value);
+    set(target, key: PropertyKey, value: string): boolean {
+      // Ignore Symbol keys
+      if (typeof key === 'symbol') {
+        return true;
+      }
+      target.setItem(key as string, value);
       return true;
     },
-    has(target, key: PropertyKey | string): boolean {
+    has(target, key: PropertyKey): boolean {
       if (Reflect.has(target, key)) {
         return true;
       } else if (typeof key === 'string') {
@@ -79,8 +101,11 @@ export const addStorageApi = (
         return false;
       }
     },
-    deleteProperty(target, key: string): boolean {
-      target.removeItem(key);
+    deleteProperty(target, key: PropertyKey): boolean {
+      if (typeof key === 'symbol') {
+        return true;
+      }
+      target.removeItem(key as string);
       return true;
     },
   });

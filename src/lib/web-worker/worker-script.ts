@@ -16,6 +16,9 @@ export const patchHTMLScriptElement = (WorkerHTMLScriptElement: any, env: WebWor
         return getInstanceStateValue<string>(this, StateProp.url) || '';
       },
       set(url: string) {
+        // Debug: Log script src being set
+        console.debug('[Partytown] Setting script.src:', url);
+
         const orgUrl = resolveUrl(env, url, null);
         const config = webWorkerCtx.$config$;
         url = resolveUrl(env, url, 'script');

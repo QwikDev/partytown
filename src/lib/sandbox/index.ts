@@ -15,6 +15,58 @@ import WebWorkerBlob from '../build-modules/web-worker-blob';
 import WebWorkerUrl from '../build-modules/web-worker-url';
 import { VERSION } from '../build-modules/version';
 
+// Global error handlers on main thread
+window.onerror = (message, source, lineno, colno, error) => {
+  console.debug('[Partytown Main] GLOBAL ERROR:', message, 'source:', source, 'line:', lineno, 'error:', error);
+  return false;
+};
+
+window.onunhandledrejection = (event: PromiseRejectionEvent) => {
+  console.debug('[Partytown Main] UNHANDLED REJECTION:', event.reason, event);
+};
+
+// Intercept console methods on main thread to capture Google's error messages
+const originalLog = console.log;
+const originalError = console.error;
+const originalWarn = console.warn;
+const originalDebug = console.debug;
+const originalInfo = console.info;
+
+console.log = (...args: any[]) => {
+  const msg = args.map(a => typeof a === 'string' ? a : (a ? String(a) : '')).join(' ');
+  if (msg.includes('unknown') || msg.includes('error') || msg.includes('fetch') || msg.includes('script')) {
+    originalDebug.call(console, '[Partytown Main] CAPTURED console.log:', ...args);
+    originalDebug.call(console, '[Partytown Main] Log stack:', new Error().stack);
+  }
+  originalLog.apply(console, args);
+};
+
+console.error = (...args: any[]) => {
+  const msg = args.map(a => typeof a === 'string' ? a : (a ? String(a) : '')).join(' ');
+  if (msg.includes('unknown') || msg.includes('error') || msg.includes('fetch') || msg.includes('script')) {
+    originalDebug.call(console, '[Partytown Main] CAPTURED console.error:', ...args);
+    originalDebug.call(console, '[Partytown Main] Error stack:', new Error().stack);
+  }
+  originalError.apply(console, args);
+};
+
+console.warn = (...args: any[]) => {
+  const msg = args.map(a => typeof a === 'string' ? a : (a ? String(a) : '')).join(' ');
+  if (msg.includes('unknown') || msg.includes('error') || msg.includes('fetch') || msg.includes('script')) {
+    originalDebug.call(console, '[Partytown Main] CAPTURED console.warn:', ...args);
+    originalDebug.call(console, '[Partytown Main] Warn stack:', new Error().stack);
+  }
+  originalWarn.apply(console, args);
+};
+
+console.info = (...args: any[]) => {
+  const msg = args.map(a => typeof a === 'string' ? a : (a ? String(a) : '')).join(' ');
+  if (msg.includes('unknown') || msg.includes('error') || msg.includes('fetch') || msg.includes('script')) {
+    originalDebug.call(console, '[Partytown Main] CAPTURED console.info:', ...args);
+  }
+  originalInfo.apply(console, args);
+};
+
 let worker: PartytownWebWorker;
 
 const receiveMessage: MessengerRequestCallback = (accessReq, responseCallback) =>

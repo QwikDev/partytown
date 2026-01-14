@@ -55,6 +55,12 @@ export const createNodeCstr = (
         const isScript = nodeName === NodeName.Script;
         const isIFrame = nodeName === NodeName.IFrame;
 
+        // Debug: Log script insertion
+        if (isScript) {
+          const scriptSrc = getInstanceStateValue<string>(newNode, StateProp.url);
+          console.debug('[Partytown] insertBefore SCRIPT, src:', scriptSrc || '(inline)');
+        }
+
         if (isScript) {
           const scriptContent = getInstanceStateValue<string>(newNode, StateProp.innerHTML);
           const scriptType = getInstanceStateValue<string>(newNode, StateProp.type);

@@ -150,6 +150,18 @@ export const run = (env: WebWorkerEnvironment, scriptContent: string, scriptUrl?
   // First we want to replace all `this` symbols
   let sourceWithReplacedThis = replaceThisInSource(scriptContent, '(thi$(this)?window:this)');
 
+  // Replace dynamic import() calls with our custom polyfill
+  // This allows scripts that use import() to work in the web worker
+  // by fetching the module and executing it as a script
+  const importMatches = sourceWithReplacedThis.match(/import\s*\(/g);
+  if (importMatches) {
+    console.debug('[Partytown] Found import() calls:', importMatches.length, 'in script:', scriptUrl || '(inline)');
+  }
+  sourceWithReplacedThis = sourceWithReplacedThis.replace(
+    /\bimport\s*\(\s*([^)]+)\s*\)/g,
+    '__pt_import__($1)'
+  );
+
   scriptContent =
     `with(this){${sourceWithReplacedThis.replace(
       /\/\/# so/g,
@@ -163,7 +175,12 @@ export const run = (env: WebWorkerEnvironment, scriptContent: string, scriptUrl?
     scriptContent = scriptContent.replace(/.postMessage\(/g, `.postMessage('${env.$winId$}',`);
   }
 
-  new Function(scriptContent).call(env.$window$);
+  try {
+    new Function(scriptContent).call(env.$window$);
+  } catch (execError: any) {
+    console.error('[Partytown] Script execution error:', execError.message, execError.stack);
+    throw execError;
+  }
 
   env.$runWindowLoadEvent$ = 0;
 };
@@ -175,7 +192,20 @@ const runStateLoadHandlers = (
 ) => {
   handlers = getInstanceStateValue(instance, type);
   if (handlers) {
-    setTimeout(() => handlers!.map((cb) => cb({ type })));
+    // Create a proper event-like object with target property
+    // gtag.js may check event.target to verify which script loaded
+    const event = {
+      type,
+      target: instance,
+      currentTarget: instance,
+      srcElement: instance, // legacy IE property
+      // Prevent errors if code tries to call these methods
+      preventDefault: () => {},
+      stopPropagation: () => {},
+      stopImmediatePropagation: () => {},
+    };
+    console.debug('[Partytown] Firing', type, 'handlers for script');
+    setTimeout(() => handlers!.map((cb) => cb(event)));
   }
 };
 

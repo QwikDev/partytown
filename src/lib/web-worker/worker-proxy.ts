@@ -193,6 +193,45 @@ export const setter: Setter = (
   queue(instance, applyPath, CallType.NonBlocking);
 };
 
+/**
+ * Blocking setter - waits for the set operation to complete before returning.
+ * Use this for properties that may be read immediately after setting (e.g., cookies).
+ */
+export const blockingSetter: Setter = (
+  instance: WorkerInstance,
+  applyPath: ApplyPath,
+  value: any,
+  hookSetterValue?: any
+) => {
+  if (webWorkerCtx.$config$.set) {
+    hookSetterValue = webWorkerCtx.$config$.set({
+      value,
+      prevent: HookPrevent,
+      ...createHookOptions(instance, applyPath),
+    });
+    if (hookSetterValue === HookPrevent) {
+      return;
+    }
+    if (hookSetterValue !== HookContinue) {
+      value = hookSetterValue;
+    }
+  }
+
+  if (dimensionChangingSetterNames.some((s) => applyPath.includes(s))) {
+    cachedDimensions.clear();
+    logDimensionCacheClearSetter(instance, applyPath[applyPath.length - 1]);
+  }
+
+  applyPath = [...applyPath, serializeInstanceForMain(instance, value), ApplyPathType.SetValue];
+
+  logWorkerSetter(instance, applyPath, value);
+
+  // Use Blocking to ensure the set completes before returning
+  // This is critical for operations like document.cookie where
+  // scripts may immediately read the value after setting
+  queue(instance, applyPath, CallType.Blocking);
+};
+
 export const callMethod: CallMethod = (
   instance: WorkerInstance,
   applyPath: ApplyPath,

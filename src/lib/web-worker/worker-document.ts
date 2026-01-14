@@ -1,4 +1,4 @@
-import { callMethod, getter, setter } from './worker-proxy';
+import { blockingSetter, callMethod, getter, setter } from './worker-proxy';
 import {
   CallType,
   NodeName,
@@ -34,16 +34,47 @@ export const patchDocument = (
 
     cookie: {
       get() {
+        const ts = Date.now() % 100000;
         if (env.$isSameOrigin$) {
-          return getter(this, ['cookie']);
+          const cookies = getter(this, ['cookie']);
+          // Log EVERY cookie GET prominently
+          console.warn(`[PT:${ts}] 📖 COOKIE GET (${cookies?.split(';').length || 0} cookies):`, cookies?.substring(0, 100));
+          return cookies;
         } else {
+          console.warn(`[PT:${ts}] 📖 COOKIE GET BLOCKED - cross-origin`);
           warnCrossOrigin('get', 'cookie', env);
           return '';
         }
       },
       set(value) {
+        const ts = Date.now() % 100000;
+        const cookieName = value?.split('=')[0];
+        const cookieValue = value?.split('=')[1]?.split(';')[0];
+
+        // Detect cookie deletion
+        const isDeleting = value?.includes('expires=Thu, 01 Jan 1970') ||
+                          value?.includes('max-age=0') ||
+                          value?.includes('Max-Age=0') ||
+                          (value?.includes('expires=') && new Date(value.match(/expires=([^;]+)/)?.[1] || '') < new Date());
+
+        // Log EVERY cookie SET prominently - especially test cookies
+        if (isDeleting) {
+          console.warn(`[PT:${ts}] 🗑️ DELETE ${cookieName}`);
+        } else {
+          // Highlight test cookies that analytics might use
+          const isTest = cookieName?.includes('test') || cookieName?.includes('Test') || cookieName === '1';
+          console.warn(`[PT:${ts}] ✏️ SET ${cookieName}=${cookieValue?.substring(0, 40)}${isTest ? ' ⚠️ TEST COOKIE!' : ''}`);
+        }
+
         if (env.$isSameOrigin$) {
-          setter(this, ['cookie'], value);
+          blockingSetter(this, ['cookie'], value);
+
+          // Verify EVERY cookie SET
+          if (!isDeleting) {
+            const verifyValue = getter(this, ['cookie']);
+            const wasSet = verifyValue?.includes(cookieName);
+            console.warn(`[PT:${ts}] ✓ VERIFY ${cookieName}: ${wasSet ? 'FOUND ✅' : 'NOT FOUND ❌'}`);
+          }
         } else if (debug) {
           warnCrossOrigin('set', 'cookie', env);
         }
@@ -60,6 +91,11 @@ export const patchDocument = (
         const isIframe = tagName === NodeName.IFrame;
         const winId = this[WinIdKey];
         const instanceId = (isIframe ? 'f_' : '') + randomId();
+
+        // Debug: Log script element creation
+        if (tagName === 'SCRIPT') {
+          console.debug('[Partytown] createElement SCRIPT, instanceId:', instanceId);
+        }
 
         callMethod(this, ['createElement'], [tagName], CallType.NonBlocking, instanceId);
 

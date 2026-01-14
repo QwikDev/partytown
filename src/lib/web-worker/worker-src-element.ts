@@ -39,6 +39,31 @@ export const HTMLSrcElementDescriptorMap: PropertyDescriptorMap & ThisType<Worke
       setInstanceStateValue(this, StateProp.errorHandlers, cb ? [cb] : null);
     },
   },
+  // Legacy IE properties - some script loaders (including Google's) check these
+  // for backwards compatibility
+  readyState: {
+    get() {
+      // Return 'complete' if script has been processed, undefined otherwise
+      // Scripts are synchronously executed in Partytown, so if we're reading
+      // this property, the script is either not loaded or complete
+      return getInstanceStateValue(this, StateProp.loadErrorStatus) !== undefined
+        ? 'complete'
+        : getInstanceStateValue(this, StateProp.url)
+          ? 'complete'
+          : undefined;
+    },
+  },
+  onreadystatechange: {
+    get() {
+      // Map to onload for compatibility
+      let callbacks = getInstanceStateValue<EventHandler[]>(this, StateProp.loadHandlers);
+      return (callbacks && callbacks[0]) || null;
+    },
+    set(cb) {
+      // Map to onload - when readyState becomes 'complete', same as load
+      setInstanceStateValue(this, StateProp.loadHandlers, cb ? [cb] : null);
+    },
+  },
 
   getAttribute: {
     value(attrName: string) {

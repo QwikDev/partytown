@@ -26,18 +26,20 @@ export const createImageConstructor = (env: WebWorkerEnvironment) =>
       return this.s;
     }
     set src(src: string) {
+      console.debug('[Partytown] Image.src:', src);
       if (debug && webWorkerCtx.$config$.logImageRequests) {
         logWorker(`Image() request: ${resolveUrl(env, src, 'image')}`, env.$winId$);
       }
 
       this.s = src;
 
-      fetch(resolveUrl(env, src, 'image'), {
+      // Use self.fetch to ensure we use the patched version from init-web-worker
+      (self as any).fetch(resolveUrl(env, src, 'image'), {
         mode: 'no-cors',
         credentials: 'include',
         keepalive: true,
       }).then(
-        (rsp) => {
+        (rsp: Response) => {
           if (rsp.ok || rsp.status === 0) {
             this.l.map((cb) => cb({ type: 'load' }));
           } else {

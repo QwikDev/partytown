@@ -360,6 +360,14 @@ export const createWindow = (
         definePrototypeNodeType(win.Comment, 8);
         definePrototypeNodeType(win.DocumentType, 10);
 
+        // List of properties that might be checked by GA4 for feature detection
+        const ga4FeatureProps = [
+          'google_tag_data', 'google_tag_manager', 'gtag', 'dataLayer',
+          'ga', 'gaGlobal', '_ga', '_gaq', '_gat', '_gat_gtag_UA',
+          'google_unique_id', 'GoogleAnalyticsObject',
+          'Prototype', 'jQuery', '$', // common library checks
+        ];
+
         Object.assign(env, {
           $winId$,
           $parentWinId$,
@@ -372,7 +380,30 @@ export const createWindow = (
               } else if (webWorkerCtx.$config$.mainWindowAccessors?.includes(propName)) {
                 return getter(this, [propName]);
               } else {
-                return win[propName];
+                const value = win[propName];
+                // Log when GA4-related properties are accessed
+                if (typeof propName === 'string' && ga4FeatureProps.includes(propName)) {
+                  console.debug(`[Partytown] window.${propName} accessed, value:`, value);
+                }
+                // Log when properties return undefined (potential feature detection failures)
+                if (value === undefined && typeof propName === 'string' &&
+                    !propName.startsWith('webkit') && !propName.startsWith('moz') &&
+                    propName !== 'Symbol(Symbol.toStringTag)' && propName !== 'then') {
+                  // Only log interesting undefined accesses
+                  const interestingUndefined = [
+                    'caches', 'CacheStorage', 'BroadcastChannel',
+                    'CompressionStream', 'DecompressionStream',
+                    'PerformanceObserver', 'ReportingObserver',
+                    'Worklet', 'AudioWorklet', 'AnimationWorklet',
+                    'scheduler', 'navigation', 'userActivation',
+                    'visualViewport', 'originAgentCluster',
+                    'credentialless', 'crossOriginIsolated',
+                  ];
+                  if (interestingUndefined.includes(propName) || propName.includes('google') || propName.includes('ga')) {
+                    console.debug(`[Partytown] window.${propName} is undefined`);
+                  }
+                }
+                return value;
               }
             },
             has: () =>
@@ -461,6 +492,30 @@ export const createWindow = (
         }
 
         win.Worker = undefined;
+
+        // Polyfill for dynamic import() - fetches and executes scripts
+        // This allows gtag.js and similar scripts to load modules in the worker
+        console.debug('[Partytown] Setting up __pt_import__ polyfill');
+        (win as any).__pt_import__ = async (url: string) => {
+          console.debug('[Partytown] __pt_import__ called with:', url);
+          try {
+            const resolvedUrl = resolveUrl(env, url, 'script');
+            const response = await fetch(resolvedUrl);
+            if (!response.ok) {
+              throw new Error(`Failed to fetch module: ${response.status}`);
+            }
+            const scriptContent = await response.text();
+            // Execute the script in the window context
+            const fn = new Function(scriptContent);
+            fn.call(win);
+            // Return an empty module namespace object
+            // Most dynamic imports in analytics scripts don't use the return value
+            return {};
+          } catch (error) {
+            console.error('[Partytown] __pt_import__ error:', error);
+            throw error;
+          }
+        };
       }
 
       addEventListener = (...args: any[]) => {
@@ -487,6 +542,7 @@ export const createWindow = (
 
       fetch(input: string | URL | Request, init: any) {
         input = typeof input === 'string' || input instanceof URL ? String(input) : input.url;
+        console.debug('[Partytown] window.fetch:', input);
         const resolvedUrl = resolveUrl(env, input, 'fetch');
 
         // Check if this URL should use no-cors mode
@@ -496,7 +552,8 @@ export const createWindow = (
           init = { ...init, mode: 'no-cors', credentials: 'include' };
         }
 
-        return fetch(resolvedUrl, init);
+        // Use self.fetch to ensure we use the patched version from init-web-worker
+        return (self as any).fetch(resolvedUrl, init);
       }
 
       get frames() {
@@ -595,6 +652,7 @@ export const createWindow = (
         const ExtendedXhr = defineConstructorName(
           class extends Xhr {
             open(...args: any[]) {
+              console.debug('[Partytown] XHR.open:', args[0], args[1]);
               args[1] = resolveUrl(env, args[1], 'xhr');
               (super.open as any)(...args);
             }
