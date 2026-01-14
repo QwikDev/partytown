@@ -75,12 +75,12 @@ export const createNavigator = (env: WebWorkerEnvironment) => {
   // IMPORTANT: Set these AFTER the loop to ensure they're not overwritten
   // by the worker's navigator which may have different/undefined values
   // GA4 and Mixpanel check navigator.cookieEnabled before setting cookies
-  const workerCookieEnabled = (navigator as any).cookieEnabled;
   nav.cookieEnabled = true;
   nav.onLine = true;
-
-  // Log what we're setting for debugging - use console.warn so it's visible
-  console.warn('[PT-NAV] 🍪 navigator.cookieEnabled SET TO:', nav.cookieEnabled, '(worker had:', workerCookieEnabled, ')');
+  // Web workers may have doNotTrack="1" by default, which causes analytics
+  // scripts like Mixpanel (with ignore_dnt:false) to disable persistence.
+  // Set to null (no preference) to match typical main thread behavior.
+  nav.doNotTrack = null;
 
   return new Proxy(nav, {
     set(_, propName, propValue) {
@@ -88,21 +88,10 @@ export const createNavigator = (env: WebWorkerEnvironment) => {
       return true;
     },
     get(target, prop) {
-      const propStr = String(prop);
-
-      // Log ALL navigator property accesses for debugging
-      if (typeof prop === 'string' && !['then', 'toJSON', Symbol.toStringTag].includes(prop as any)) {
-        const hasOwn = Object.prototype.hasOwnProperty.call(target, prop);
-        const value = hasOwn ? target[prop] : 'will-fetch-from-main';
-        console.warn(`[PT-NAV] 📍 navigator.${propStr} accessed, hasOwn:${hasOwn}, value:`,
-          typeof value === 'function' ? '[function]' : value);
-      }
-
       if (Object.prototype.hasOwnProperty.call(target, prop)) {
         return target[prop];
       }
-      const value = getter(env.$window$, ['navigator', prop]);
-      return value;
+      return getter(env.$window$, ['navigator', prop]);
     },
   });
 };
