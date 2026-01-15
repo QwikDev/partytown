@@ -9,7 +9,9 @@ import { onMessageFromWebWorker } from '../sandbox/on-messenge-from-worker';
 import { readMainInterfaces, readMainPlatform } from '../sandbox/read-main-platform';
 
 const createMessengerAtomics: Messenger = async (receiveMessage) => {
-  const size = 1024 * 1024 * 1024;
+  // Use a reasonable size for the shared buffer (64MB should be plenty for most responses)
+  // A 1GB buffer was causing issues in some browsers
+  const size = 64 * 1024 * 1024;
   const sharedDataBuffer = new SharedArrayBuffer(size);
   const sharedData = new Int32Array(sharedDataBuffer);
 
@@ -28,13 +30,32 @@ const createMessengerAtomics: Messenger = async (receiveMessage) => {
       // web worker has requested the rest of the html/svg interfaces
       worker.postMessage([WorkerMessageType.MainInterfacesResponseToWorker, readMainInterfaces()]);
     } else if (msgType === WorkerMessageType.ForwardWorkerAccessRequest) {
+      const startTime = performance.now();
+      // Check if this is a cookie-related operation for debugging
+      const isCookieOp = accessReq.$tasks$?.some(t => 
+        t.$applyPath$?.includes('cookie')
+      );
+      if (isCookieOp) {
+        console.debug('[Partytown Atomics] Cookie operation received at:', startTime);
+      }
+      
       receiveMessage(accessReq, (accessRsp) => {
+        const processingTime = performance.now() - startTime;
+        if (isCookieOp) {
+          console.debug('[Partytown Atomics] Cookie operation processed, time:', processingTime, 'ms');
+        }
+        
         const stringifiedData = JSON.stringify(accessRsp);
         const stringifiedDataLength = stringifiedData.length;
         for (let i = 0; i < stringifiedDataLength; i++) {
           sharedData[i + 1] = stringifiedData.charCodeAt(i);
         }
         sharedData[0] = stringifiedDataLength;
+        
+        if (isCookieOp) {
+          console.debug('[Partytown Atomics] Cookie response written, notifying worker');
+        }
+        
         Atomics.notify(sharedData, 0);
       });
     } else {

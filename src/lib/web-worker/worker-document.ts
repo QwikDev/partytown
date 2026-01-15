@@ -35,7 +35,28 @@ export const patchDocument = (
     cookie: {
       get() {
         if (env.$isSameOrigin$) {
-          return getter(this, ['cookie']);
+          const result = getter(this, ['cookie']);
+          if (debug) {
+            // Check for GA cookies in the result
+            const gaCookies = result ? result.split(';').filter((c: string) => 
+              c.trim().startsWith('_ga') || c.trim().startsWith('_gid')
+            ) : [];
+            
+            // Track cookie read count to identify patterns
+            (env as any).$cookieReadCount$ = ((env as any).$cookieReadCount$ || 0) + 1;
+            const readCount = (env as any).$cookieReadCount$;
+            
+            // Log the first few reads and any reads without GA cookies
+            if (readCount <= 5) {
+              console.debug(`[Partytown Cookie] GET #${readCount}:`, 
+                gaCookies.length ? `GA cookies: ${gaCookies.join('; ')}` : '⚠️ No GA cookies',
+                `(total: ${result ? result.length : 0} chars)`);
+            } else if (!gaCookies.length && readCount % 10 === 0) {
+              // Periodically log if no GA cookies
+              console.debug(`[Partytown Cookie] GET #${readCount}: ⚠️ Still no GA cookies`);
+            }
+          }
+          return result;
         } else {
           warnCrossOrigin('get', 'cookie', env);
           return '';
@@ -43,7 +64,26 @@ export const patchDocument = (
       },
       set(value) {
         if (env.$isSameOrigin$) {
+          // Check if this is a GA cookie being SET (important for debugging)
+          const isGaCookie = value && typeof value === 'string' && 
+            (value.startsWith('_ga=') || value.startsWith('_ga_') || value.startsWith('_gid='));
+          
+          if (debug && isGaCookie) {
+            console.debug('[Partytown Cookie] 🔥 GA COOKIE BEING SET:', value.substring(0, 150));
+            console.debug('[Partytown Cookie] Stack trace:', new Error().stack);
+          }
+          
           blockingSetter(this, ['cookie'], value);
+          
+          if (debug && isGaCookie) {
+            // Verify the GA cookie was set correctly
+            const verifyResult = getter(this, ['cookie']);
+            const gaCookiesAfter = verifyResult ? verifyResult.split(';').filter((c: string) => 
+              c.trim().startsWith('_ga') || c.trim().startsWith('_gid')
+            ) : [];
+            console.debug('[Partytown Cookie] ✅ GA cookie verification:', 
+              gaCookiesAfter.length ? gaCookiesAfter.join('; ') : '❌ NO GA COOKIES FOUND!');
+          }
         } else if (debug) {
           warnCrossOrigin('set', 'cookie', env);
         }

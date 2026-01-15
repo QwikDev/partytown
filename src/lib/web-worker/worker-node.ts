@@ -58,7 +58,21 @@ export const createNodeCstr = (
         // Debug: Log script insertion
         if (isScript) {
           const scriptSrc = getInstanceStateValue<string>(newNode, StateProp.url);
-          console.debug('[Partytown] insertBefore SCRIPT, src:', scriptSrc || '(inline)');
+          const scriptContent = getInstanceStateValue<string>(newNode, StateProp.innerHTML);
+          const isGtmScript = scriptSrc?.includes('googletagmanager.com') || 
+            scriptSrc?.includes('gtag') ||
+            scriptSrc?.includes('google-analytics');
+          
+          if (isGtmScript) {
+            console.debug('[Partytown] 📜 Inserting GTM/GA4 SCRIPT:', {
+              src: scriptSrc || '(no src)',
+              hasInlineContent: !!scriptContent,
+              contentLength: scriptContent?.length || 0,
+              instanceId
+            });
+          } else {
+            console.debug('[Partytown] insertBefore SCRIPT, src:', scriptSrc || '(inline)');
+          }
         }
 
         if (isScript) {
@@ -99,6 +113,15 @@ export const createNodeCstr = (
           insertIframe(instanceId, newNode);
         }
         if (isScript) {
+          const scriptSrc = getInstanceStateValue<string>(newNode, StateProp.url);
+          const isGtmScript = scriptSrc?.includes('googletagmanager.com') || 
+            scriptSrc?.includes('gtag') ||
+            scriptSrc?.includes('google-analytics');
+          
+          if (isGtmScript) {
+            console.debug('[Partytown] 📜 Sending InitializeNextScript for GTM/GA4 script');
+          }
+          
           sendToMain(true);
           webWorkerCtx.$postMessage$([WorkerMessageType.InitializeNextScript, winId]);
         }

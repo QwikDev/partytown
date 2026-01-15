@@ -38,7 +38,18 @@ export const createNavigator = (env: WebWorkerEnvironment) => {
   const nav: any = {
     serviceWorker: serviceWorkerStub,
     sendBeacon: (url: string, body?: any) => {
-      console.debug('[Partytown] sendBeacon:', url);
+      // Check if this is a GA analytics request
+      const isGaRequest = url && (
+        url.includes('google-analytics.com') || 
+        url.includes('analytics.google.com') ||
+        url.includes('/collect') ||
+        url.includes('/g/collect')
+      );
+      
+      if (debug && isGaRequest) {
+        console.debug('[Partytown SendBeacon] 📊 GA Analytics sendBeacon:', url.substring(0, 200));
+      }
+      
       if (debug && webWorkerCtx.$config$.logSendBeaconRequests) {
         try {
           logWorker(
@@ -51,16 +62,32 @@ export const createNavigator = (env: WebWorkerEnvironment) => {
         }
       }
       try {
+        const resolvedUrl = resolveUrl(env, url, null);
+        if (debug && isGaRequest) {
+          console.debug('[Partytown SendBeacon] 📊 Resolved URL:', resolvedUrl.substring(0, 200));
+        }
+        
         // Use self.fetch to ensure we use the patched version from init-web-worker
-        (self as any).fetch(resolveUrl(env, url, null), {
+        (self as any).fetch(resolvedUrl, {
           method: 'POST',
           body,
           mode: 'no-cors',
           keepalive: true,
           ...resolveSendBeaconRequestParameters(env, url),
+        }).then(() => {
+          if (debug && isGaRequest) {
+            console.debug('[Partytown SendBeacon] 📊 GA sendBeacon completed');
+          }
+        }).catch((e: Error) => {
+          if (debug && isGaRequest) {
+            console.debug('[Partytown SendBeacon] ❌ GA sendBeacon FAILED:', e.message);
+          }
         });
         return true;
       } catch (e) {
+        if (debug && isGaRequest) {
+          console.debug('[Partytown SendBeacon] ❌ GA sendBeacon exception:', e);
+        }
         console.error(e);
         return false;
       }

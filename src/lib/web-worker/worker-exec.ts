@@ -17,6 +17,9 @@ import { environments, partytownLibUrl, webWorkerCtx } from './worker-constants'
 import { getOrCreateNodeInstance } from './worker-constructors';
 import { getInstanceStateValue, setInstanceStateValue } from './worker-state';
 
+// Track loaded scripts for debugging
+const loadedScripts: string[] = [];
+
 export const initNextScriptsInWebWorker = async (initScript: InitializeScriptData) => {
   let winId = initScript.$winId$;
   let instanceId = initScript.$instanceId$;
@@ -37,6 +40,18 @@ export const initNextScriptsInWebWorker = async (initScript: InitializeScriptDat
     'text/x-ecmascript',
     'application/ecmascript',
   ];
+  
+  // Track GTM/GA4 related scripts
+  const isGtmScript = scriptOrgSrc?.includes('googletagmanager.com') || 
+    scriptOrgSrc?.includes('gtag') ||
+    scriptOrgSrc?.includes('google-analytics');
+  
+  if (debug && isGtmScript) {
+    console.debug('[Partytown] 📜 Loading GTM/GA4 script:', scriptOrgSrc);
+    console.debug('[Partytown] 📜 Previously loaded scripts:', loadedScripts.filter(s => 
+      s.includes('google') || s.includes('gtag') || s.includes('gtm')
+    ));
+  }
 
   if (scriptSrc) {
     try {
@@ -57,15 +72,43 @@ export const initNextScriptsInWebWorker = async (initScript: InitializeScriptDat
         if (shouldExecute) {
           scriptContent = await rsp.text();
           env.$currentScriptId$ = instanceId;
+          
+          // Track loaded scripts
+          loadedScripts.push(scriptOrgSrc || scriptSrc);
+          
+          if (debug && isGtmScript) {
+            console.debug('[Partytown] 📜 Executing fetched script:', scriptOrgSrc || scriptSrc, 'size:', scriptContent.length);
+          }
+          
           run(env, scriptContent, scriptOrgSrc || scriptSrc);
+          
+          if (debug && isGtmScript) {
+            // Check state after GTM/GA4 script execution
+            const win = env.$window$ as any;
+            console.debug('[Partytown] 📜 After script execution state:', {
+              gtag: typeof win.gtag,
+              google_tag_manager: win.google_tag_manager ? Object.keys(win.google_tag_manager).slice(0, 5) : 'undefined',
+              dataLayer: win.dataLayer?.length,
+            });
+          }
+        } else {
+          if (debug) {
+            console.debug('[Partytown] ⚠️ Script not executed (content-type):', responseContentType, scriptOrgSrc);
+          }
         }
         runStateLoadHandlers(instance!, StateProp.loadHandlers);
       } else {
         errorMsg = rsp.statusText;
+        if (debug && isGtmScript) {
+          console.debug('[Partytown] ❌ Script fetch failed:', rsp.status, rsp.statusText, scriptOrgSrc);
+        }
         runStateLoadHandlers(instance!, StateProp.errorHandlers);
       }
     } catch (urlError: any) {
       console.error(urlError);
+      if (debug && isGtmScript) {
+        console.debug('[Partytown] ❌ Script fetch error:', urlError.message, scriptOrgSrc);
+      }
       errorMsg = String(urlError.stack || urlError);
       runStateLoadHandlers(instance!, StateProp.errorHandlers);
     }
@@ -147,6 +190,19 @@ export const replaceThisInSource = (scriptContent: string, newThis: string): str
 export const run = (env: WebWorkerEnvironment, scriptContent: string, scriptUrl?: string) => {
   env.$runWindowLoadEvent$ = 1;
 
+  // Check if this is a GTM/GA4 script
+  const isGtmScript = scriptUrl?.includes('googletagmanager.com') || 
+    scriptUrl?.includes('gtag/js') ||
+    scriptContent.includes('google_tag_manager') ||
+    scriptContent.includes('gtag');
+  
+  if (isGtmScript) {
+    console.debug('[Partytown] 🏷️ Executing GTM/GA4 script:', scriptUrl || '(inline)', 'length:', scriptContent.length);
+    // Check state before execution
+    const win = env.$window$ as any;
+    console.debug('[Partytown] 🏷️ Before execution - gtag:', typeof win.gtag, 'google_tag_manager:', typeof win.google_tag_manager);
+  }
+
   // First we want to replace all `this` symbols
   let sourceWithReplacedThis = replaceThisInSource(scriptContent, '(thi$(this)?window:this)');
 
@@ -162,13 +218,17 @@ export const run = (env: WebWorkerEnvironment, scriptContent: string, scriptUrl?
     '__pt_import__($1)'
   );
 
+  // Combine user-defined globalFns with GA4/GTM functions that should always be exposed
+  const ga4GlobalFns = ['gtag', 'ga', 'google_tag_manager', 'google_tag_data', 'dataLayer'];
+  const allGlobalFns = [...new Set([...(webWorkerCtx.$config$.globalFns || []), ...ga4GlobalFns])];
+  
   scriptContent =
     `with(this){${sourceWithReplacedThis.replace(
       /\/\/# so/g,
       '//Xso'
-    )}\n;function thi$(t){return t===this}};${(webWorkerCtx.$config$.globalFns || [])
+    )}\n;function thi$(t){return t===this}};${allGlobalFns
       .filter((globalFnName) => /[a-zA-Z_$][0-9a-zA-Z_$]*/.test(globalFnName))
-      .map((g) => `(typeof ${g}=='function'&&(this.${g}=${g}))`)
+      .map((g) => `(typeof ${g}!=='undefined'&&(this.${g}=${g}))`)
       .join(';')};` + (scriptUrl ? '\n//# sourceURL=' + scriptUrl : '');
 
   if (!env.$isSameOrigin$) {
@@ -177,8 +237,28 @@ export const run = (env: WebWorkerEnvironment, scriptContent: string, scriptUrl?
 
   try {
     new Function(scriptContent).call(env.$window$);
+    
+    if (isGtmScript) {
+      // Check state after execution
+      const win = env.$window$ as any;
+      console.debug('[Partytown] 🏷️ After execution - gtag:', typeof win.gtag, 'google_tag_manager:', typeof win.google_tag_manager);
+      
+      // If this was the main gtag.js script, check for the gtag function
+      if (scriptUrl?.includes('gtag/js')) {
+        if (typeof win.gtag === 'function') {
+          console.debug('[Partytown] ✅ gtag function successfully created');
+        } else {
+          console.debug('[Partytown] ⚠️ gtag function NOT created after gtag.js execution');
+          // Check if dataLayer exists
+          console.debug('[Partytown] 🏷️ dataLayer exists:', !!win.dataLayer, 'length:', win.dataLayer?.length);
+        }
+      }
+    }
   } catch (execError: any) {
     console.error('[Partytown] Script execution error:', execError.message, execError.stack);
+    if (isGtmScript) {
+      console.error('[Partytown] ❌ GTM/GA4 script FAILED:', scriptUrl || '(inline)');
+    }
     throw execError;
   }
 

@@ -69,8 +69,14 @@ console.info = (...args: any[]) => {
 
 let worker: PartytownWebWorker;
 
-const receiveMessage: MessengerRequestCallback = (accessReq, responseCallback) =>
-  mainAccessHandler(worker, accessReq).then(responseCallback);
+const receiveMessage: MessengerRequestCallback = (accessReq, responseCallback) => {
+  // mainAccessHandler is async but often doesn't need to await anything
+  // For cookie operations, we want to minimize microtask delays
+  const result = mainAccessHandler(worker, accessReq);
+  
+  // Handle the Promise - this schedules on microtask but is unavoidable for async functions
+  result.then(responseCallback);
+};
 
 syncCreateMessenger(receiveMessage).then((onMessageHandler) => {
   if (onMessageHandler) {

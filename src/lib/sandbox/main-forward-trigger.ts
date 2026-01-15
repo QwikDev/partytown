@@ -1,4 +1,5 @@
 import {
+  debug,
   emptyObjectValue,
   getOriginalBehavior,
   len,
@@ -13,7 +14,18 @@ export const mainForwardTrigger = (worker: PartytownWebWorker, $winId$: WinId, w
   let i: number;
   let mainForwardFn: typeof win;
 
-  let forwardCall = ($forward$: string[], args: any) =>
+  let forwardCall = ($forward$: string[], args: any) => {
+    // Debug dataLayer.push events for GA tracking
+    if (debug && $forward$.join('.') === 'dataLayer.push') {
+      const eventData = args[0];
+      const eventName = eventData?.event || eventData?.[0]?.event || 'unknown';
+      const isGaEvent = ['page_view', 'view_item', 'add_to_cart', 'purchase', 'begin_checkout'].includes(eventName);
+      
+      if (isGaEvent || eventName.includes('gtm') || eventName.includes('ga')) {
+        console.debug('[Partytown Forward] 📤 dataLayer.push - GA Event:', eventName, eventData);
+      }
+    }
+    
     worker.postMessage([
       WorkerMessageType.ForwardMainTrigger,
       {
@@ -22,6 +34,7 @@ export const mainForwardTrigger = (worker: PartytownWebWorker, $winId$: WinId, w
         $args$: serializeForWorker($winId$, Array.from(args)),
       },
     ]);
+  };
 
   win._ptf = undefined;
 

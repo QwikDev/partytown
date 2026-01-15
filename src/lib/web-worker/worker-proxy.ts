@@ -140,6 +140,27 @@ export const sendToMain = (isBlocking?: boolean) => {
   }
 };
 
+/**
+ * Flush any pending async tasks to main thread.
+ * This ensures all queued operations are sent before continuing.
+ * Useful for ensuring consistency before critical operations like cookie reads.
+ */
+export const flushPendingTasks = () => {
+  clearTimeout(webWorkerCtx.$asyncMsgTimer$);
+  if (len(taskQueue)) {
+    if (debug) {
+      logWorker(`Flushing ${taskQueue.length} pending tasks`);
+    }
+    // Send pending tasks as async (non-blocking)
+    const accessReq: MainAccessRequest = {
+      $msgId$: `${randomId()}.${webWorkerCtx.$tabId$}`,
+      $tasks$: [...taskQueue],
+    };
+    taskQueue.length = 0;
+    webWorkerCtx.$postMessage$([WorkerMessageType.AsyncAccessRequest, accessReq]);
+  }
+};
+
 export const getter: Getter = (
   instance: WorkerInstance,
   applyPath: ApplyPath,
