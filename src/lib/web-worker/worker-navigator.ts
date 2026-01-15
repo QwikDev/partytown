@@ -39,6 +39,7 @@ export const createNavigator = (env: WebWorkerEnvironment) => {
     serviceWorker: serviceWorkerStub,
     sendBeacon: (url: string, body?: any) => {
       // Check if this is a GA analytics request
+      const isGaCollect = url && url.includes('analytics.google.com') && url.includes('/collect');
       const isGaRequest = url && (
         url.includes('google-analytics.com') || 
         url.includes('analytics.google.com') ||
@@ -46,7 +47,23 @@ export const createNavigator = (env: WebWorkerEnvironment) => {
         url.includes('/g/collect')
       );
       
-      if (debug && isGaRequest) {
+      // ALWAYS log /collect calls - this is what we're looking for
+      if (isGaCollect) {
+        // Track /collect calls (need to access window through env)
+        // Note: env is not directly available here, so we use a global counter
+        (self as any)._ptCollectCount = ((self as any)._ptCollectCount || 0) + 1;
+        
+        console.debug('[Partytown] 🎯 GA4 /collect SENDBEACON DETECTED!');
+        console.debug('[Partytown] 🎯 URL:', url.substring(0, 300));
+        console.debug('[Partytown] 🎯 Body length:', body?.length || 0);
+        
+        // Parse URL to see which event this is for
+        try {
+          const urlObj = new URL(url);
+          const eventName = urlObj.searchParams.get('en');
+          console.debug('[Partytown] 🎯 Event name in /collect:', eventName);
+        } catch (e) {}
+      } else if (debug && isGaRequest) {
         console.debug('[Partytown SendBeacon] 📊 GA Analytics sendBeacon:', url.substring(0, 200));
       }
       

@@ -196,11 +196,14 @@ export const run = (env: WebWorkerEnvironment, scriptContent: string, scriptUrl?
     scriptContent.includes('google_tag_manager') ||
     scriptContent.includes('gtag');
   
+  const win = env.$window$ as any;
+  const timeSinceInit = win._ptInitTime ? Date.now() - win._ptInitTime : 'unknown';
+  
   if (isGtmScript) {
     console.debug('[Partytown] 🏷️ Executing GTM/GA4 script:', scriptUrl || '(inline)', 'length:', scriptContent.length);
-    // Check state before execution
-    const win = env.$window$ as any;
+    console.debug('[Partytown] 🏷️ Time since window init:', timeSinceInit, 'ms');
     console.debug('[Partytown] 🏷️ Before execution - gtag:', typeof win.gtag, 'google_tag_manager:', typeof win.google_tag_manager);
+    console.debug('[Partytown] 🏷️ dataLayer state:', win.dataLayer ? `exists with ${win.dataLayer.length} items` : 'MISSING!');
   }
 
   // First we want to replace all `this` symbols
@@ -222,14 +225,18 @@ export const run = (env: WebWorkerEnvironment, scriptContent: string, scriptUrl?
   const ga4GlobalFns = ['gtag', 'ga', 'google_tag_manager', 'google_tag_data', 'dataLayer'];
   const allGlobalFns = [...new Set([...(webWorkerCtx.$config$.globalFns || []), ...ga4GlobalFns])];
   
+  // Build the exposure code - this needs to run INSIDE the with block
+  // so that function declarations are accessible
+  const exposureCode = allGlobalFns
+    .filter((globalFnName) => /[a-zA-Z_$][0-9a-zA-Z_$]*/.test(globalFnName))
+    .map((g) => `try{if(typeof ${g}!=='undefined'){this.${g}=${g};}}catch(e){}`)
+    .join('');
+  
   scriptContent =
     `with(this){${sourceWithReplacedThis.replace(
       /\/\/# so/g,
       '//Xso'
-    )}\n;function thi$(t){return t===this}};${allGlobalFns
-      .filter((globalFnName) => /[a-zA-Z_$][0-9a-zA-Z_$]*/.test(globalFnName))
-      .map((g) => `(typeof ${g}!=='undefined'&&(this.${g}=${g}))`)
-      .join(';')};` + (scriptUrl ? '\n//# sourceURL=' + scriptUrl : '');
+    )}\n;function thi$(t){return t===this};${exposureCode}};` + (scriptUrl ? '\n//# sourceURL=' + scriptUrl : '');
 
   if (!env.$isSameOrigin$) {
     scriptContent = scriptContent.replace(/.postMessage\(/g, `.postMessage('${env.$winId$}',`);
@@ -240,18 +247,36 @@ export const run = (env: WebWorkerEnvironment, scriptContent: string, scriptUrl?
     
     if (isGtmScript) {
       // Check state after execution
-      const win = env.$window$ as any;
       console.debug('[Partytown] 🏷️ After execution - gtag:', typeof win.gtag, 'google_tag_manager:', typeof win.google_tag_manager);
       
       // If this was the main gtag.js script, check for the gtag function
       if (scriptUrl?.includes('gtag/js')) {
         if (typeof win.gtag === 'function') {
-          console.debug('[Partytown] ✅ gtag function successfully created');
+          console.debug('[Partytown] ✅ gtag function created by gtag.js!');
+          win._ptGtagInitialized = true;
+          
+          // Check if it's a real gtag (has internal state) vs our stub
+          console.debug('[Partytown] 🔍 gtag.length:', win.gtag.length);
+          console.debug('[Partytown] 🔍 gtag.toString():', win.gtag.toString().substring(0, 100));
         } else {
           console.debug('[Partytown] ⚠️ gtag function NOT created after gtag.js execution');
-          // Check if dataLayer exists
           console.debug('[Partytown] 🏷️ dataLayer exists:', !!win.dataLayer, 'length:', win.dataLayer?.length);
+          
+          // Try to find gtag in the function scope and expose it
+          // This is a fallback in case the globalFns exposure didn't work
+          console.debug('[Partytown] 🔧 Checking if gtag needs manual exposure...');
         }
+      }
+      
+      // After GTM loads, check for GA4 internal state
+      if (scriptUrl?.includes('gtm.js')) {
+        setTimeout(() => {
+          const gtm = win.google_tag_manager;
+          if (gtm) {
+            const ga4Container = gtm['G-52LKG2B3L1'];
+            console.debug('[Partytown] 🔍 GA4 Container state:', ga4Container ? Object.keys(ga4Container) : 'not found');
+          }
+        }, 100);
       }
     }
   } catch (execError: any) {

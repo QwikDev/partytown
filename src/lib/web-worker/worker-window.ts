@@ -395,9 +395,25 @@ export const createWindow = (
             set: (win, propName: any, value: any) => {
               // Log when GA4-related properties are set
               if (typeof propName === 'string' && ga4FeatureProps.includes(propName)) {
-                console.debug(`[Partytown] 🔥 window.${propName} SET, value type:`, typeof value);
-                if (propName === 'gtag' && typeof value === 'function') {
-                  console.debug(`[Partytown] ✅ gtag function created!`);
+                const timeSinceInit = win._ptInitTime ? Date.now() - win._ptInitTime : 'unknown';
+                const existingType = typeof win[propName];
+                console.debug(`[Partytown] 🔥 window.${propName} SET at ${timeSinceInit}ms:`, {
+                  newType: typeof value,
+                  existingType,
+                  isOverwrite: existingType !== 'undefined'
+                });
+                
+                if (propName === 'gtag') {
+                  if (existingType === 'function') {
+                    console.debug(`[Partytown] ⚠️ gtag is being OVERWRITTEN!`);
+                    // Log stack trace to see who's overwriting
+                    console.debug('[Partytown] Overwrite stack:', new Error().stack);
+                  }
+                  if (typeof value === 'function') {
+                    console.debug(`[Partytown] ✅ gtag function set/updated`);
+                  } else if (value === undefined) {
+                    console.debug(`[Partytown] ❌ gtag being set to undefined!`);
+                  }
                 }
               }
               win[propName] = value;
@@ -490,28 +506,36 @@ export const createWindow = (
 
         win.Worker = undefined;
 
-        // Pre-initialize gtag function for GA4 compatibility
-        // GA4/gtag.js expects this function to exist before it loads
-        // When loaded via GTM, this initialization might not happen correctly
-        // This mimics the standard gtag.js snippet that should run on main thread
+        // Initialize timing for debugging
+        const initTime = Date.now();
+        const buildVersion = 'v5-' + initTime; // v5 = gtag pre-init + exposure inside with block
+        console.debug('[Partytown] 🚀 Window initialization starting. Build:', buildVersion);
+        
+        // Pre-initialize dataLayer
         if (!(win as any).dataLayer) {
           (win as any).dataLayer = [];
           console.debug('[Partytown] Pre-initialized window.dataLayer');
         }
+        
+        // Pre-initialize gtag function
+        // This is the standard gtag stub that users are supposed to create
+        // GA4/gtag.js will enhance this with its internal dispatch mechanism
         if (typeof (win as any).gtag !== 'function') {
-          // Create the gtag function exactly as Google's snippet does
-          // This must use the 'arguments' object, not rest parameters,
-          // because GA4 expects dataLayer entries to be Arguments objects
           (win as any).gtag = function() {
             (win as any).dataLayer.push(arguments);
           };
           console.debug('[Partytown] ✅ Pre-initialized window.gtag function');
-          
-          // Also call gtag('js', new Date()) which gtag.js expects to see
-          // This signals to gtag.js that it should initialize
-          (win as any).gtag('js', new Date());
-          console.debug('[Partytown] ✅ Called gtag("js", new Date())');
         }
+        
+        // Store init time for debugging
+        (win as any)._ptInitTime = initTime;
+        (win as any)._ptGtagInitialized = true;
+        
+        console.debug('[Partytown] 🚀 Window initialization complete.',
+          'gtag:', typeof (win as any).gtag,
+          'dataLayer:', (win as any).dataLayer?.length,
+          'isIframe:', isIframeWindow,
+          'winId:', $winId$);
 
         // Polyfill for dynamic import() - fetches and executes scripts
         // This allows gtag.js and similar scripts to load modules in the worker
@@ -570,22 +594,38 @@ export const createWindow = (
         // Check if this URL should use no-cors mode
         // This is useful for tracking/analytics URLs that fail due to CORS
         // but don't need response data (fire-and-forget requests)
-        if (testIfShouldUseNoCors(webWorkerCtx.$config$, input)) {
+        const shouldUseNoCors = testIfShouldUseNoCors(webWorkerCtx.$config$, input);
+        if (shouldUseNoCors) {
           init = { ...init, mode: 'no-cors', credentials: 'include' };
         }
 
-        // Debug GA analytics requests specifically
-        if (debug) {
-          const isGaRequest = input.includes('google-analytics.com') || 
-            input.includes('analytics.google.com') ||
-            input.includes('/collect') ||
-            input.includes('/g/collect');
+        // Debug GA analytics requests specifically - ALWAYS log /collect calls
+        const isGaCollect = input.includes('analytics.google.com') && input.includes('/collect');
+        const isGaRequest = input.includes('google-analytics.com') || 
+          input.includes('analytics.google.com') ||
+          input.includes('/collect') ||
+          input.includes('/g/collect');
+        
+        if (isGaCollect) {
+          // Track /collect calls
+          (env.$window$ as any)._ptCollectCount = ((env.$window$ as any)._ptCollectCount || 0) + 1;
           
-          if (isGaRequest) {
-            console.debug('[Partytown Fetch] 📊 GA Analytics request:', input.substring(0, 200));
-            console.debug('[Partytown Fetch] 📊 Resolved URL:', resolvedUrl.substring(0, 200));
-            console.debug('[Partytown Fetch] 📊 Init:', JSON.stringify(init || {}));
-          }
+          console.debug('[Partytown] 🎯 GA4 /collect REQUEST DETECTED!');
+          console.debug('[Partytown] 🎯 URL:', input.substring(0, 300));
+          console.debug('[Partytown] 🎯 Resolved:', resolvedUrl.substring(0, 300));
+          console.debug('[Partytown] 🎯 no-cors:', shouldUseNoCors);
+          console.debug('[Partytown] 🎯 Init:', JSON.stringify(init || {}));
+          
+          // Parse URL to see which event this is for
+          try {
+            const urlObj = new URL(input);
+            const eventName = urlObj.searchParams.get('en');
+            console.debug('[Partytown] 🎯 Event name in /collect:', eventName);
+          } catch (e) {}
+        } else if (debug && isGaRequest) {
+          console.debug('[Partytown Fetch] 📊 GA Analytics request:', input.substring(0, 200));
+          console.debug('[Partytown Fetch] 📊 Resolved URL:', resolvedUrl.substring(0, 200));
+          console.debug('[Partytown Fetch] 📊 Init:', JSON.stringify(init || {}));
         }
 
         // Use self.fetch to ensure we use the patched version from init-web-worker
