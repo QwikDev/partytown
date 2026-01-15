@@ -16,7 +16,7 @@ import { debug } from '../utils';
 import { environments, partytownLibUrl, webWorkerCtx } from './worker-constants';
 import { getOrCreateNodeInstance } from './worker-constructors';
 import { getInstanceStateValue, setInstanceStateValue } from './worker-state';
-import { sendGA4Collect } from './worker-ga4-collect';
+import { sendGA4Collect, setupHistoryChangeListener } from './worker-ga4-collect';
 
 export const initNextScriptsInWebWorker = async (initScript: InitializeScriptData) => {
   let winId = initScript.$winId$;
@@ -60,7 +60,7 @@ export const initNextScriptsInWebWorker = async (initScript: InitializeScriptDat
           env.$currentScriptId$ = instanceId;
           run(env, scriptContent, scriptOrgSrc || scriptSrc);
           
-          // After gtag.js loads, send a page_view /collect call
+          // After gtag.js loads, send initial page_view and setup history listeners for SPA navigation
           // GA4's automatic page_view doesn't work in Partytown because tidr.destination is broken
           const isGtagJs = scriptOrgSrc?.includes('gtag/js') && scriptOrgSrc?.includes('id=G-');
           if (isGtagJs && !(env.$window$ as any)._ptPageViewSent) {
@@ -68,7 +68,11 @@ export const initNextScriptsInWebWorker = async (initScript: InitializeScriptDat
 
             // Small delay to ensure cookies and GTM state are set
             setTimeout(() => {
+              // Send initial page_view
               sendGA4Collect(env.$window$, 'page_view', {}, { isPageView: true });
+
+              // Setup history listeners to fire page_view on SPA navigation
+              setupHistoryChangeListener(env.$window$);
             }, 100);
           }
         }
