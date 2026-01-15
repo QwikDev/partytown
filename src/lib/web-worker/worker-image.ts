@@ -26,7 +26,6 @@ export const createImageConstructor = (env: WebWorkerEnvironment) =>
       return this.s;
     }
     set src(src: string) {
-      console.debug('[Partytown] Image.src:', src);
       if (debug && webWorkerCtx.$config$.logImageRequests) {
         logWorker(`Image() request: ${resolveUrl(env, src, 'image')}`, env.$winId$);
       }

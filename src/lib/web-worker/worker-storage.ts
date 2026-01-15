@@ -10,24 +10,14 @@ export const addStorageApi = (
 ) => {
   let storage: Storage = {
     getItem(key) {
-      // Log Mixpanel localStorage operations with full value
-      const isMixpanel = key?.includes('mp_') || key?.includes('mixpanel');
       if (env.$isSameOrigin$) {
-        const value = callMethod(win, [storageName, 'getItem'], [key], CallType.Blocking);
-        if (isMixpanel) {
-          console.warn(`[PT-LS] 📖 ${storageName}.getItem('${key}') =`, value ? value.substring(0, 100) + '...' : 'NULL');
-        }
-        return value;
+        return callMethod(win, [storageName, 'getItem'], [key], CallType.Blocking);
       } else {
         warnCrossOrigin('get', storageName, env);
       }
     },
 
     setItem(key, value) {
-      const isMixpanel = key?.includes('mp_') || key?.includes('mixpanel');
-      if (isMixpanel) {
-        console.warn(`[PT-LS] ✏️ ${storageName}.setItem('${key}') =`, value?.substring?.(0, 100) + '...');
-      }
       if (env.$isSameOrigin$) {
         callMethod(win, [storageName, 'setItem'], [key, value], CallType.Blocking);
       } else {
@@ -36,10 +26,6 @@ export const addStorageApi = (
     },
 
     removeItem(key) {
-      const isMixpanel = key?.includes('mp_') || key?.includes('mixpanel');
-      if (isMixpanel) {
-        console.error(`[PT-LS] 🗑️ ${storageName}.removeItem('${key}') - BEING REMOVED!`);
-      }
       if (env.$isSameOrigin$) {
         callMethod(win, [storageName, 'removeItem'], [key], CallType.Blocking);
       } else {
