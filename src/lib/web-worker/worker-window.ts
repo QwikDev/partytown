@@ -406,7 +406,6 @@ export const createWindow = (
                 if (propName === 'gtag') {
                   if (existingType === 'function') {
                     console.debug(`[Partytown] ⚠️ gtag is being OVERWRITTEN!`);
-                    // Log stack trace to see who's overwriting
                     console.debug('[Partytown] Overwrite stack:', new Error().stack);
                   }
                   if (typeof value === 'function') {
@@ -415,6 +414,9 @@ export const createWindow = (
                     console.debug(`[Partytown] ❌ gtag being set to undefined!`);
                   }
                 }
+                
+                // dataLayer SET is handled by the defineProperty getter/setter
+                // No special handling needed here anymore
               }
               win[propName] = value;
               return true;
@@ -511,10 +513,34 @@ export const createWindow = (
         const buildVersion = 'v5-' + initTime; // v5 = gtag pre-init + exposure inside with block
         console.debug('[Partytown] 🚀 Window initialization starting. Build:', buildVersion);
         
-        // Pre-initialize dataLayer
-        if (!(win as any).dataLayer) {
-          (win as any).dataLayer = [];
-          console.debug('[Partytown] Pre-initialized window.dataLayer');
+        // Pre-initialize dataLayer as a REAL array stored separately
+        // to avoid Partytown's proxy serialization issues
+        if (!(win as any)._ptRealDataLayer) {
+          const realDataLayer: any[] = [];
+          (win as any)._ptRealDataLayer = realDataLayer;
+          
+          // Define dataLayer as a getter/setter that uses the real array
+          // This prevents GTM from replacing our array with one containing instance IDs
+          Object.defineProperty(win, 'dataLayer', {
+            get: () => {
+              return (win as any)._ptRealDataLayer;
+            },
+            set: (newValue: any) => {
+              // If someone tries to replace dataLayer, preserve our array but copy the enhanced push
+              if (Array.isArray(newValue)) {
+                const real = (win as any)._ptRealDataLayer;
+                // Copy push method if it's GTM's enhanced version
+                if (newValue.push && newValue.push !== Array.prototype.push) {
+                  real.push = newValue.push;
+                }
+              }
+              // Don't actually replace the array - this prevents corruption
+            },
+            configurable: true,
+            enumerable: true,
+          });
+          
+          console.debug('[Partytown] Pre-initialized window.dataLayer with defineProperty');
         }
         
         // Pre-initialize gtag function

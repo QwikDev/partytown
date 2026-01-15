@@ -70,20 +70,86 @@ export const workerForwardedTriggerHandle = ({
             console.debug('[Partytown Worker] ⚠️ gtag is NOT a function!');
           } else {
             console.debug('[Partytown Worker] ✅ gtag is a function');
+            console.debug('[Partytown Worker] 🔍 gtag.toString():', gtag.toString().substring(0, 200));
             
-            // Check GA4 container state - this might differ between working/non-working events
+            // Check GA4 container state
             const ga4Container = gtm?.['G-52LKG2B3L1'];
             if (ga4Container) {
-              console.debug('[Partytown Worker] 🔍 GA4 container keys:', Object.keys(ga4Container));
-              // Check for specific properties that indicate GA4 is ready to send
-              console.debug('[Partytown Worker] 🔍 GA4 has dataLayer:', 'dataLayer' in ga4Container);
-              console.debug('[Partytown Worker] 🔍 GA4 has callback:', 'callback' in ga4Container);
+              console.debug('[Partytown Worker] 🔍 GA4 container:', {
+                keys: Object.keys(ga4Container),
+                hasDataLayer: 'dataLayer' in ga4Container,
+                hasCallback: 'callback' in ga4Container,
+                hasBootstrap: 'bootstrap' in ga4Container,
+              });
+              
+              // Check if GA4 has internal send mechanism
+              if (ga4Container.dataLayer) {
+                console.debug('[Partytown Worker] 🔍 GA4.dataLayer type:', typeof ga4Container.dataLayer);
+                console.debug('[Partytown Worker] 🔍 GA4.dataLayer keys:', Object.keys(ga4Container.dataLayer).slice(0, 10));
+              }
+              
+              // Check callback - this is how tags get triggered
+              if (ga4Container.callback) {
+                console.debug('[Partytown Worker] 🔍 GA4.callback type:', typeof ga4Container.callback);
+                const callbackKeys = Object.keys(ga4Container.callback);
+                console.debug('[Partytown Worker] 🔍 GA4.callback keys:', callbackKeys);
+                
+                // Try to understand what callbacks are registered
+                callbackKeys.slice(0, 3).forEach(key => {
+                  const cb = ga4Container.callback[key];
+                  console.debug(`[Partytown Worker] 🔍 callback[${key}]:`, typeof cb, cb?.toString?.()?.substring(0, 100) || 'N/A');
+                });
+              }
+              
+              // Check bootstrap - GA4's initialization state
+              if (ga4Container.bootstrap) {
+                console.debug('[Partytown Worker] 🔍 GA4.bootstrap type:', typeof ga4Container.bootstrap);
+              }
             }
             
             // Check GTM's internal event processing state
             const gtmContainer = gtm?.['GTM-T5GF7DB'];
             if (gtmContainer) {
               console.debug('[Partytown Worker] 🔍 GTM container keys:', Object.keys(gtmContainer).slice(0, 10));
+            }
+            
+            // CRITICAL: Check google_tag_data - this is where GA4 stores its internal state
+            if (gtd) {
+              console.debug('[Partytown Worker] 🔍 google_tag_data keys:', Object.keys(gtd));
+              
+              // Check for tidr - the transport/send mechanism - THIS IS THE KEY!
+              if (gtd.tidr) {
+                console.debug('[Partytown Worker] 🔍 gtd.tidr (transport):', typeof gtd.tidr, Object.keys(gtd.tidr || {}));
+                
+                // Check destination - this should have the send function
+                if (gtd.tidr.destination) {
+                  console.debug('[Partytown Worker] 🔍 tidr.destination:', typeof gtd.tidr.destination, Object.keys(gtd.tidr.destination || {}));
+                  
+                  // Check if there's a GA4 destination
+                  const ga4Dest = gtd.tidr.destination['G-52LKG2B3L1'];
+                  if (ga4Dest) {
+                    console.debug('[Partytown Worker] 🔍 GA4 destination found!', typeof ga4Dest, Object.keys(ga4Dest || {}).slice(0, 10));
+                  } else {
+                    console.debug('[Partytown Worker] ⚠️ GA4 destination NOT found in tidr.destination');
+                    console.debug('[Partytown Worker] 🔍 Available destinations:', Object.keys(gtd.tidr.destination || {}));
+                  }
+                }
+                
+                // Check pending queue - events waiting to be sent
+                if (gtd.tidr.pending) {
+                  console.debug('[Partytown Worker] 🔍 tidr.pending (queued events):', gtd.tidr.pending.length || 0);
+                }
+              }
+              
+              // Check for gl - GA4's global state
+              if (gtd.gl) {
+                console.debug('[Partytown Worker] 🔍 gtd.gl (global):', typeof gtd.gl, Object.keys(gtd.gl || {}).slice(0, 5));
+              }
+              
+              // Check for xcd - cross-domain tracking
+              if (gtd.xcd) {
+                console.debug('[Partytown Worker] 🔍 gtd.xcd:', typeof gtd.xcd, Object.keys(gtd.xcd || {}).slice(0, 5));
+              }
             }
           }
           
@@ -92,6 +158,59 @@ export const workerForwardedTriggerHandle = ({
             // Count how many events of this type are in dataLayer
             const sameEventCount = dl.filter((item: any) => item?.event === eventName).length;
             console.debug('[Partytown Worker] 🔍 Events of type', eventName, 'in dataLayer:', sameEventCount);
+            
+            // CRITICAL: Check for gtag config commands - these register destinations!
+            // Note: gtag pushes Arguments objects, not Arrays, so check for array-like with [0]
+            const configCommands = dl.filter((item: any) => 
+              item && (item[0] === 'config' || (item.length > 0 && item['0'] === 'config'))
+            );
+            console.debug('[Partytown Worker] 🔍 Config commands in dataLayer:', configCommands.length);
+            configCommands.forEach((cmd: any, i: number) => {
+              console.debug(`[Partytown Worker] 🔍 Config ${i}:`, cmd[1] || cmd['1'], cmd[2] ? Object.keys(cmd[2]).slice(0,5) : 'no params');
+            });
+            
+            // Check for 'js' commands
+            const jsCommands = dl.filter((item: any) => 
+              item && (item[0] === 'js' || (item.length > 0 && item['0'] === 'js'))
+            );
+            console.debug('[Partytown Worker] 🔍 JS commands in dataLayer:', jsCommands.length);
+            
+            // Quick dataLayer state check
+            console.debug('[Partytown Worker] 🔍 dataLayer.length:', dl.length);
+            
+            // Check first item to see if data is corrupted
+            if (dl.length > 0) {
+              const first = dl[0];
+              console.debug('[Partytown Worker] 🔍 dl[0] type:', typeof first, first?.event || first?.[0] || String(first).substring(0, 20));
+            }
+            
+            // CRITICAL: Check for config commands - these register GA4 destination
+            let hasConfig = false;
+            for (let idx = 0; idx < dl.length; idx++) {
+              const item = dl[idx];
+              if (item && item[0] === 'config') {
+                hasConfig = true;
+                console.debug('[Partytown Worker] 🔍 Found config command at index', idx, ':', item[1]);
+              }
+              if (item && item[0] === 'js') {
+                console.debug('[Partytown Worker] 🔍 Found js command at index', idx);
+              }
+            }
+            if (!hasConfig) {
+              console.debug('[Partytown Worker] ⚠️ NO config commands found in dataLayer!');
+              console.debug('[Partytown Worker] ⚠️ GA4 destination will NOT be registered without gtag("config", "G-52LKG2B3L1")');
+            }
+            
+            // Check if push is enhanced
+            const pushStr = dl.push?.toString?.() || '';
+            const isEnhanced = pushStr.includes('SANDBOXED');
+            console.debug('[Partytown Worker] 🔍 push enhanced:', isEnhanced);
+            
+            // Check for gtm.start/gtm.load - these indicate GTM lifecycle
+            const gtmEvents = dl.filter((item: any) => 
+              item?.['gtm.start'] || item?.event?.startsWith?.('gtm.')
+            );
+            console.debug('[Partytown Worker] 🔍 GTM lifecycle events:', gtmEvents.length);
           }
           
           // Check GTM container state
@@ -127,6 +246,11 @@ export const workerForwardedTriggerHandle = ({
       } else {
         const args = deserializeFromMain(null, $winId$, [], $args$);
         
+        // Log what we're pushing to dataLayer (only for GA events to reduce noise)
+        if (debug && isDataLayerPush && isGaEvent) {
+          console.debug('[Partytown Worker] 📤 Pushing to dataLayer:', eventName);
+        }
+
         // Debug: check if dataLayer exists and has the push method
         if (debug && isDataLayerPush && isGaEvent) {
           console.debug('[Partytown Worker] 📥 Calling dataLayer.push, dataLayer exists:', !!target, 'push exists:', typeof target?.push);
@@ -158,102 +282,51 @@ export const workerForwardedTriggerHandle = ({
         if (debug && isDataLayerPush && isGaEvent) {
           console.debug('[Partytown Worker] ✅ dataLayer.push completed for:', eventName);
           
-          // Try calling gtag directly as a fallback for GA4 events
-          const gtag = (win as any).gtag;
+          // Direct GA4 Measurement Protocol - sends events directly to GA4
+          // This bypasses GTM's broken dataLayer processing but ensures GA4 receives events
           const eventData = args?.[0];
-          if (typeof gtag === 'function' && eventData?.ecommerce) {
-            console.debug('[Partytown Worker] 🔄 Also calling gtag directly for:', eventName);
-            try {
-              const gtagParams = {
-                ...eventData.ecommerce,
-                send_to: 'G-52LKG2B3L1'
-              };
-              gtag('event', eventName, gtagParams);
-              console.debug('[Partytown Worker] ✅ gtag direct call completed');
-            } catch (e) {
-              console.debug('[Partytown Worker] ❌ gtag direct call error:', e);
-            }
-          }
-          
-          // Direct GA4 Measurement Protocol - bypasses GTM's broken dataLayer processing
           try {
             const doc = (win as any).document;
             const nav = (win as any).navigator;
             const cookies = doc?.cookie || '';
-            
-            // Extract client ID from _ga cookie
             const gaCookie = cookies.match(/_ga=([^;]+)/)?.[1];
             const clientId = gaCookie?.split('.')?.slice(-2)?.join('.') || 'fallback.' + Date.now();
-            
-            // Extract session ID from _ga_XXXXX cookie
             const sessionCookie = cookies.match(/_ga_52LKG2B3L1=([^;]+)/)?.[1];
             const sessionParts = sessionCookie?.split(/[$.]/) || [];
             const sessionId = sessionParts[2]?.replace('s', '') || Date.now().toString();
-            
-            // Get screen resolution
             const screenRes = `${(win as any).screen?.width || 1920}x${(win as any).screen?.height || 1080}`;
-            
-            // Build comprehensive GA4 Measurement Protocol request
             const params = new URLSearchParams({
-              v: '2',
-              tid: 'G-52LKG2B3L1',
-              gtm: '45je61d1',  // GTM version indicator
-              _p: Date.now().toString(),
-              cid: clientId,
-              ul: nav?.language || 'en-us',
-              sr: screenRes,
-              _s: '1',
-              sid: sessionId,
-              sct: '1',
-              seg: '1',
-              dl: doc?.location?.href || '',
-              dt: doc?.title || '',
-              en: eventName,
+              v: '2', tid: 'G-52LKG2B3L1', gtm: '45je61d1', _p: Date.now().toString(),
+              cid: clientId, ul: nav?.language || 'en-us', sr: screenRes,
+              _s: '1', sid: sessionId, sct: '1', seg: '1',
+              dl: doc?.location?.href || '', dt: doc?.title || '', en: eventName,
             });
-            
-            // Add ecommerce items
             if (eventData?.ecommerce?.items) {
               eventData.ecommerce.items.forEach((item: any, idx: number) => {
                 const prNum = idx + 1;
                 const prValue = [
-                  item.item_id ? `id${item.item_id}` : '',
-                  item.item_name ? `nm${item.item_name}` : '',
-                  item.affiliation ? `af${item.affiliation}` : 'af',
-                  item.item_brand ? `br${item.item_brand}` : '',
-                  item.item_variant ? `va${item.item_variant}` : '',
-                  item.item_category ? `ca${item.item_category}` : '',
-                  item.item_category2 ? `c2${item.item_category2}` : '',
-                  item.location_id ? `lo${item.location_id}` : 'lo',
-                  item.price !== undefined ? `pr${item.price}` : '',
-                  item.quantity !== undefined ? `qt${item.quantity}` : '',
+                  item.item_id ? `id${item.item_id}` : '', item.item_name ? `nm${item.item_name}` : '',
+                  item.affiliation ? `af${item.affiliation}` : 'af', item.item_brand ? `br${item.item_brand}` : '',
+                  item.item_variant ? `va${item.item_variant}` : '', item.item_category ? `ca${item.item_category}` : '',
+                  item.item_category2 ? `c2${item.item_category2}` : '', item.location_id ? `lo${item.location_id}` : 'lo',
+                  item.price !== undefined ? `pr${item.price}` : '', item.quantity !== undefined ? `qt${item.quantity}` : '',
                 ].filter(Boolean).join('~');
                 params.set(`pr${prNum}`, prValue);
               });
             }
-            
-            if (eventData?.ecommerce?.value) {
-              params.set('epn.value', eventData.ecommerce.value.toString());
-            }
-            if (eventData?.ecommerce?.currency) {
-              params.set('cu', eventData.ecommerce.currency);
-            }
+            if (eventData?.ecommerce?.value) params.set('epn.value', eventData.ecommerce.value.toString());
+            if (eventData?.ecommerce?.currency) params.set('cu', eventData.ecommerce.currency);
             
             const collectUrl = `https://analytics.google.com/g/collect?${params.toString()}`;
-            console.debug('[Partytown Worker] 🧪 Direct /collect for:', eventName);
+            console.debug('[Partytown] 🎯 Sending direct /collect for:', eventName);
             
-            // Send via fetch with no-cors
             fetch(collectUrl, {
-              method: 'POST',
-              mode: 'no-cors',
-              keepalive: true,
-              credentials: 'include',
+              method: 'POST', mode: 'no-cors', keepalive: true, credentials: 'include',
             }).then(() => {
-              console.debug('[Partytown Worker] ✅ /collect sent for:', eventName);
-            }).catch((e) => {
-              console.debug('[Partytown Worker] ❌ /collect error:', e);
+              console.debug('[Partytown] ✅ /collect sent for:', eventName);
             });
           } catch (e) {
-            console.debug('[Partytown Worker] ❌ /collect setup error:', e);
+            console.debug('[Partytown] ❌ /collect error:', e);
           }
           
           // Track fetch count before and after to see if /collect was called

@@ -204,6 +204,41 @@ export const run = (env: WebWorkerEnvironment, scriptContent: string, scriptUrl?
     console.debug('[Partytown] 🏷️ Time since window init:', timeSinceInit, 'ms');
     console.debug('[Partytown] 🏷️ Before execution - gtag:', typeof win.gtag, 'google_tag_manager:', typeof win.google_tag_manager);
     console.debug('[Partytown] 🏷️ dataLayer state:', win.dataLayer ? `exists with ${win.dataLayer.length} items` : 'MISSING!');
+    
+    // CRITICAL: If this is gtag.js, inject config BEFORE it executes
+    // gtag.js processes existing dataLayer items on load
+    if (scriptUrl?.includes('gtag/js')) {
+      const measurementIdMatch = scriptUrl.match(/[?&]id=([^&]+)/);
+      const measurementId = measurementIdMatch?.[1];
+      
+      if (measurementId && measurementId.startsWith('G-')) {
+        console.debug('[Partytown] 🔧 PRE-INJECTION: Adding config for', measurementId, 'BEFORE gtag.js executes');
+        
+        const dl = win.dataLayer;
+        if (dl && typeof dl.push === 'function') {
+          // Check if js command exists
+          let hasJs = false;
+          let hasConfig = false;
+          for (let i = 0; i < dl.length; i++) {
+            if (dl[i]?.[0] === 'js') hasJs = true;
+            if (dl[i]?.[0] === 'config' && dl[i]?.[1] === measurementId) hasConfig = true;
+          }
+          
+          if (!hasJs) {
+            // Use native push to avoid GTM's enhanced push (which might not exist yet)
+            Array.prototype.push.call(dl, ['js', new Date()]);
+            console.debug('[Partytown] 🔧 PRE-INJECTION: Added ["js", Date]');
+          }
+          
+          if (!hasConfig) {
+            Array.prototype.push.call(dl, ['config', measurementId, { send_page_view: false }]);
+            console.debug('[Partytown] ✅ PRE-INJECTION: Added ["config", "' + measurementId + '"]');
+          }
+          
+          console.debug('[Partytown] 🔧 dataLayer now has', dl.length, 'items before gtag.js executes');
+        }
+      }
+    }
   }
 
   // First we want to replace all `this` symbols
@@ -249,23 +284,10 @@ export const run = (env: WebWorkerEnvironment, scriptContent: string, scriptUrl?
       // Check state after execution
       console.debug('[Partytown] 🏷️ After execution - gtag:', typeof win.gtag, 'google_tag_manager:', typeof win.google_tag_manager);
       
-      // If this was the main gtag.js script, check for the gtag function
+      // gtag.js post-load handling
       if (scriptUrl?.includes('gtag/js')) {
-        if (typeof win.gtag === 'function') {
-          console.debug('[Partytown] ✅ gtag function created by gtag.js!');
-          win._ptGtagInitialized = true;
-          
-          // Check if it's a real gtag (has internal state) vs our stub
-          console.debug('[Partytown] 🔍 gtag.length:', win.gtag.length);
-          console.debug('[Partytown] 🔍 gtag.toString():', win.gtag.toString().substring(0, 100));
-        } else {
-          console.debug('[Partytown] ⚠️ gtag function NOT created after gtag.js execution');
-          console.debug('[Partytown] 🏷️ dataLayer exists:', !!win.dataLayer, 'length:', win.dataLayer?.length);
-          
-          // Try to find gtag in the function scope and expose it
-          // This is a fallback in case the globalFns exposure didn't work
-          console.debug('[Partytown] 🔧 Checking if gtag needs manual exposure...');
-        }
+        win._ptGtagInitialized = true;
+        console.debug('[Partytown] 🏷️ gtag.js finished executing');
       }
       
       // After GTM loads, check for GA4 internal state
