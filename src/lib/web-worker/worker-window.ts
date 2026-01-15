@@ -360,18 +360,6 @@ export const createWindow = (
         definePrototypeNodeType(win.Comment, 8);
         definePrototypeNodeType(win.DocumentType, 10);
 
-        // List of properties that might be checked by GA4 for feature detection
-        const ga4FeatureProps = [
-          'google_tag_data', 'google_tag_manager', 'gtag', 'dataLayer',
-          'ga', 'gaGlobal', '_ga', '_gaq', '_gat', '_gat_gtag_UA',
-          'google_unique_id', 'GoogleAnalyticsObject',
-          'Prototype', 'jQuery', '$', // common library checks
-        ];
-        
-        // Track gtag access pattern
-        let gtagAccessCount = 0;
-        let gtagSetCount = 0;
-
         Object.assign(env, {
           $winId$,
           $parentWinId$,
@@ -384,40 +372,10 @@ export const createWindow = (
               } else if (webWorkerCtx.$config$.mainWindowAccessors?.includes(propName)) {
                 return getter(this, [propName]);
               } else {
-                const value = win[propName];
-                // Log when GA4-related properties are accessed
-                if (typeof propName === 'string' && ga4FeatureProps.includes(propName)) {
-                  console.debug(`[Partytown] window.${propName} GET, value type:`, typeof value, value ? 'exists' : 'undefined');
-                }
-                return value;
+                return win[propName];
               }
             },
             set: (win, propName: any, value: any) => {
-              // Log when GA4-related properties are set
-              if (typeof propName === 'string' && ga4FeatureProps.includes(propName)) {
-                const timeSinceInit = win._ptInitTime ? Date.now() - win._ptInitTime : 'unknown';
-                const existingType = typeof win[propName];
-                console.debug(`[Partytown] 🔥 window.${propName} SET at ${timeSinceInit}ms:`, {
-                  newType: typeof value,
-                  existingType,
-                  isOverwrite: existingType !== 'undefined'
-                });
-                
-                if (propName === 'gtag') {
-                  if (existingType === 'function') {
-                    console.debug(`[Partytown] ⚠️ gtag is being OVERWRITTEN!`);
-                    console.debug('[Partytown] Overwrite stack:', new Error().stack);
-                  }
-                  if (typeof value === 'function') {
-                    console.debug(`[Partytown] ✅ gtag function set/updated`);
-                  } else if (value === undefined) {
-                    console.debug(`[Partytown] ❌ gtag being set to undefined!`);
-                  }
-                }
-                
-                // dataLayer SET is handled by the defineProperty getter/setter
-                // No special handling needed here anymore
-              }
               win[propName] = value;
               return true;
             },
@@ -508,13 +466,8 @@ export const createWindow = (
 
         win.Worker = undefined;
 
-        // Initialize timing for debugging
-        const initTime = Date.now();
-        const buildVersion = 'v5-' + initTime; // v5 = gtag pre-init + exposure inside with block
-        console.debug('[Partytown] 🚀 Window initialization starting. Build:', buildVersion);
-        
         // Pre-initialize dataLayer as a REAL array stored separately
-        // to avoid Partytown's proxy serialization issues
+        // to avoid Partytown's proxy serialization issues (objects becoming instance IDs)
         if (!(win as any)._ptRealDataLayer) {
           const realDataLayer: any[] = [];
           (win as any)._ptRealDataLayer = realDataLayer;
@@ -522,9 +475,7 @@ export const createWindow = (
           // Define dataLayer as a getter/setter that uses the real array
           // This prevents GTM from replacing our array with one containing instance IDs
           Object.defineProperty(win, 'dataLayer', {
-            get: () => {
-              return (win as any)._ptRealDataLayer;
-            },
+            get: () => (win as any)._ptRealDataLayer,
             set: (newValue: any) => {
               // If someone tries to replace dataLayer, preserve our array but copy the enhanced push
               if (Array.isArray(newValue)) {
@@ -539,35 +490,19 @@ export const createWindow = (
             configurable: true,
             enumerable: true,
           });
-          
-          console.debug('[Partytown] Pre-initialized window.dataLayer with defineProperty');
         }
         
-        // Pre-initialize gtag function
-        // This is the standard gtag stub that users are supposed to create
-        // GA4/gtag.js will enhance this with its internal dispatch mechanism
+        // Pre-initialize gtag function for GA4 compatibility
+        // GA4/gtag.js expects this function to exist before it loads
         if (typeof (win as any).gtag !== 'function') {
           (win as any).gtag = function() {
             (win as any).dataLayer.push(arguments);
           };
-          console.debug('[Partytown] ✅ Pre-initialized window.gtag function');
         }
-        
-        // Store init time for debugging
-        (win as any)._ptInitTime = initTime;
-        (win as any)._ptGtagInitialized = true;
-        
-        console.debug('[Partytown] 🚀 Window initialization complete.',
-          'gtag:', typeof (win as any).gtag,
-          'dataLayer:', (win as any).dataLayer?.length,
-          'isIframe:', isIframeWindow,
-          'winId:', $winId$);
 
         // Polyfill for dynamic import() - fetches and executes scripts
         // This allows gtag.js and similar scripts to load modules in the worker
-        console.debug('[Partytown] Setting up __pt_import__ polyfill');
         (win as any).__pt_import__ = async (url: string) => {
-          console.debug('[Partytown] __pt_import__ called with:', url);
           try {
             const resolvedUrl = resolveUrl(env, url, 'script');
             const response = await fetch(resolvedUrl);
@@ -575,11 +510,8 @@ export const createWindow = (
               throw new Error(`Failed to fetch module: ${response.status}`);
             }
             const scriptContent = await response.text();
-            // Execute the script in the window context
             const fn = new Function(scriptContent);
             fn.call(win);
-            // Return an empty module namespace object
-            // Most dynamic imports in analytics scripts don't use the return value
             return {};
           } catch (error) {
             console.error('[Partytown] __pt_import__ error:', error);
@@ -614,9 +546,6 @@ export const createWindow = (
         input = typeof input === 'string' || input instanceof URL ? String(input) : input.url;
         const resolvedUrl = resolveUrl(env, input, 'fetch');
 
-        // Track fetch count for debugging
-        (env.$window$ as any)._ptFetchCount = ((env.$window$ as any)._ptFetchCount || 0) + 1;
-
         // Check if this URL should use no-cors mode
         // This is useful for tracking/analytics URLs that fail due to CORS
         // but don't need response data (fire-and-forget requests)
@@ -625,59 +554,7 @@ export const createWindow = (
           init = { ...init, mode: 'no-cors', credentials: 'include' };
         }
 
-        // Debug GA analytics requests specifically - ALWAYS log /collect calls
-        const isGaCollect = input.includes('analytics.google.com') && input.includes('/collect');
-        const isGaRequest = input.includes('google-analytics.com') || 
-          input.includes('analytics.google.com') ||
-          input.includes('/collect') ||
-          input.includes('/g/collect');
-        
-        if (isGaCollect) {
-          // Track /collect calls
-          (env.$window$ as any)._ptCollectCount = ((env.$window$ as any)._ptCollectCount || 0) + 1;
-          
-          console.debug('[Partytown] 🎯 GA4 /collect REQUEST DETECTED!');
-          console.debug('[Partytown] 🎯 URL:', input.substring(0, 300));
-          console.debug('[Partytown] 🎯 Resolved:', resolvedUrl.substring(0, 300));
-          console.debug('[Partytown] 🎯 no-cors:', shouldUseNoCors);
-          console.debug('[Partytown] 🎯 Init:', JSON.stringify(init || {}));
-          
-          // Parse URL to see which event this is for
-          try {
-            const urlObj = new URL(input);
-            const eventName = urlObj.searchParams.get('en');
-            console.debug('[Partytown] 🎯 Event name in /collect:', eventName);
-          } catch (e) {}
-        } else if (debug && isGaRequest) {
-          console.debug('[Partytown Fetch] 📊 GA Analytics request:', input.substring(0, 200));
-          console.debug('[Partytown Fetch] 📊 Resolved URL:', resolvedUrl.substring(0, 200));
-          console.debug('[Partytown Fetch] 📊 Init:', JSON.stringify(init || {}));
-        }
-
-        // Use self.fetch to ensure we use the patched version from init-web-worker
-        return (self as any).fetch(resolvedUrl, init).then((response: Response) => {
-          if (debug) {
-            const isGaRequest = input.includes('google-analytics.com') || 
-              input.includes('analytics.google.com') ||
-              input.includes('/collect');
-            
-            if (isGaRequest) {
-              console.debug('[Partytown Fetch] 📊 GA Response:', response.status, response.type);
-            }
-          }
-          return response;
-        }).catch((error: Error) => {
-          if (debug) {
-            const isGaRequest = input.includes('google-analytics.com') || 
-              input.includes('analytics.google.com') ||
-              input.includes('/collect');
-            
-            if (isGaRequest) {
-              console.debug('[Partytown Fetch] ❌ GA Request FAILED:', error.message);
-            }
-          }
-          throw error;
-        });
+        return (self as any).fetch(resolvedUrl, init);
       }
 
       get frames() {
@@ -775,51 +652,10 @@ export const createWindow = (
         const str = String(Xhr);
         const ExtendedXhr = defineConstructorName(
           class extends Xhr {
-            private _gaRequest = false;
-            
             open(...args: any[]) {
-              const url = args[1];
-              // Check if this is a GA analytics request
-              this._gaRequest = url && (
-                url.includes('google-analytics.com') || 
-                url.includes('analytics.google.com') ||
-                url.includes('/collect') ||
-                url.includes('/g/collect')
-              );
-              
-              if (debug && this._gaRequest) {
-                console.debug('[Partytown XHR] 📊 GA Analytics XHR:', args[0], url.substring(0, 200));
-              }
-              
               args[1] = resolveUrl(env, args[1], 'xhr');
-              
-              if (debug && this._gaRequest) {
-                console.debug('[Partytown XHR] 📊 Resolved URL:', args[1].substring(0, 200));
-              }
-              
               (super.open as any)(...args);
             }
-            
-            send(body?: any) {
-              if (debug && this._gaRequest) {
-                console.debug('[Partytown XHR] 📊 GA XHR send:', body ? 'has body' : 'no body');
-              }
-              
-              this.addEventListener('load', () => {
-                if (debug && this._gaRequest) {
-                  console.debug('[Partytown XHR] 📊 GA XHR response:', this.status, this.statusText);
-                }
-              });
-              
-              this.addEventListener('error', () => {
-                if (debug && this._gaRequest) {
-                  console.debug('[Partytown XHR] ❌ GA XHR FAILED');
-                }
-              });
-              
-              super.send(body);
-            }
-            
             set withCredentials(_: boolean) {
               if (webWorkerCtx.$config$.allowXhrCredentials) {
                 super.withCredentials = _;

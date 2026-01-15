@@ -198,33 +198,7 @@ const applyToInstance = (
             return;
           }
 
-          // Debug GA cookie operations specifically
-          if (previous === 'cookie' && debug) {
-            const isGaCookie = typeof value === 'string' && 
-              (value.startsWith('_ga=') || value.startsWith('_ga_') || value.startsWith('_gid='));
-            
-            if (isGaCookie) {
-              console.debug('[Partytown Main] 🔥 SETTING GA COOKIE:', value.substring(0, 100));
-              console.debug('[Partytown Main] GA cookies BEFORE:', 
-                document.cookie.split(';').filter(c => c.trim().startsWith('_ga') || c.trim().startsWith('_gid')).join('; ') || 'none');
-            }
-          }
-
           instance[previous] = value;
-
-          // Verify GA cookie was set
-          if (previous === 'cookie' && debug) {
-            const isGaCookie = typeof value === 'string' && 
-              (value.startsWith('_ga=') || value.startsWith('_ga_') || value.startsWith('_gid='));
-            
-            if (isGaCookie) {
-              const gaCookiesAfter = document.cookie.split(';').filter(c => 
-                c.trim().startsWith('_ga') || c.trim().startsWith('_gid')
-              );
-              console.debug('[Partytown Main] ✅ GA cookies AFTER:', 
-                gaCookiesAfter.length ? gaCookiesAfter.join('; ') : '❌ NONE!');
-            }
-          }
 
           // setters never return a value
           return;
