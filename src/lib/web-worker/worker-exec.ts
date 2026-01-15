@@ -58,6 +58,60 @@ export const initNextScriptsInWebWorker = async (initScript: InitializeScriptDat
           scriptContent = await rsp.text();
           env.$currentScriptId$ = instanceId;
           run(env, scriptContent, scriptOrgSrc || scriptSrc);
+          
+          // After gtag.js loads, send a page_view /collect call
+          // GA4's automatic page_view doesn't work in Partytown because tidr.destination is broken
+          const isGtagJs = scriptOrgSrc?.includes('gtag/js') && scriptOrgSrc?.includes('id=G-');
+          if (isGtagJs && !(env.$window$ as any)._ptPageViewSent) {
+            (env.$window$ as any)._ptPageViewSent = true;
+            
+            // Small delay to ensure cookies are set
+            setTimeout(() => {
+              try {
+                const win = env.$window$ as any;
+                const doc = win.document;
+                const nav = win.navigator;
+                const cookies = doc?.cookie || '';
+                
+                const gaCookie = cookies.match(/_ga=([^;]+)/)?.[1];
+                const clientId = gaCookie?.split('.')?.slice(-2)?.join('.') || 'fallback.' + Date.now();
+                
+                const sessionCookie = cookies.match(/_ga_52LKG2B3L1=([^;]+)/)?.[1];
+                const sessionParts = sessionCookie?.split(/[$.]/) || [];
+                const sessionId = sessionParts[2]?.replace('s', '') || Date.now().toString();
+                
+                const screenRes = `${win.screen?.width || 1920}x${win.screen?.height || 1080}`;
+                
+                const params = new URLSearchParams({
+                  v: '2',
+                  tid: 'G-52LKG2B3L1',
+                  gtm: '45je61d1',
+                  _p: Date.now().toString(),
+                  cid: clientId,
+                  ul: nav?.language || 'en-us',
+                  sr: screenRes,
+                  _s: '1',
+                  sid: sessionId,
+                  sct: '1',
+                  seg: '1',
+                  dl: doc?.location?.href || '',
+                  dt: doc?.title || '',
+                  dr: doc?.referrer || '',
+                  en: 'page_view',
+                });
+                
+                const collectUrl = `https://analytics.google.com/g/collect?${params.toString()}`;
+                fetch(collectUrl, {
+                  method: 'POST',
+                  mode: 'no-cors',
+                  keepalive: true,
+                  credentials: 'include',
+                });
+              } catch (e) {
+                // Silently fail
+              }
+            }, 100);
+          }
         }
         runStateLoadHandlers(instance!, StateProp.loadHandlers);
       } else {

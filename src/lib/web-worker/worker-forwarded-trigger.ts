@@ -37,8 +37,26 @@ export const workerForwardedTriggerHandle = ({
         // while ensuring GA4 receives all event data
         if (isDataLayerPush) {
           const eventData = args?.[0];
-          const eventName = eventData?.event;
+          // Standard GA4 ecommerce events
           const gaEvents = ['page_view', 'view_item', 'add_to_cart', 'purchase', 'begin_checkout', 'select_item'];
+          
+          // Handle two formats:
+          // 1. dataLayer.push({event: 'page_view', ...}) - eventData.event
+          // 2. gtag('event', 'page_view', {...}) - eventData[0]='event', eventData[1]='page_view'
+          let eventName = eventData?.event;
+          let eventParams = eventData;
+          
+          // Check for gtag() Arguments format: ['event', 'event_name', {params}]
+          if (!eventName && eventData?.[0] === 'event' && typeof eventData?.[1] === 'string') {
+            eventName = eventData[1];
+            eventParams = eventData[2] || {};
+          }
+          
+          // Also check for array format ['event', 'page_view', {...}]
+          if (!eventName && Array.isArray(eventData) && eventData[0] === 'event') {
+            eventName = eventData[1];
+            eventParams = eventData[2] || {};
+          }
           
           if (eventName && gaEvents.includes(eventName)) {
             try {
@@ -75,9 +93,10 @@ export const workerForwardedTriggerHandle = ({
                 en: eventName,
               });
               
-              // Add ecommerce items
-              if (eventData?.ecommerce?.items) {
-                eventData.ecommerce.items.forEach((item: any, idx: number) => {
+              // Add ecommerce items (check both eventParams.ecommerce and eventParams.items)
+              const ecommerce = eventParams?.ecommerce || eventParams;
+              if (ecommerce?.items) {
+                ecommerce.items.forEach((item: any, idx: number) => {
                   const prNum = idx + 1;
                   const prValue = [
                     item.item_id ? `id${item.item_id}` : '',
@@ -95,11 +114,27 @@ export const workerForwardedTriggerHandle = ({
                 });
               }
               
-              if (eventData?.ecommerce?.value) {
-                params.set('epn.value', eventData.ecommerce.value.toString());
+              // Add value and currency from ecommerce or direct params
+              const value = ecommerce?.value || eventParams?.value;
+              const currency = ecommerce?.currency || eventParams?.currency;
+              if (value) {
+                params.set('epn.value', value.toString());
               }
-              if (eventData?.ecommerce?.currency) {
-                params.set('cu', eventData.ecommerce.currency);
+              if (currency) {
+                params.set('cu', currency);
+              }
+              
+              // For page_view, add page-specific parameters if available
+              if (eventName === 'page_view') {
+                if (eventParams?.page_location) {
+                  params.set('dl', eventParams.page_location);
+                }
+                if (eventParams?.page_title) {
+                  params.set('dt', eventParams.page_title);
+                }
+                if (eventParams?.page_referrer) {
+                  params.set('dr', eventParams.page_referrer);
+                }
               }
               
               const collectUrl = `https://analytics.google.com/g/collect?${params.toString()}`;
