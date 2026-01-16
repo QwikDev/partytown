@@ -59,18 +59,26 @@ export const addStorageApi = (
   };
 
   win[storageName] = new Proxy(storage, {
-    get(target, key: string) {
+    get(target, key: PropertyKey) {
+      // Handle Symbol keys (like Symbol.iterator, Symbol.toStringTag) - return undefined
+      if (typeof key === 'symbol') {
+        return undefined;
+      }
       if (Reflect.has(target, key)) {
         return Reflect.get(target, key);
       } else {
-        return target.getItem(key);
+        return target.getItem(key as string);
       }
     },
-    set(target, key: string, value: string): boolean {
-      target.setItem(key, value);
+    set(target, key: PropertyKey, value: string): boolean {
+      // Ignore Symbol keys
+      if (typeof key === 'symbol') {
+        return true;
+      }
+      target.setItem(key as string, value);
       return true;
     },
-    has(target, key: PropertyKey | string): boolean {
+    has(target, key: PropertyKey): boolean {
       if (Reflect.has(target, key)) {
         return true;
       } else if (typeof key === 'string') {
@@ -79,8 +87,11 @@ export const addStorageApi = (
         return false;
       }
     },
-    deleteProperty(target, key: string): boolean {
-      target.removeItem(key);
+    deleteProperty(target, key: PropertyKey): boolean {
+      if (typeof key === 'symbol') {
+        return true;
+      }
+      target.removeItem(key as string);
       return true;
     },
   });

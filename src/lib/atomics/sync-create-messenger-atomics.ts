@@ -9,7 +9,9 @@ import { onMessageFromWebWorker } from '../sandbox/on-messenge-from-worker';
 import { readMainInterfaces, readMainPlatform } from '../sandbox/read-main-platform';
 
 const createMessengerAtomics: Messenger = async (receiveMessage) => {
-  const size = 1024 * 1024 * 1024;
+  // Use a reasonable size for the shared buffer (64MB should be plenty for most responses)
+  // A 1GB buffer was causing issues in some browsers
+  const size = 64 * 1024 * 1024;
   const sharedDataBuffer = new SharedArrayBuffer(size);
   const sharedData = new Int32Array(sharedDataBuffer);
 

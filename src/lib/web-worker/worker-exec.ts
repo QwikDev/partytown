@@ -16,6 +16,7 @@ import { debug } from '../utils';
 import { environments, partytownLibUrl, webWorkerCtx } from './worker-constants';
 import { getOrCreateNodeInstance } from './worker-constructors';
 import { getInstanceStateValue, setInstanceStateValue } from './worker-state';
+import { sendGA4Collect, setupHistoryChangeListener } from './worker-ga4-collect';
 
 export const initNextScriptsInWebWorker = async (initScript: InitializeScriptData) => {
   let winId = initScript.$winId$;
@@ -58,6 +59,22 @@ export const initNextScriptsInWebWorker = async (initScript: InitializeScriptDat
           scriptContent = await rsp.text();
           env.$currentScriptId$ = instanceId;
           run(env, scriptContent, scriptOrgSrc || scriptSrc);
+          
+          // After gtag.js loads, send initial page_view and setup history listeners for SPA navigation
+          // GA4's automatic page_view doesn't work in Partytown because tidr.destination is broken
+          const isGtagJs = scriptOrgSrc?.includes('gtag/js') && scriptOrgSrc?.includes('id=G-');
+          if (isGtagJs && !(env.$window$ as any)._ptPageViewSent) {
+            (env.$window$ as any)._ptPageViewSent = true;
+
+            // Small delay to ensure cookies and GTM state are set
+            setTimeout(() => {
+              // Send initial page_view
+              sendGA4Collect(env.$window$, 'page_view', {}, { isPageView: true });
+
+              // Setup history listeners to fire page_view on SPA navigation
+              setupHistoryChangeListener(env.$window$);
+            }, 100);
+          }
         }
         runStateLoadHandlers(instance!, StateProp.loadHandlers);
       } else {
@@ -120,18 +137,8 @@ export const runScriptContent = (
  * Replace some `this` symbols with a new value.
  * Still not perfect, but might be better than a less advanced regex
  * Check out the tests for examples: tests/unit/worker-exec.spec.ts
- *
- * This still fails with simple strings like:
- * 'sadly we fail at this simple string'
- *
- * One way to do that would be to remove all comments from code and do single / double quote counting
- * per symbol. But this will still fail with evals.
  */
 export const replaceThisInSource = (scriptContent: string, newThis: string): string => {
-  /**
-   * Best for now but not perfect
-   * We don't use Regex lookbehind, because of Safari
-   */
   const FIND_THIS = /([a-zA-Z0-9_$\.\'\"\`])?(\.\.\.)?this(?![a-zA-Z0-9_$:])/g;
 
   return scriptContent.replace(FIND_THIS, (match, p1, p2) => {
@@ -139,7 +146,6 @@ export const replaceThisInSource = (scriptContent: string, newThis: string): str
     if (p1 != null) {
       return prefix + 'this';
     }
-    // If there was a preceding character, include it unchanged
     return prefix + newThis;
   });
 };
@@ -150,14 +156,29 @@ export const run = (env: WebWorkerEnvironment, scriptContent: string, scriptUrl?
   // First we want to replace all `this` symbols
   let sourceWithReplacedThis = replaceThisInSource(scriptContent, '(thi$(this)?window:this)');
 
+  // Replace dynamic import() calls with our custom polyfill
+  sourceWithReplacedThis = sourceWithReplacedThis.replace(
+    /\bimport\s*\(\s*([^)]+)\s*\)/g,
+    '__pt_import__($1)'
+  );
+
+  // Combine user-defined globalFns with GA4/GTM functions that should always be exposed
+  // This ensures function declarations inside the with() block become window properties
+  const ga4GlobalFns = ['gtag', 'ga', 'google_tag_manager', 'google_tag_data', 'dataLayer'];
+  const allGlobalFns = [...new Set([...(webWorkerCtx.$config$.globalFns || []), ...ga4GlobalFns])];
+  
+  // Build the exposure code - this runs INSIDE the with block
+  // so that function declarations are accessible
+  const exposureCode = allGlobalFns
+    .filter((globalFnName) => /[a-zA-Z_$][0-9a-zA-Z_$]*/.test(globalFnName))
+    .map((g) => `try{if(typeof ${g}!=='undefined'){this.${g}=${g};}}catch(e){}`)
+    .join('');
+  
   scriptContent =
     `with(this){${sourceWithReplacedThis.replace(
       /\/\/# so/g,
       '//Xso'
-    )}\n;function thi$(t){return t===this}};${(webWorkerCtx.$config$.globalFns || [])
-      .filter((globalFnName) => /[a-zA-Z_$][0-9a-zA-Z_$]*/.test(globalFnName))
-      .map((g) => `(typeof ${g}=='function'&&(this.${g}=${g}))`)
-      .join(';')};` + (scriptUrl ? '\n//# sourceURL=' + scriptUrl : '');
+    )}\n;function thi$(t){return t===this};${exposureCode}};` + (scriptUrl ? '\n//# sourceURL=' + scriptUrl : '');
 
   if (!env.$isSameOrigin$) {
     scriptContent = scriptContent.replace(/.postMessage\(/g, `.postMessage('${env.$winId$}',`);
@@ -175,13 +196,20 @@ const runStateLoadHandlers = (
 ) => {
   handlers = getInstanceStateValue(instance, type);
   if (handlers) {
-    setTimeout(() => handlers!.map((cb) => cb({ type })));
+    const event = {
+      type,
+      target: instance,
+      currentTarget: instance,
+      srcElement: instance,
+      preventDefault: () => {},
+      stopPropagation: () => {},
+      stopImmediatePropagation: () => {},
+    };
+    setTimeout(() => handlers!.map((cb) => cb(event)));
   }
 };
 
 export const insertIframe = (winId: WinId, iframe: WorkerInstance) => {
-  // an iframe element's instanceId is also
-  // the winId of its contentWindow
   let i = 0;
   let type: string;
   let handlers: EventHandler[];

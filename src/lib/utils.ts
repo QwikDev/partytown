@@ -214,12 +214,34 @@ function escapeRegExp(input: string) {
 
 export function testIfMustLoadScriptOnMainThread(
   config: PartytownInternalConfig,
-  value: string
+  url: string
 ): boolean {
   return (
     config.loadScriptsOnMainThread
-      ?.map(([type, value]) => new RegExp(type === 'string' ? escapeRegExp(value) : value))
-      .some((regexp) => regexp.test(value)) ?? false
+      ?.map(([type, pattern]) => new RegExp(type === 'string' ? escapeRegExp(pattern) : pattern))
+      .some((regexp) => regexp.test(url)) ?? false
+  );
+}
+
+export function testIfMustLoadIframeOnMainThread(
+  config: PartytownInternalConfig,
+  url: string
+): boolean {
+  return (
+    config.loadIframesOnMainThread
+      ?.map(([type, pattern]) => new RegExp(type === 'string' ? escapeRegExp(pattern) : pattern))
+      .some((regexp) => regexp.test(url)) ?? false
+  );
+}
+
+export function testIfShouldUseNoCors(
+  config: PartytownInternalConfig,
+  url: string
+): boolean {
+  return (
+    config.noCorsUrls
+      ?.map(([type, pattern]) => new RegExp(type === 'string' ? escapeRegExp(pattern) : pattern))
+      .some((regexp) => regexp.test(url)) ?? false
   );
 }
 
@@ -242,6 +264,30 @@ export function serializeConfig(config: PartytownConfig) {
               typeof scriptUrl === 'string' ? scriptUrl : scriptUrl.source,
             ]
       ) satisfies Required<PartytownInternalConfig>['loadScriptsOnMainThread'];
+    }
+    if (key === 'loadIframesOnMainThread') {
+      value = (
+        value as Required<PartytownConfig | PartytownInternalConfig>['loadIframesOnMainThread']
+      ).map((iframeUrl) =>
+        Array.isArray(iframeUrl)
+          ? iframeUrl
+          : [
+              typeof iframeUrl === 'string' ? 'string' : 'regexp',
+              typeof iframeUrl === 'string' ? iframeUrl : iframeUrl.source,
+            ]
+      ) satisfies Required<PartytownInternalConfig>['loadIframesOnMainThread'];
+    }
+    if (key === 'noCorsUrls') {
+      value = (
+        value as Required<PartytownConfig | PartytownInternalConfig>['noCorsUrls']
+      ).map((url) =>
+        Array.isArray(url)
+          ? url
+          : [
+              typeof url === 'string' ? 'string' : 'regexp',
+              typeof url === 'string' ? url : url.source,
+            ]
+      ) satisfies Required<PartytownInternalConfig>['noCorsUrls'];
     }
     return value;
   });

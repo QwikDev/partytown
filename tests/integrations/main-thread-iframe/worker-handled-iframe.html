@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Worker Handled Iframe</title>
+  </head>
+  <body>
+    <p id="iframeContent">This iframe is handled by Partytown worker.</p>
+    <script>
+      // This script runs in the context managed by Partytown
+      window.workerIframeLoaded = true;
+
+      if (window.parent && window.parent !== window) {
+        try {
+          window.parent.postMessage({ type: 'iframe-loaded', id: 'workerIframe' }, '*');
+        } catch (e) {
+          // Cross-origin, expected
+        }
+      }
+    </script>
+  </body>
+</html>

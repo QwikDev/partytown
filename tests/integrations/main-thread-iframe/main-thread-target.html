@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Regex Matched Iframe (Main Thread)</title>
+  </head>
+  <body>
+    <p id="iframeContent">Regex-matched iframe loaded on main thread!</p>
+    <script>
+      // This script runs directly on the main thread
+      window.regexIframeLoaded = true;
+
+      if (window.parent && window.parent !== window) {
+        try {
+          window.parent.postMessage({ type: 'iframe-loaded', id: 'regexIframe' }, '*');
+        } catch (e) {
+          // Cross-origin, expected
+        }
+      }
+    </script>
+  </body>
+</html>

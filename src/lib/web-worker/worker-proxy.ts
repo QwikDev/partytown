@@ -140,6 +140,27 @@ export const sendToMain = (isBlocking?: boolean) => {
   }
 };
 
+/**
+ * Flush any pending async tasks to main thread.
+ * This ensures all queued operations are sent before continuing.
+ * Useful for ensuring consistency before critical operations like cookie reads.
+ */
+export const flushPendingTasks = () => {
+  clearTimeout(webWorkerCtx.$asyncMsgTimer$);
+  if (len(taskQueue)) {
+    if (debug) {
+      logWorker(`Flushing ${taskQueue.length} pending tasks`);
+    }
+    // Send pending tasks as async (non-blocking)
+    const accessReq: MainAccessRequest = {
+      $msgId$: `${randomId()}.${webWorkerCtx.$tabId$}`,
+      $tasks$: [...taskQueue],
+    };
+    taskQueue.length = 0;
+    webWorkerCtx.$postMessage$([WorkerMessageType.AsyncAccessRequest, accessReq]);
+  }
+};
+
 export const getter: Getter = (
   instance: WorkerInstance,
   applyPath: ApplyPath,
@@ -191,6 +212,45 @@ export const setter: Setter = (
   logWorkerSetter(instance, applyPath, value);
 
   queue(instance, applyPath, CallType.NonBlocking);
+};
+
+/**
+ * Blocking setter - waits for the set operation to complete before returning.
+ * Use this for properties that may be read immediately after setting (e.g., cookies).
+ */
+export const blockingSetter: Setter = (
+  instance: WorkerInstance,
+  applyPath: ApplyPath,
+  value: any,
+  hookSetterValue?: any
+) => {
+  if (webWorkerCtx.$config$.set) {
+    hookSetterValue = webWorkerCtx.$config$.set({
+      value,
+      prevent: HookPrevent,
+      ...createHookOptions(instance, applyPath),
+    });
+    if (hookSetterValue === HookPrevent) {
+      return;
+    }
+    if (hookSetterValue !== HookContinue) {
+      value = hookSetterValue;
+    }
+  }
+
+  if (dimensionChangingSetterNames.some((s) => applyPath.includes(s))) {
+    cachedDimensions.clear();
+    logDimensionCacheClearSetter(instance, applyPath[applyPath.length - 1]);
+  }
+
+  applyPath = [...applyPath, serializeInstanceForMain(instance, value), ApplyPathType.SetValue];
+
+  logWorkerSetter(instance, applyPath, value);
+
+  // Use Blocking to ensure the set completes before returning
+  // This is critical for operations like document.cookie where
+  // scripts may immediately read the value after setting
+  queue(instance, applyPath, CallType.Blocking);
 };
 
 export const callMethod: CallMethod = (

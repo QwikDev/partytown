@@ -13,7 +13,7 @@ export const mainForwardTrigger = (worker: PartytownWebWorker, $winId$: WinId, w
   let i: number;
   let mainForwardFn: typeof win;
 
-  let forwardCall = ($forward$: string[], args: any) =>
+  let forwardCall = ($forward$: string[], args: any) => {
     worker.postMessage([
       WorkerMessageType.ForwardMainTrigger,
       {
@@ -22,6 +22,7 @@ export const mainForwardTrigger = (worker: PartytownWebWorker, $winId$: WinId, w
         $args$: serializeForWorker($winId$, Array.from(args)),
       },
     ]);
+  };
 
   win._ptf = undefined;
 

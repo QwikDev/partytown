@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Test Iframe (Main Thread)</title>
+  </head>
+  <body>
+    <p id="iframeContent">Main thread iframe loaded successfully!</p>
+    <script>
+      // This script runs directly on the main thread
+      // We can verify this by checking if window.parent exists normally
+      window.mainThreadIframeLoaded = true;
+
+      // Set a flag that can be checked from the parent
+      if (window.parent && window.parent !== window) {
+        try {
+          // Try to communicate with parent if same origin
+          window.parent.postMessage({ type: 'iframe-loaded', id: 'mainThreadIframe' }, '*');
+        } catch (e) {
+          // Cross-origin, expected
+        }
+      }
+    </script>
+  </body>
+</html>

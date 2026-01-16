@@ -1,4 +1,4 @@
-import { callMethod, getter, setter } from './worker-proxy';
+import { blockingSetter, callMethod, getter, setter } from './worker-proxy';
 import {
   CallType,
   NodeName,
@@ -43,7 +43,7 @@ export const patchDocument = (
       },
       set(value) {
         if (env.$isSameOrigin$) {
-          setter(this, ['cookie'], value);
+          blockingSetter(this, ['cookie'], value);
         } else if (debug) {
           warnCrossOrigin('set', 'cookie', env);
         }

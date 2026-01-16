@@ -51,6 +51,7 @@ import {
   getConstructorName,
   len,
   randomId,
+  testIfShouldUseNoCors,
 } from '../utils';
 import {
   getInstanceStateValue,
@@ -374,6 +375,10 @@ export const createWindow = (
                 return win[propName];
               }
             },
+            set: (win, propName: any, value: any) => {
+              win[propName] = value;
+              return true;
+            },
             has: () =>
               // window "has" any and all props, this is especially true for global variables
               // that are meant to be assigned to window, but without "window." prefix,
@@ -460,6 +465,59 @@ export const createWindow = (
         }
 
         win.Worker = undefined;
+
+        // Pre-initialize dataLayer as a REAL array stored separately
+        // to avoid Partytown's proxy serialization issues (objects becoming instance IDs)
+        if (!(win as any)._ptRealDataLayer) {
+          const realDataLayer: any[] = [];
+          (win as any)._ptRealDataLayer = realDataLayer;
+          
+          // Define dataLayer as a getter/setter that uses the real array
+          // This prevents GTM from replacing our array with one containing instance IDs
+          Object.defineProperty(win, 'dataLayer', {
+            get: () => (win as any)._ptRealDataLayer,
+            set: (newValue: any) => {
+              // If someone tries to replace dataLayer, preserve our array but copy the enhanced push
+              if (Array.isArray(newValue)) {
+                const real = (win as any)._ptRealDataLayer;
+                // Copy push method if it's GTM's enhanced version
+                if (newValue.push && newValue.push !== Array.prototype.push) {
+                  real.push = newValue.push;
+                }
+              }
+              // Don't actually replace the array - this prevents corruption
+            },
+            configurable: true,
+            enumerable: true,
+          });
+        }
+        
+        // Pre-initialize gtag function for GA4 compatibility
+        // GA4/gtag.js expects this function to exist before it loads
+        if (typeof (win as any).gtag !== 'function') {
+          (win as any).gtag = function() {
+            (win as any).dataLayer.push(arguments);
+          };
+        }
+
+        // Polyfill for dynamic import() - fetches and executes scripts
+        // This allows gtag.js and similar scripts to load modules in the worker
+        (win as any).__pt_import__ = async (url: string) => {
+          try {
+            const resolvedUrl = resolveUrl(env, url, 'script');
+            const response = await fetch(resolvedUrl);
+            if (!response.ok) {
+              throw new Error(`Failed to fetch module: ${response.status}`);
+            }
+            const scriptContent = await response.text();
+            const fn = new Function(scriptContent);
+            fn.call(win);
+            return {};
+          } catch (error) {
+            console.error('[Partytown] __pt_import__ error:', error);
+            throw error;
+          }
+        };
       }
 
       addEventListener = (...args: any[]) => {
@@ -486,7 +544,17 @@ export const createWindow = (
 
       fetch(input: string | URL | Request, init: any) {
         input = typeof input === 'string' || input instanceof URL ? String(input) : input.url;
-        return fetch(resolveUrl(env, input, 'fetch'), init);
+        const resolvedUrl = resolveUrl(env, input, 'fetch');
+
+        // Check if this URL should use no-cors mode
+        // This is useful for tracking/analytics URLs that fail due to CORS
+        // but don't need response data (fire-and-forget requests)
+        const shouldUseNoCors = testIfShouldUseNoCors(webWorkerCtx.$config$, input);
+        if (shouldUseNoCors) {
+          init = { ...init, mode: 'no-cors', credentials: 'include' };
+        }
+
+        return (self as any).fetch(resolvedUrl, init);
       }
 
       get frames() {
