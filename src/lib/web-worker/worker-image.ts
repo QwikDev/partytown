@@ -71,7 +71,7 @@ export const createImageConstructor = (env: WebWorkerEnvironment) =>
     toggleAttribute(name: string, force?: boolean): boolean {
       const normalizedName = name.toLowerCase();
       const hasAttr = this.attributes.has(normalizedName);
-      
+
       if (force !== undefined) {
         if (force) {
           if (!hasAttr) {
@@ -83,7 +83,7 @@ export const createImageConstructor = (env: WebWorkerEnvironment) =>
           return false;
         }
       }
-      
+
       if (hasAttr) {
         this.attributes.delete(normalizedName);
         return false;
