@@ -1,5 +1,6 @@
 import {
   createElementFromConstructor,
+  DEPRECATED_WINDOW_PROPERTIES,
   getConstructorName,
   getNodeName,
   isValidMemberName,
@@ -83,6 +84,7 @@ export const readMainInterfaces = () => {
   // get all HTML*Element constructors on window
   // and create each element to get their implementation
   const elms = Object.getOwnPropertyNames(mainWindow)
+    .filter((interfaceName) => !DEPRECATED_WINDOW_PROPERTIES.has(interfaceName))
     .map((interfaceName) => createElementFromConstructor(docImpl, interfaceName))
     .filter((elm) => {
       if (!elm) {

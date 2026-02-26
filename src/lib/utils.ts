@@ -37,13 +37,28 @@ export const getConstructorName = (obj: Object) => {
 
 export const startsWith = (str: string, val: string) => str.startsWith(val);
 
+/**
+ * Window properties that trigger Chrome deprecation warnings when accessed.
+ * Accessing these causes "Deprecated feature used" entries in DevTools Issues,
+ * which Lighthouse reads and penalizes the Best Practices score.
+ *
+ * @see https://github.com/AyaanZaveri/partytown/issues/313
+ */
+export const DEPRECATED_WINDOW_PROPERTIES: Set<string> = /*#__PURE__*/ new Set([
+  'SharedStorage',
+  'sharedStorage',
+  'AttributionReporting',
+  'attributionReporting',
+]);
+
 export const isValidMemberName = (memberName: string) =>
   !(
     startsWith(memberName, 'webkit') ||
     startsWith(memberName, 'toJSON') ||
     startsWith(memberName, 'constructor') ||
     startsWith(memberName, 'toString') ||
-    startsWith(memberName, '_')
+    startsWith(memberName, '_') ||
+    DEPRECATED_WINDOW_PROPERTIES.has(memberName)
   );
 
 export const getLastMemberName = (applyPath: ApplyPath, i?: number) => {
