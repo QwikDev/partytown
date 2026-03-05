@@ -59,3 +59,14 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tar and gzip the lib directory
+        shell: bash
+        run: tar -zcvf lib.tar lib && gzip lib.tar
+
+      - name: Upload release asset
+        user: actions4gh/setup-gh@v1
+        if: github.ref_type == 'tag'
+        run : gh release ${{ github.ref }} upload './lib.tar.gz#Compiled lib'
+        env:
+          GH_REPO: ${{ github.repository }}

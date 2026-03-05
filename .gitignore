@@ -25,3 +25,4 @@ node_modules/
 .history
 test-results/
 tests/integrations/load-scripts-on-main-thread/snippet.js
+lib.tar.gz
