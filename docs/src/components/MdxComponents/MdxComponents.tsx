@@ -1,9 +1,8 @@
-import type { QwikIntrinsicElements } from "@qwik.dev/core";
-import { Slot, component$ } from "@qwik.dev/core";
+import { type PropsOf, Slot, component$ } from "@qwik.dev/core";
 import { CodeSnippet } from "../CodeSnippet/CodeSnippet";
 
 export const components: Record<string, any> = {
-  pre: component$<QwikIntrinsicElements["div"] & { __rawString__?: string }>(
+  pre: component$<PropsOf<"div"> & { __rawString__?: string }>(
     () => {
       return (
         <div class="relative">
@@ -14,7 +13,7 @@ export const components: Record<string, any> = {
       );
     },
   ),
-  code: component$<QwikIntrinsicElements["code"]>(({ ...props }) => {
+  code: component$<PropsOf<"code">>(({ ...props }) => {
     return (
       <code {...props}>
         <Slot />

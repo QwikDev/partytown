@@ -1,9 +1,6 @@
-import { component$, isDev } from "@qwik.dev/core";
-import {
-  QwikRouterProvider,
-  RouterOutlet,
-  ServiceWorkerRegister,
-} from "@qwik.dev/router";
+import { component$ } from "@qwik.dev/core";
+import { isDev } from "@qwik.dev/core/build";
+import { QwikRouterProvider, RouterOutlet } from "@qwik.dev/router";
 
 import "./global.scss";
 import { RouterHead } from "./components/RouterHead/RouterHead";
@@ -30,7 +27,6 @@ export default component$(() => {
       </head>
       <body lang="en" class="m-auto max-w-[1376px]">
         <RouterOutlet />
-        {!isDev && <ServiceWorkerRegister />}
       </body>
     </QwikRouterProvider>
   );
