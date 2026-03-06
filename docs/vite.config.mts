@@ -7,7 +7,6 @@ import { qwikRouter } from "@qwik.dev/router/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import pkg from "./package.json";
-import { recmaProvideComponents } from "./recma-provide-components";
 
 type PkgDep = Record<string, string>;
 const { dependencies = {}, devDependencies = {} } = pkg as any as {
@@ -32,8 +31,6 @@ export default defineConfig(async () => {
         rehypeAutolinkHeadings: true,
       },
       mdx: {
-        providerImportSource: "~/state/MDXProvider",
-        recmaPlugins: [recmaProvideComponents],
         rehypePlugins: [
           () => (tree) => {
             visit(tree, (node) => {

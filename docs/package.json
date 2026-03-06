@@ -29,8 +29,8 @@
     "qwik": "qwik"
   },
   "devDependencies": {
-    "@qwik.dev/core": "2.0.0-beta.24",
-    "@qwik.dev/router": "2.0.0-beta.24",
+    "@qwik.dev/core": "2.0.0-beta.27",
+    "@qwik.dev/router": "2.0.0-beta.27",
     "@types/eslint": "8.56.10",
     "@types/node": "^20.19.0",
     "@typescript-eslint/eslint-plugin": "7.16.1",
@@ -38,7 +38,7 @@
     "autoprefixer": "^10.4.19",
     "clsx": "^2.1.1",
     "eslint": "8.57.0",
-    "eslint-plugin-qwik": "2.0.0-beta.24",
+    "eslint-plugin-qwik": "2.0.0-beta.27",
     "postcss": "^8.4.39",
     "prettier": "3.6.2",
     "rollup": "^4.52.0",

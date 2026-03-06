@@ -177,6 +177,10 @@ body {
     @apply rounded-md;
   }
 
+  pre {
+    @apply mb-4 mt-6 max-h-[650px] overflow-x-auto rounded-lg bg-zinc-950 p-6 text-white dark:bg-zinc-950;
+  }
+
   hr {
     @apply my-4 md:my-8;
   }
