@@ -23,7 +23,7 @@ composer require drupal/partytown
 partytown": {
     "type": "package",
     "package": {
-        "name": "quickdev/partytown",
+        "name": "quikdev/partytown",
         "version": "0.11.0",
         "type": "drupal-library",
         "dist": {
@@ -36,10 +36,10 @@ partytown": {
 
 ```
 
- 3. Install the partytown JS library
+ 3. Install the PartyTown JS library
 
 ``` bash
-composer require quickdev/partytown
+composer require quikdev/partytown
 ```
 
 ### Using The Composer Merge Plugin
@@ -64,11 +64,19 @@ composer require wikimedia/composer-merge-plugin
 
 ### Manually
 
+ > **Note**: this method does not install the PartyTown JS library for you and may be a little more difficult to manage. However, it is provided as a fallback because some Drupal web sites are not managed using composer but may still benefit from this module. You will need to refer to the [HTML](/html) integration instructions or that of your favorite JS framework in order to make use of these instructions. In this context, the Drupal module will simply act as a GUI for managing your integration settings. Furthermore, you will need to configure the "Lib Path" setting in the Drupal module to point at your installation location.
+
  1. Download and unzip the Drupal module from the [PartyTown release page](https://www.drupal.org/project/partytown/releases) 
  
- 2. Install the `partytown` directory in the Drupal `modules` directory (usually `<webroot>/modules` or `<webroot>/modules/contrib`)
+ 2. Install the `partytown` module in the Drupal `modules` directory (usually `<webroot>/modules` or `<webroot>/modules/contrib`)
  
  3. Visit the Admin > Extend page of your Drupal installation and enable the PartyTown module
+ 
+ 4. Install the PartyTown JS library in whatever method you deem appropriate
+ 
+ 5. Ensure that the "Lib Path" setting points to your PartyTown installation location
+
+> **Note**: Because the Drupal module and PartyTown integration in this method are essentially de-coupled, you will need to ensure that the PartyTown JS library loads **after** the module-provided `partytown/config` library. This ensures that PartyTown can use the settings you set in the Drupal admin. You also may need to implement a Drupal hook that prevents the default `partytown/lib` library from being loaded by Drupal.
  
 ## Configure
 
