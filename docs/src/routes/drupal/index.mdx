@@ -1,0 +1,92 @@
+---
+title: Drupal
+---
+
+# Drupal
+
+The [Drupal](https://drupal.org) integration relies on a contributed module called ["PartyTown"](https://drupal.org/project/partytown), which can either be installed manually, or by using composer.
+
+## Install
+
+### Using Composer
+
+ 1. Use composer to download the Drupal module
+
+``` bash
+composer require drupal/partytown
+```
+
+ 2. Add the following code to your `composer.json` in the `repositories` section
+
+``` json
+
+partytown": {
+    "type": "package",
+    "package": {
+        "name": "quickdev/partytown",
+        "version": "0.11.0",
+        "type": "drupal-library",
+        "dist": {
+            "url": "https://registry.npmjs.org/@qwik.dev/partytown/-/partytown-0.11.0.tgz",
+            "type": "tar"
+        },
+        "license": "MIT"
+    }
+}
+
+```
+
+ 3. Install the partytown JS library
+
+``` bash
+composer require quickdev/partytown
+```
+
+### Using The Composer Merge Plugin
+
+ 1. Use composer to download the Drupal module
+
+``` bash
+composer require drupal/partytown
+```
+
+ 2. If not already installed, install Merge Plugin: 
+ 
+``` bash
+composer require wikimedia/composer-merge-plugin
+```
+
+ 3. Merge the PartyTown library from the module's `composer.json`: 
+ 
+ ``` bash
+ composer config extra.merge-plugin.include --json '[ "web/modules/contrib/partytown/composer.libraries.json" ]'
+ ```
+
+### Manually
+
+ 1. Download and unzip the Drupal module from the [PartyTown release page](https://www.drupal.org/project/partytown/releases) 
+ 
+ 2. Install the `partytown` directory in the Drupal `modules` directory (usually `<webroot>/modules` or `<webroot>/modules/contrib`)
+ 
+ 3. Visit the Admin > Extend page of your Drupal installation and enable the PartyTown module
+ 
+## Configure
+
+All configuration for the PartyTown module takes place in the Drupal admin interface. You can manage most of the PartyTown API settings graphically at `/admin/config/development/partytown`.
+
+## Managing Scripts With PartyTown
+
+### Google Tag Manager
+
+The PartyTown module for Drupal comes with a submodule called "PartyTown Google Tag" for PartyTown-ing Google Tag Manager. Once installed, you will probably want to configure the PartyTown module to forward `dataLayer.push`.
+
+### Other scripts
+
+Other scripts can be PartyTown-ed by setting the type to be `text\partytown`. Using a `*.libraries.yml` this can be achieved with something similar to:
+
+``` yaml
+foo:
+  js:
+    js/foo.js: { attributes: { type: "text/partytown"} }
+
+```
