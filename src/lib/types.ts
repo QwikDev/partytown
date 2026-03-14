@@ -501,6 +501,10 @@ export interface PartytownConfig {
    */
   logSetters?: boolean;
   /**
+   * Log forwarded events (debug mode required)
+   */
+  logForwardedEvents?: boolean;
+  /**
    * Log Image() src requests (debug mode required)
    */
   logImageRequests?: boolean;
