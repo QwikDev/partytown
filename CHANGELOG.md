@@ -1,5 +1,19 @@
 # @qwik.dev/partytown
 
+## 0.13.0
+
+### Minor Changes
+
+- ✨ add new documentation for Drupal integration (by [@OulipianSummer](https://github.com/OulipianSummer) in [#701](https://github.com/QwikDev/partytown/pull/701))
+
+  This commit adds a new section to the integrations section of the documentation, detailing how to install, configure, and use the Drupal integration for PartyTown.
+
+### Patch Changes
+
+- patch: expand docs on manual Drupal module installation, fix typos (by [@OulipianSummer](https://github.com/OulipianSummer) in [#703](https://github.com/QwikDev/partytown/pull/703))
+
+  Although uncommon, some Drupal web sites do install all of their third-party modules without composer. In these cases, it is still possible to use the contributed PartyTown module to manage PartyTown from a GUI, though the setup does require some extra explanation. I've added some notes on this uncommon setup in the hope it will be helpful to those users.
+
 ## 0.12.0
 
 ### Minor Changes
