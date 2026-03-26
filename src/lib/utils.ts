@@ -57,7 +57,7 @@ export const isValidMemberName = (memberName: string) =>
     startsWith(memberName, 'constructor') ||
     startsWith(memberName, 'toString') ||
     startsWith(memberName, '_') ||
-     DEPRECATED_WINDOW_PROPERTIES.has(memberName)
+    DEPRECATED_WINDOW_PROPERTIES.has(memberName)
   );
 
 export const getLastMemberName = (applyPath: ApplyPath, i?: number) => {
