@@ -8,18 +8,34 @@ Partytown is built with the goal that any third-party script can be ran from wit
 
 Below is a list of plugins / libraries that are tested & known to be working with Partytown with their commonly used [forward configs](/forwarding-events) and [proxied domains](/proxying-requests).
 
-| Service                                                                                       | Forward Config                      | Proxy Domain                                        |
-| --------------------------------------------------------------------------------------------- | ----------------------------------- | --------------------------------------------------- |
-| [Facebook Pixel](/facebook-pixel)                                                             | "fbq"                               | "connect.facebook.net"                              |
-| [Google Tag Manager](/google-tag-manager)                                                     | "dataLayer.push"                    |                                                     |
-| [Hubspot Tracking](https://developers.hubspot.com/docs/api/events/tracking-code)              | "\_hsq.push"                        |                                                     |
-| [Intercom](https://developers.intercom.com/installing-intercom/docs/intercom-javascript)      | "Intercom"                          |                                                     |
-| [Klaviyo](https://developers.klaviyo.com/en/docs/javascript-api)                              | "\_learnq.push"                     | "static.klaviyo.com", "static-tracking.klaviyo.com" |
-| [TikTok Pixel](https://ads.tiktok.com/marketing_api/docs?rid=959icq5stjr&id=1701890973258754) | "ttq.track", "ttq.page", "ttq.load" |
-| [Mixpanel](https://developer.mixpanel.com/docs/javascript-quickstart)                         | "mixpanel.track"                    |                                                     |
+| Service                                                                                       | Forward Config                      | Proxy Domain                                        | Additional Config                          |
+| --------------------------------------------------------------------------------------------- | ----------------------------------- | --------------------------------------------------- | ------------------------------------------ |
+| [Facebook Pixel](/facebook-pixel)                                                             | "fbq"                               | "connect.facebook.net"                              |                                            |
+| [FullStory](https://help.fullstory.com/hc/en-us/articles/360020623574)                        | "FS.identify", "FS.event"           |                                                     | `strictProxyHas: true` (if loaded via GTM) |
+| [Google Tag Manager](/google-tag-manager)                                                     | "dataLayer.push"                    |                                                     |                                            |
+| [Hubspot Tracking](https://developers.hubspot.com/docs/api/events/tracking-code)              | "\_hsq.push"                        |                                                     |                                            |
+| [Intercom](https://developers.intercom.com/installing-intercom/docs/intercom-javascript)      | "Intercom"                          |                                                     |                                            |
+| [Klaviyo](https://developers.klaviyo.com/en/docs/javascript-api)                              | "\_learnq.push"                     | "static.klaviyo.com", "static-tracking.klaviyo.com" |                                            |
+| [TikTok Pixel](https://ads.tiktok.com/marketing_api/docs?rid=959icq5stjr&id=1701890973258754) | "ttq.track", "ttq.page", "ttq.load" |                                                     |                                            |
+| [Mixpanel](https://developer.mixpanel.com/docs/javascript-quickstart)                         | "mixpanel.track"                    |                                                     |                                            |
 
 If you would like to add to this list,
 
 - Refer to the ["for Plugin Authors / Developers"](https://github.com/BuilderIO/partytown/blob/main/CONTRIBUTING.md#plugin-authors--developers) section to see how you can validate whether a library / plugin works with Partytown.
 - Send us a PR so that we can have a scenario checked in that validates it.
 - Please [edit this doc](https://github.com/BuilderIO/partytown/edit/main/docs/common-services.md) to add your plugin / library and its configuration so that others can start using it!
+
+## FullStory with Google Tag Manager
+
+When loading FullStory via Google Tag Manager (GTM), you need to enable the `strictProxyHas` configuration option. This is because FullStory checks for namespace conflicts using the `in` operator (e.g., `if (!("FS" in window))`), and by default, Partytown's window proxy always returns `true` for the `in` operator for backwards compatibility.
+
+```html
+<script>
+  partytown = {
+    forward: ['FS.identify', 'FS.event'],
+    strictProxyHas: true,
+  };
+</script>
+```
+
+Without `strictProxyHas: true`, FullStory will detect a false "namespace conflict" and fail to initialize when loaded via GTM's Custom HTML tag. This configuration ensures the `in` operator accurately checks property existence on the window object.

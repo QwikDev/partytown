@@ -1,6 +1,6 @@
 {
   "name": "@qwik.dev/partytown",
-  "version": "0.11.2",
+  "version": "0.13.0",
   "description": "Relocate resource intensive third-party scripts off of the main thread and into a web worker.",
   "license": "MIT",
   "main": "index.cjs",
@@ -62,7 +62,7 @@
   "scripts": {
     "build": "tsc && rollup -c scripts/rollup.config.js",
     "build.prod": "tsc && rollup -c scripts/rollup.config.js --configReleaseBuild",
-    "build.site": "cd docs && npm i && npm run build",
+    "build.site": "cd docs && pnpm i && pnpm run build",
     "build.watch": "rollup -c scripts/rollup.config.js -w --configDev",
     "change": "changeset",
     "start": "npm run dev",

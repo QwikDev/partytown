@@ -550,6 +550,23 @@ export interface PartytownConfig {
    * ```
    */
   nonce?: string;
+  /**
+   * When set to `true`, the window proxy's `has` trap will use `Reflect.has()` to accurately
+   * check if properties exist on the window object, instead of always returning `true`.
+   *
+   * This is required for scripts that check for namespace conflicts using the `in` operator,
+   * such as FullStory: `if (!("FS" in window)) { ... }`
+   *
+   * Default: false (for backwards compatibility)
+   *
+   * @example
+   * ```js
+   * partytown = {
+   *   strictProxyHas: true
+   * };
+   * ```
+   */
+  strictProxyHas?: boolean;
 }
 
 export type PartytownInternalConfig = Omit<PartytownConfig, 'loadScriptsOnMainThread'> & {

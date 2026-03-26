@@ -1,5 +1,52 @@
 # @qwik.dev/partytown
 
+## 0.13.0
+
+### Minor Changes
+
+- ✨ add new documentation for Drupal integration (by [@OulipianSummer](https://github.com/OulipianSummer) in [#701](https://github.com/QwikDev/partytown/pull/701))
+
+  This commit adds a new section to the integrations section of the documentation, detailing how to install, configure, and use the Drupal integration for PartyTown.
+
+### Patch Changes
+
+- patch: expand docs on manual Drupal module installation, fix typos (by [@OulipianSummer](https://github.com/OulipianSummer) in [#703](https://github.com/QwikDev/partytown/pull/703))
+
+  Although uncommon, some Drupal web sites do install all of their third-party modules without composer. In these cases, it is still possible to use the contributed PartyTown module to manage PartyTown from a GUI, though the setup does require some extra explanation. I've added some notes on this uncommon setup in the hope it will be helpful to those users.
+
+## 0.12.0
+
+### Minor Changes
+
+- Add `strictProxyHas` configuration option for accurate namespace conflict detection (by [@chadgauth](https://github.com/chadgauth) in [#692](https://github.com/QwikDev/partytown/pull/692))
+
+  **Summary:**
+
+  This release adds a new configuration option `strictProxyHas` that enables accurate property existence checks using the `in` operator. This is required for scripts like FullStory that check for namespace conflicts when loaded via Google Tag Manager (GTM).
+
+  **Key Changes:**
+
+  - Add `strictProxyHas?: boolean` config option to enable accurate `in` operator behavior
+  - Update window proxy's `has` trap to use `Reflect.has()` when `strictProxyHas: true`
+  - Default is `false` for backwards compatibility
+  - Add FullStory GTM integration test with production-ready snippet
+  - Document the configuration and provide usage guide
+
+  **Usage:**
+
+  ```html
+  <script>
+    partytown = {
+      forward: ['FS.identify', 'FS.event'],
+      strictProxyHas: true, // Enable for FullStory via GTM
+    };
+  </script>
+  ```
+
+  **Backwards Compatibility:**
+
+  This is a non-breaking change. The default behavior remains unchanged (`strictProxyHas: false`), so existing implementations will continue to work without modifications.
+
 ## 0.11.2
 
 ### Patch Changes

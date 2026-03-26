@@ -19,6 +19,7 @@
 
 - [Angular](/angular)
 - [Astro](/astro)
+- [Drupal](/drupal)
 - [Gatsby](/gatsby)
 - [HTML](/html)
 - [Magento 2](/magento2)
