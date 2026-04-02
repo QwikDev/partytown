@@ -1,5 +1,11 @@
 # @qwik.dev/partytown
 
+## 0.13.2
+
+### Patch Changes
+
+- 🐞🩹 update repository metadata to QwikDev/partytown and bump Node to 24.x for OIDC trusted publishing (by [@thejackshelton](https://github.com/thejackshelton) in [`1b34fe1`](https://github.com/QwikDev/partytown/commit/1b34fe191539926d21a87affe55a6e2dc5d15765))
+
 ## 0.13.1
 
 ### Patch Changes
