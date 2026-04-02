@@ -1,5 +1,11 @@
 # @qwik.dev/partytown
 
+## 0.13.1
+
+### Patch Changes
+
+- Fix Lighthouse deprecated API warnings by skipping Chrome Privacy Sandbox properties (SharedStorage, AttributionReporting) during window introspection (by [@AlexJohnSadowski](https://github.com/AlexJohnSadowski) in [#697](https://github.com/QwikDev/partytown/pull/697))
+
 ## 0.13.0
 
 ### Minor Changes
