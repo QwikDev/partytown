@@ -127,7 +127,7 @@ const serializeCssRuleForWorker = (cssRule: any) => {
   }
   return obj;
 };
-let ErrorObject: any = null;
+let ErrorObject: any = Error;
 const serializedValueIsError = (value: any) => {
   ErrorObject = (window.top as any)?.Error || ErrorObject;
   return value instanceof ErrorObject;
