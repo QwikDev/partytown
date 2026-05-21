@@ -37,13 +37,27 @@ export const getConstructorName = (obj: Object) => {
 
 export const startsWith = (str: string, val: string) => str.startsWith(val);
 
+// Chrome APIs that trigger deprecation warnings when accessed on window.
+// Accessing these during platform introspection causes console noise.
+// https://github.com/QwikDev/partytown/issues/694
+export const DEPRECATED_WINDOW_PROPERTIES = new Set([
+  'sharedStorage',
+  'SharedStorage',
+  'AttributionReporting',
+  'attributionReporting',
+  'AttributionReportingRequestOptions',
+  'attributionSrc',
+  'setAttributionReporting',
+]);
+
 export const isValidMemberName = (memberName: string) =>
   !(
     startsWith(memberName, 'webkit') ||
     startsWith(memberName, 'toJSON') ||
     startsWith(memberName, 'constructor') ||
     startsWith(memberName, 'toString') ||
-    startsWith(memberName, '_')
+    startsWith(memberName, '_') ||
+    DEPRECATED_WINDOW_PROPERTIES.has(memberName)
   );
 
 export const getLastMemberName = (applyPath: ApplyPath, i?: number) => {

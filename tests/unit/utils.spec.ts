@@ -1,5 +1,9 @@
 import * as assert from 'uvu/assert';
-import { createElementFromConstructor } from '../../src/lib/utils';
+import {
+  createElementFromConstructor,
+  DEPRECATED_WINDOW_PROPERTIES,
+  isValidMemberName,
+} from '../../src/lib/utils';
 import { suite } from './utils';
 
 const test = suite();
@@ -49,6 +53,35 @@ test('createElementFromConstructor, HTML', ({ doc }) => {
   assert.is(createElementFromConstructor(doc, 'HTMLConstructor'), undefined);
   assert.is(createElementFromConstructor(doc, 'ConstructorElement'), undefined);
   assert.is(createElementFromConstructor(doc, 'IntersectionObserver'), undefined);
+});
+
+test('isValidMemberName rejects deprecated window properties', () => {
+  for (const prop of DEPRECATED_WINDOW_PROPERTIES) {
+    assert.is(isValidMemberName(prop), false, `${prop} should be rejected`);
+  }
+});
+
+test('isValidMemberName rejects known invalid prefixes', () => {
+  assert.is(isValidMemberName('webkitSpeechRecognition'), false);
+  assert.is(isValidMemberName('toJSON'), false);
+  assert.is(isValidMemberName('constructor'), false);
+  assert.is(isValidMemberName('toString'), false);
+  assert.is(isValidMemberName('_private'), false);
+});
+
+test('isValidMemberName accepts valid member names', () => {
+  assert.is(isValidMemberName('document'), true);
+  assert.is(isValidMemberName('localStorage'), true);
+  assert.is(isValidMemberName('fetch'), true);
+  assert.is(isValidMemberName('HTMLDivElement'), true);
+  assert.is(isValidMemberName('addEventListener'), true);
+});
+
+test('DEPRECATED_WINDOW_PROPERTIES contains expected entries', () => {
+  assert.ok(DEPRECATED_WINDOW_PROPERTIES.has('SharedStorage'));
+  assert.ok(DEPRECATED_WINDOW_PROPERTIES.has('sharedStorage'));
+  assert.ok(DEPRECATED_WINDOW_PROPERTIES.has('AttributionReporting'));
+  assert.ok(DEPRECATED_WINDOW_PROPERTIES.has('attributionReporting'));
 });
 
 test.run();
