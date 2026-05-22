@@ -1,5 +1,15 @@
 # @qwik.dev/partytown
 
+## 0.14.0
+
+### Minor Changes
+
+- ✨ add `logForwardedEvents` config flag to enable debug logging for forwarded events and triggers (by [@mws19901118](https://github.com/mws19901118) in [#704](https://github.com/QwikDev/partytown/pull/704))
+
+### Patch Changes
+
+- 🐞🩹 initialise ErrorObject to Error instead of null to prevent instanceof crash (by [@gioboa](https://github.com/gioboa) in [#714](https://github.com/QwikDev/partytown/pull/714))
+
 ## 0.13.2
 
 ### Patch Changes
