@@ -63,7 +63,7 @@ function deltaToStrg(
   }
 
   throw new Error(
-    `bad headings: are downwards discontinous from: #${currNode.id} to #${nextNode.id} bc from ${currNode.level} to ${nextNode.level}`,
+    `bad headings: are downwards discontinuous from: #${currNode.id} to #${nextNode.id} bc from ${currNode.level} to ${nextNode.level}`,
   );
 }
 

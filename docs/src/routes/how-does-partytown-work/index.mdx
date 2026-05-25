@@ -54,7 +54,7 @@ Below is an example of adding the `type="text/partytown"` attribute to an existi
 
 ## Atomics
 
-Please see the [Atomics communication layer docs](/atomics) on how to enable them. When Atomics are not enabled, the fallback is to use the Service Worker instead. In the end, Atomics are preferred because they're roughly 10x faster in transfering data between the web worker and main thread.
+Please see the [Atomics communication layer docs](/atomics) on how to enable them. When Atomics are not enabled, the fallback is to use the Service Worker instead. In the end, Atomics are preferred because they're roughly 10x faster in transferring data between the web worker and main thread.
 
 1. Scripts are disabled from running on the main thread by using the `type="text/partytown"` attribute on the `<script/>` tag.
 1. Main thread detects Atomics communication can be used, and loads the Atomics build instead of the Service Worker build.
