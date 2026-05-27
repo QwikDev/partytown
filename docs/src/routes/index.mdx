@@ -30,7 +30,7 @@ We set out to solve this situation, so that apps of all sizes will be able to co
 
 ## Web Workers
 
-Partytown's philosophy is that the main thread should be dedicated to your code, and any scripts that are not required to be in the [critical path](https://developers.google.com/web/fundamentals/performance/critical-rendering-path) should be moved to a [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API). Main thread performance is, without question, more important than web worker thread performance. Please see the [test pages](/tests/) for some live demos.
+Partytown's philosophy is that the main thread should be dedicated to your code, and any scripts that are not required to be in the [critical path](https://developers.google.com/web/fundamentals/performance/critical-rendering-path) should be moved to a [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API). Main thread performance is, without question, more important than web worker thread performance. Please see the [test pages in the repository](https://github.com/QwikDev/partytown/tree/main/tests) for examples you can run locally.
 
 ![Without Partytown and With Partytown: Your code and third-party code compete for main thread resources](https://user-images.githubusercontent.com/452425/152363590-89d3b9a5-35c7-4c12-8f3e-c8b5ce4bb267.png)
 
