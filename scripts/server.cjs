@@ -18,7 +18,7 @@ exports.createServer = function (port, enableAtomics) {
       date.setTime(date.getTime() + 24 * 60 * 60 * 1000); // 24 hours from now
       let expires = date.toUTCString();
       res.writeHead(200, {
-        'Set-Cookie': `${name}=1; Path=/; Domain=localhost; expires=${expires}; SameSite=Lax;`,
+        'Set-Cookie': `${name}=1; Path=/; expires=${expires}; SameSite=Lax;`,
         'Access-Control-Allow-Origin': req.headers.origin ? req.headers.origin : '*',
         'Access-Control-Allow-Credentials': 'true',
       });
