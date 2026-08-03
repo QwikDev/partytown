@@ -1,9 +1,4 @@
-import {
-  debug,
-  emptyObjectValue,
-  getOriginalBehavior,
-  resolvePartytownForwardProperty,
-} from '../utils';
+import { debug, emptyObjectValue, resolvePartytownForwardProperty } from '../utils';
 import type { MainWindow, PartytownConfig } from '../types';
 
 export function snippet(
@@ -18,7 +13,8 @@ export function snippet(
   scripts?: NodeListOf<HTMLScriptElement>,
   sandbox?: HTMLIFrameElement | HTMLScriptElement,
   mainForwardFn: typeof win = win,
-  isReady?: number
+  isReady?: number,
+  forwardPropertyRecords?: [typeof win, string, any, any, boolean][]
 ) {
   // ES5 just so IE11 doesn't choke on arrow fns
   function ready() {
@@ -108,10 +104,17 @@ export function snippet(
 
     // remove any previously patched functions
     if (top == win) {
-      (config!.forward || []).map(function (forwardProps) {
-        const [property] = resolvePartytownForwardProperty(forwardProps);
-        delete win[property.split('.')[0] as any];
-      });
+      for (i = (forwardPropertyRecords || []).length - 1; i >= 0; i--) {
+        const [thisObject, property, originalValue, forwardValue, hadOwnProperty] =
+          forwardPropertyRecords![i];
+        if (thisObject[property] === forwardValue) {
+          if (hadOwnProperty) {
+            thisObject[property] = originalValue;
+          } else {
+            delete thisObject[property];
+          }
+        }
+      }
     }
 
     for (i = 0; i < scripts!.length; i++) {
@@ -145,20 +148,17 @@ export function snippet(
       const [property, { preserveBehavior }] = resolvePartytownForwardProperty(forwardProps);
       mainForwardFn = win;
       property.split('.').map(function (_, i, forwardPropsArr) {
-        mainForwardFn = mainForwardFn[forwardPropsArr[i]] =
+        const forwardProperty = forwardPropsArr[i];
+        const thisObject = mainForwardFn;
+        const hadOwnProperty = Object.prototype.hasOwnProperty.call(thisObject, forwardProperty);
+        const originalValue = thisObject[forwardProperty];
+        const forwardValue =
           i + 1 < forwardPropsArr.length
-            ? mainForwardFn[forwardPropsArr[i]] || emptyObjectValue(forwardPropsArr[i + 1])
+            ? originalValue || emptyObjectValue(forwardPropsArr[i + 1])
             : (() => {
                 let originalFunction: ((...args: any[]) => any) | null = null;
-                if (preserveBehavior) {
-                  const { methodOrProperty, thisObject } = getOriginalBehavior(
-                    win,
-                    forwardPropsArr
-                  );
-                  if (typeof methodOrProperty === 'function') {
-                    originalFunction = (...args: any[]) =>
-                      methodOrProperty.apply(thisObject, ...args);
-                  }
+                if (preserveBehavior && typeof originalValue === 'function') {
+                  originalFunction = (...args: any[]) => originalValue.apply(thisObject, ...args);
                 }
                 return function () {
                   let returnValue: any;
@@ -170,6 +170,14 @@ export function snippet(
                   return returnValue;
                 };
               })();
+        (forwardPropertyRecords = forwardPropertyRecords || []).push([
+          thisObject,
+          forwardProperty,
+          originalValue,
+          forwardValue,
+          hadOwnProperty,
+        ]);
+        mainForwardFn = thisObject[forwardProperty] = forwardValue;
       });
     });
   }
