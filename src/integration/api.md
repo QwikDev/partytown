@@ -28,6 +28,7 @@ export interface PartytownConfig {
     lib?: string;
     loadScriptsOnMainThread?: (string | RegExp)[];
     logCalls?: boolean;
+    logForwardedEvents?: boolean;
     logGetters?: boolean;
     logImageRequests?: boolean;
     logMainAccess?: boolean;

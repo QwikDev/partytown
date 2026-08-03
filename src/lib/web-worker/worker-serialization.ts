@@ -86,7 +86,7 @@ export const serializeForMain = (
   }
 };
 
-const supportsTrustedHTML = typeof TrustedHTML !== 'undefined';
+const supportsTrustedHTML = typeof TrustedHTML === 'function';
 
 const serializeObjectForMain = (
   winId: WinId,

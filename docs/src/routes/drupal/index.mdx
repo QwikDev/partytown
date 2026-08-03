@@ -1,0 +1,100 @@
+---
+title: Drupal
+---
+
+# Drupal
+
+The [Drupal](https://drupal.org) integration relies on a contributed module called ["PartyTown"](https://drupal.org/project/partytown), which can either be installed manually, or by using composer.
+
+## Install
+
+### Using Composer
+
+ 1. Use composer to download the Drupal module
+
+``` bash
+composer require drupal/partytown
+```
+
+ 2. Add the following code to your `composer.json` in the `repositories` section
+
+``` json
+
+partytown": {
+    "type": "package",
+    "package": {
+        "name": "quikdev/partytown",
+        "version": "0.11.0",
+        "type": "drupal-library",
+        "dist": {
+            "url": "https://registry.npmjs.org/@qwik.dev/partytown/-/partytown-0.11.0.tgz",
+            "type": "tar"
+        },
+        "license": "MIT"
+    }
+}
+
+```
+
+ 3. Install the PartyTown JS library
+
+``` bash
+composer require quikdev/partytown
+```
+
+### Using The Composer Merge Plugin
+
+ 1. Use composer to download the Drupal module
+
+``` bash
+composer require drupal/partytown
+```
+
+ 2. If not already installed, install Merge Plugin: 
+ 
+``` bash
+composer require wikimedia/composer-merge-plugin
+```
+
+ 3. Merge the PartyTown library from the module's `composer.json`: 
+ 
+ ``` bash
+ composer config extra.merge-plugin.include --json '[ "web/modules/contrib/partytown/composer.libraries.json" ]'
+ ```
+
+### Manually
+
+ > **Note**: this method does not install the PartyTown JS library for you and may be a little more difficult to manage. However, it is provided as a fallback because some Drupal web sites are not managed using composer but may still benefit from this module. You will need to refer to the [HTML](/html) integration instructions or that of your favorite JS framework in order to make use of these instructions. In this context, the Drupal module will simply act as a GUI for managing your integration settings. Furthermore, you will need to configure the "Lib Path" setting in the Drupal module to point at your installation location.
+
+ 1. Download and unzip the Drupal module from the [PartyTown release page](https://www.drupal.org/project/partytown/releases) 
+ 
+ 2. Install the `partytown` module in the Drupal `modules` directory (usually `<webroot>/modules` or `<webroot>/modules/contrib`)
+ 
+ 3. Visit the Admin > Extend page of your Drupal installation and enable the PartyTown module
+ 
+ 4. Install the PartyTown JS library in whatever method you deem appropriate
+ 
+ 5. Ensure that the "Lib Path" setting points to your PartyTown installation location
+
+> **Note**: Because the Drupal module and PartyTown integration in this method are essentially de-coupled, you will need to ensure that the PartyTown JS library loads **after** the module-provided `partytown/config` library. This ensures that PartyTown can use the settings you set in the Drupal admin. You also may need to implement a Drupal hook that prevents the default `partytown/lib` library from being loaded by Drupal.
+ 
+## Configure
+
+All configuration for the PartyTown module takes place in the Drupal admin interface. You can manage most of the PartyTown API settings graphically at `/admin/config/development/partytown`.
+
+## Managing Scripts With PartyTown
+
+### Google Tag Manager
+
+The PartyTown module for Drupal comes with a submodule called "PartyTown Google Tag" for PartyTown-ing Google Tag Manager. Once installed, you will probably want to configure the PartyTown module to forward `dataLayer.push`.
+
+### Other scripts
+
+Other scripts can be PartyTown-ed by setting the type to be `text\partytown`. Using a `*.libraries.yml` this can be achieved with something similar to:
+
+``` yaml
+foo:
+  js:
+    js/foo.js: { attributes: { type: "text/partytown"} }
+
+```

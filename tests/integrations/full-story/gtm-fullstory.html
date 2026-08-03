@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Partytown Test Page - FullStory via GTM" />
+
+    <title>Partytown FullStory via GTM</title>
+
+    <script>
+      partytown = {
+        forward: ['FS.identify', 'FS.event'],
+        strictProxyHas: true,
+      };
+    </script>
+    <script src="/~partytown/debug/partytown.js"></script>
+
+    <!-- Exact FullStory snippet from GTM Custom HTML tag -->
+    <script type="text/partytown">
+      window['_fs_host'] = 'fullstory.example.com';
+      window['_fs_script'] = 'fullstory.example.com/s/fs.js';
+      window['_fs_app_host'] = 'app.fullstory.com';
+      window['_fs_org'] = 'o-ABC123-na1';
+      window['_fs_namespace'] = 'FS';
+      !function(m,n,e,t,l,o,g,y){var s,f,a=function(h){
+      return!(h in m)||(m.console&&m.console.log&&m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].'),!1)}(e)
+      ;function p(b){var h,d=[];function j(){h&&(d.forEach((function(b){var d;try{d=b[h[0]]&&b[h[0]](h[1])}catch(h){return void(b[3]&&b[3](h))}
+      d&&d.then?d.then(b[2],b[3]):b[2]&&b[2](d)})),d.length=0)}function r(b){return function(d){h||(h=[b,d],j())}}return b(r(0),r(1)),{
+      then:function(b,h){return p((function(r,i){d.push([b,h,r,i]),j()}))}}}a&&(g=m[e]=function(){var b=function(b,d,j,r){function i(i,c){
+      h(b,d,j,i,c,r)}r=r||2;var c,u=/Async$/;return u.test(b)?(b=b.replace(u,""),"function"==typeof Promise?new Promise(i):p(i)):h(b,d,j,c,c,r)}
+      ;function h(h,d,j,r,i,c){return b._api?b._api(h,d,j,r,i,c):(b.q&&b.q.push([h,d,j,r,i,c]),null)}return b.q=[],b}(),y=function(b){function h(h){
+      "function"==typeof h[4]&&h[4](new Error(b))}var d=g.q;if(d){for(var j=0;j<d.length;j++)h(d[j]);d.length=0,d.push=h}},function(){
+      (o=n.createElement(t)).async=!0,o.crossOrigin="anonymous",o.src="https://"+l,o.onerror=function(){y("Error loading "+l)}
+      ;var b=n.getElementsByTagName(t)[0];b&&b.parentNode?b.parentNode.insertBefore(o,b):n.head.appendChild(o)}(),function(){function b(){}
+      function h(b,h,d){g(b,h,d,1)}function d(b,d,j){h("setProperties",{type:b,properties:d},j)}function j(b,h){d("user",b,h)}function r(b,h,d){j({
+      uid:b},d),h&&j(h,d)}g.identify=r,g.setUserVars=j,g.identifyAccount=b,g.clearUserCookie=b,g.setVars=d,g.event=function(b,d,j){h("trackEvent",{
+      name:b,properties:d},j)},g.anonymize=function(){r(!1)},g.shutdown=function(){h("shutdown")},g.restart=function(){h("restart")},
+      g.log=function(b,d){h("log",{level:b,msg:d})},g.consent=function(b){h("setIdentity",{consent:!arguments.length||b})}}(),s="fetch",
+      f="XMLHttpRequest",g._w={},g._w[f]=m[f],g._w[s]=m[s],m[s]&&(m[s]=function(){return g._w[s].apply(this,arguments)}),g._v="2.0.0")
+      }(window,document,window._fs_namespace,"script",window._fs_script);
+    </script>
+
+    <link
+      rel="icon"
+      id="favicon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌎</text></svg>"
+    />
+    <style>
+      body {
+        font-family:
+          -apple-system,
+          BlinkMacSystemFont,
+          Segoe UI,
+          Helvetica,
+          Arial,
+          sans-serif,
+          Apple Color Emoji,
+          Segoe UI Emoji;
+        font-size: 12px;
+      }
+      h1 {
+        margin: 0 0 15px 0;
+      }
+      button {
+        padding: 10px 20px;
+        margin: 10px 0;
+        font-size: 14px;
+      }
+      p {
+        margin: 10px 0;
+      }
+      strong {
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Partytown FullStory via GTM</h1>
+
+    <p>
+      <strong>FS exists:</strong>
+      <span id="testFSExists"></span>
+    </p>
+
+    <p>
+      <strong>FS.identify Test:</strong>
+      <span id="testIdentify"></span>
+    </p>
+
+    <p>
+      <strong>FS.event Test:</strong>
+      <span id="testEvent"></span>
+    </p>
+
+    <script>
+      function sendIdentify() {
+        console.log('Calling FS.identify...');
+        window['FS'].identify('test-user-123', {
+          displayName: 'Test User',
+          email: 'test.user@example.com',
+        });
+        document.getElementById('testIdentify').textContent = 'called';
+      }
+
+      function sendEvent() {
+        console.log('Calling FS.event...');
+        window['FS'].event('test_event', {
+          property1: 'value1',
+          property2: 'value2',
+        });
+        document.getElementById('testEvent').textContent = 'called';
+      }
+    </script>
+
+    <button onclick="sendIdentify()" id="buttonSendIdentify">Test FS.identify</button>
+    <button onclick="sendEvent()" id="buttonSendEvent">Test FS.event</button>
+
+    <script type="text/partytown">
+      (function () {
+        // Wait a bit for FullStory to initialize
+        setTimeout(function() {
+          if (typeof window['FS'] !== 'undefined' && typeof window['FS'].identify === 'function') {
+            document.getElementById('testFSExists').textContent = 'yes';
+          } else {
+            document.getElementById('testFSExists').textContent = 'no';
+          }
+          document.body.classList.add('completed');
+        }, 100);
+      })();
+    </script>
+
+    <p><a href="/tests/integrations/full-story/">Back to FullStory Tests</a></p>
+    <p><a href="/tests/">All Tests</a></p>
+  </body>
+</html>

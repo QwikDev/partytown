@@ -1,7 +1,8 @@
 import { deserializeFromMain } from './worker-serialization';
-import { environments } from './worker-constants';
+import { environments, webWorkerCtx } from './worker-constants';
 import type { ForwardMainTriggerData } from '../types';
-import { len } from '../utils';
+import { debug, len } from '../utils';
+import { logWorker } from '../log';
 
 export const workerForwardedTriggerHandle = ({
   $winId$,
@@ -14,11 +15,26 @@ export const workerForwardedTriggerHandle = ({
     let i = 0;
     let l = len($forward$);
 
+    if (debug && webWorkerCtx.$config$.logForwardedEvents) {
+      logWorker(`Forwarded event received: ${$forward$.join('.')}()`, $winId$);
+    }
+
     for (; i < l; i++) {
       if (i + 1 < l) {
         target = target[$forward$[i]];
       } else {
-        target[$forward$[i]].apply(target, deserializeFromMain(null, $winId$, [], $args$));
+        const deserializedArgs = deserializeFromMain(null, $winId$, [], $args$);
+        if (debug && webWorkerCtx.$config$.logForwardedEvents) {
+          logWorker(
+            `Forwarded event execute: ${$forward$.join('.')}(${deserializedArgs
+              .map((a: any) =>
+                typeof a === 'object' ? JSON.stringify(a)?.slice(0, 60) : String(a)
+              )
+              .join(', ')})`,
+            $winId$
+          );
+        }
+        target[$forward$[i]].apply(target, deserializedArgs);
       }
     }
   } catch (e) {

@@ -179,6 +179,12 @@ export const patchDocument = (
       },
     },
 
+    adoptedStyleSheets: {
+      get() {
+        return getter(this, ['adoptedStyleSheets']);
+      },
+    },
+
     implementation: {
       get() {
         return {

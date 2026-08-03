@@ -1,4 +1,5 @@
 import {
+  debug,
   emptyObjectValue,
   getOriginalBehavior,
   len,
@@ -6,10 +7,12 @@ import {
 } from '../utils';
 import { type MainWindow, type PartytownWebWorker, type WinId, WorkerMessageType } from '../types';
 import { serializeForWorker } from './main-serialization';
+import { logMain } from '../log';
 
 export const mainForwardTrigger = (worker: PartytownWebWorker, $winId$: WinId, win: MainWindow) => {
   let queuedForwardCalls = win._ptf;
-  let forwards = (win.partytown || {}).forward || [];
+  let config = win.partytown || {};
+  let forwards = config.forward || [];
   let i: number;
   let mainForwardFn: typeof win;
 
@@ -46,6 +49,9 @@ export const mainForwardTrigger = (worker: PartytownWebWorker, $winId$: WinId, w
                 if (originalFunction) {
                   returnValue = originalFunction(args);
                 }
+                if (debug && config.logForwardedEvents) {
+                  logMain(`Forward event: ${arr.join('.')}()`);
+                }
                 forwardCall(arr, args);
                 return returnValue;
               };
@@ -55,6 +61,9 @@ export const mainForwardTrigger = (worker: PartytownWebWorker, $winId$: WinId, w
 
   if (queuedForwardCalls) {
     for (i = 0; i < len(queuedForwardCalls); i += 2) {
+      if (debug && config.logForwardedEvents) {
+        logMain(`Forward queued event: ${queuedForwardCalls[i].join('.')}()`);
+      }
       forwardCall(queuedForwardCalls[i], queuedForwardCalls[i + 1]);
     }
   }

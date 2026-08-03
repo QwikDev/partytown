@@ -187,8 +187,8 @@ export const createWindow = (
           const NodeCstr = nodeCstrs[nodeName]
             ? nodeCstrs[nodeName]
             : nodeName.includes('-')
-            ? nodeCstrs.UNKNOWN
-            : nodeCstrs.I;
+              ? nodeCstrs.UNKNOWN
+              : nodeCstrs.I;
 
           cstrInstanceId = instanceId;
           cstrNodeName = nodeName;
@@ -213,10 +213,10 @@ export const createWindow = (
             const SuperCstr = TrapConstructors[cstrName]
               ? WorkerTrapProxy
               : superCstrName === 'EventTarget'
-              ? WorkerEventTargetProxy
-              : superCstrName === 'Object'
-              ? WorkerBase
-              : win[superCstrName];
+                ? WorkerEventTargetProxy
+                : superCstrName === 'Object'
+                  ? WorkerBase
+                  : win[superCstrName];
 
             const Cstr = (win[cstrName] = defineConstructorName(
               interfaceType === InterfaceType.EnvGlobalConstructor
@@ -374,11 +374,12 @@ export const createWindow = (
                 return win[propName];
               }
             },
-            has: () =>
-              // window "has" any and all props, this is especially true for global variables
-              // that are meant to be assigned to window, but without "window." prefix,
-              // like: <script>globalProp = true</script>
-              true,
+            has: (target, prop) =>
+              // Check if property exists on the window object
+              // This is used by the 'in' operator (e.g., "propertyName" in window)
+              // When strictProxyHas is enabled, use accurate Reflect.has() behavior
+              // Otherwise, always return true for backwards compatibility
+              webWorkerCtx.$config$.strictProxyHas ? Reflect.has(target, prop) : true,
           }) as any,
           $document$: $createNode$(NodeName.Document, $winId$ + '.' + WinDocId.document) as any,
           $documentElement$: $createNode$(
