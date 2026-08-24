@@ -4,6 +4,35 @@ title: HTML
 
 # HTML
 
+## Minimal Example
+
+The smallest possible setup is a static page served next to the Partytown [library files](/copy-library-files), with no build tool at all:
+
+```bash
+mkdir -p demo/~partytown && cd demo/~partytown
+curl -O -L https://unpkg.com/@qwik.dev/partytown@latest/lib/partytown.js
+curl -O -L https://unpkg.com/@qwik.dev/partytown@latest/lib/partytown-sw.js
+cd .. && python3 -m http.server 8080
+```
+
+```html
+<!-- demo/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script src="/~partytown/partytown.js"></script>
+  </head>
+  <body>
+    <script type="text/partytown">
+      console.log('Hello from a web worker!');
+    </script>
+  </body>
+</html>
+```
+
+Open `http://localhost:8080/` and the message is logged from the web worker. The one requirement is that the `/~partytown/` directory is served from your own origin.
+
 At the lowest level, Partytown is not tied to one specific framework or build tool. Because of this, Partytown can be used in any webpage as long as the HTML is updated, and the [library scripts](/copy-library-files) are hosted from the origin.
 
 While the `partytown.js` file _could_ be an external request, it's recommended to inline the script instead. How the Partytown snippet is inlined into the page depends on each site's setup and an [integration](/integrations) may already exist for your framework.
