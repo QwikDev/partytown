@@ -12,6 +12,8 @@ test('replaceScriptWithPartytownScript', ({ doc }) => {
     '<script before type="text/partytown" after>'
   );
   check('<script type="text/json">', '<script type="text/json">');
+  check('<SCRIPT>', '<script type="text/partytown">');
+  check('<ScRiPt TYPE="text/javascript">', '<script TYPE="text/partytown">');
   check(
     '<script nomodule="" src="https://platform.twitter.com/_next/static/chunks/polyfills-57d3feabe8bfd4ee389c.js"></script>' +
       '<script src="https://platform.twitter.com/_next/static/chunks/runtime-a148fbcbc5efcd91d3a7.js" async=""></script>',

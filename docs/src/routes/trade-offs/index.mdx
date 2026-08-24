@@ -12,6 +12,8 @@ You'll notice in the network tab there may be hundreds of requests to `proxytown
 
 These requests showing up are more of an annoyance than anything else, since they shouldn't be affecting performance or [Lighthouse scores](https://web.dev/performance-scoring/). Additionally, they can give you an insight into what certain third-party scripts are up to. See the [debugging documentation](/debugging) for more info.
 
+To hide them while debugging, filter them out of the network tab with [`-url:proxytown`](https://developer.chrome.com/docs/devtools/network/reference#invert-filters) in Chrome DevTools.
+
 ## Throttled DOM Operations
 
 DOM operations within the worker are purposely throttled, slowing down their execution compared to the same code running on the main thread. (We also see this as a feature.) Because their code is running in another thread and needs to send and receive data between the two, it may take a few milliseconds to perform a blocking operation. This ties into why [UI intensive scripts](#ui-intensive-third-party-scripts) may not be the best fit for Partytown.
