@@ -5,6 +5,7 @@ import {
   getNodeName,
   isValidMemberName,
   noop,
+  resolvePartytownForwardProperty,
   serializeConfig,
 } from '../utils';
 import { config, docImpl, libPath, mainWindow } from './main-globals';
@@ -56,8 +57,14 @@ export const readMainPlatform = () => {
     [docImpl.doctype!],
   ];
 
+  // forwarded globals (e.g. dataLayer) must stay local to the worker, so exclude
+  // them from the window snapshot or the worker would sync-proxy them to main
+  const forwardedGlobals = (config.forward || []).map(
+    (forwardProp) => resolvePartytownForwardProperty(forwardProp)[0].split('.')[0]
+  );
+
   const initialInterfaces: InterfaceInfo[] = [
-    readImplementation('Window', mainWindow),
+    readImplementation('Window', mainWindow, forwardedGlobals),
     readImplementation('Node', textNode),
   ];
 
@@ -119,11 +126,18 @@ const readImplementations = (impls: any[], interfaces: InterfaceInfo[]) => {
   return interfaces;
 };
 
-const readImplementation = (cstrName: string, impl: any, memberName?: string) => {
+const readImplementation = (
+  cstrName: string,
+  impl: any,
+  excludeMembers?: string[],
+  memberName?: string
+) => {
   let interfaceMembers: InterfaceMember[] = [];
   let interfaceInfo: InterfaceInfo = [cstrName, 'Object', interfaceMembers];
   for (memberName in impl) {
-    readImplementationMember(interfaceMembers, impl, memberName);
+    if (!excludeMembers || !excludeMembers.includes(memberName)) {
+      readImplementationMember(interfaceMembers, impl, memberName);
+    }
   }
   return interfaceInfo;
 };

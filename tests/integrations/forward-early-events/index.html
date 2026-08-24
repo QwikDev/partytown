@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Partytown Test Page" />
+    <title>Integration Forward Early Events</title>
+
+    <!-- items pushed into an existing array BEFORE the partytown snippet runs,
+         same as GTM consent defaults or early dataLayer events -->
+    <script>
+      window.earlyLayer = window.earlyLayer || [];
+      earlyLayer.push({ event: 'consent-default' });
+      earlyLayer.push({ event: 'early-page-view' });
+    </script>
+
+    <script>
+      partytown = {
+        forward: ['earlyLayer.push', 'lateLayer.push'],
+        logForwardedEvents: true,
+      };
+    </script>
+    <script src="/~partytown/debug/partytown.js"></script>
+
+    <!-- queued through the snippet stub before the worker is ready -->
+    <script>
+      lateLayer.push({ event: 'queued-before-worker-ready' });
+    </script>
+
+    <!-- GTM-style consumer inside the worker: processes existing entries and future pushes -->
+    <script type="text/partytown">
+      (function (w, l) {
+        w[l] = w[l] || [];
+        var render = function () {
+          document.getElementById('earlyResult').textContent = JSON.stringify(
+            w[l].map(function (x) {
+              return x && x.event ? x.event : x;
+            })
+          );
+        };
+        var origPush = w[l].push.bind(w[l]);
+        w[l].push = function () {
+          var r = origPush.apply(null, arguments);
+          render();
+          return r;
+        };
+        render();
+      })(window, 'earlyLayer');
+    </script>
+
+    <!-- worker global created only AFTER the forwarded queue has been flushed -->
+    <script type="text/partytown">
+      setTimeout(function () {
+        (function (w, l) {
+          w[l] = w[l] || [];
+          var render = function () {
+            document.getElementById('lateResult').textContent = JSON.stringify(
+              w[l].map(function (x) {
+                return x && x.event ? x.event : x;
+              })
+            );
+          };
+          var origPush = w[l].push.bind(w[l]);
+          w[l].push = function () {
+            var r = origPush.apply(null, arguments);
+            render();
+            return r;
+          };
+          render();
+        })(window, 'lateLayer');
+      }, 300);
+    </script>
+  </head>
+  <body>
+    <h1>Integration Forward Early Events</h1>
+    <ul>
+      <li>
+        <strong>pre-existing array items forwarded</strong>
+        <code id="earlyResult"></code>
+      </li>
+      <li>
+        <strong>forward to late-created worker global</strong>
+        <code id="lateResult"></code>
+      </li>
+    </ul>
+
+    <script type="text/partytown">
+      document.body.classList.add('completed');
+    </script>
+
+    <hr />
+    <p><a href="/tests/">All Tests</a></p>
+    <hr />
+  </body>
+</html>

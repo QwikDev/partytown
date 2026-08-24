@@ -1,7 +1,7 @@
 import { deserializeFromMain } from './worker-serialization';
 import { environments, webWorkerCtx } from './worker-constants';
 import type { ForwardMainTriggerData } from '../types';
-import { debug, len } from '../utils';
+import { debug, emptyObjectValue, len } from '../utils';
 import { logWorker } from '../log';
 
 export const workerForwardedTriggerHandle = ({
@@ -21,7 +21,9 @@ export const workerForwardedTriggerHandle = ({
 
     for (; i < l; i++) {
       if (i + 1 < l) {
-        target = target[$forward$[i]];
+        // create any missing part of the path so early events aren't dropped,
+        // e.g. a dataLayer array the worker script hasn't created yet
+        target = target[$forward$[i]] = target[$forward$[i]] || emptyObjectValue($forward$[i + 1]);
       } else {
         const deserializedArgs = deserializeFromMain(null, $winId$, [], $args$);
         if (debug && webWorkerCtx.$config$.logForwardedEvents) {

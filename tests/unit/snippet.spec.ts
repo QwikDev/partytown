@@ -55,4 +55,21 @@ test('service worker iframe, defaults', ({ win, document, navigator, top }) => {
   assert.not.equal(iframeUrl.search, '');
 });
 
+test('forward replays items already in an existing array', ({ win, document, navigator, top }) => {
+  win.partytown = {
+    forward: ['dataLayer.push'],
+  };
+  win.dataLayer = [{ event: 'early' }];
+
+  snippet(win, document, navigator, top, false);
+
+  assert.equal(win._ptf.length, 2);
+  assert.equal(win._ptf[0], ['dataLayer', 'push']);
+  assert.equal(win._ptf[1], [{ event: 'early' }]);
+
+  win.dataLayer.push({ event: 'later' });
+  assert.equal(win._ptf.length, 4);
+  assert.equal(win._ptf[3][0], { event: 'later' });
+});
+
 test.run();

@@ -160,6 +160,13 @@ export function snippet(
                       methodOrProperty.apply(thisObject, ...args);
                   }
                 }
+                // queue items already pushed into an existing array (e.g. dataLayer)
+                // so they're forwarded once Partytown is ready
+                if (forwardPropsArr[i] == 'push' && Array.isArray(mainForwardFn)) {
+                  mainForwardFn.map(function (item) {
+                    (win._ptf = win._ptf || []).push(forwardPropsArr, [item]);
+                  });
+                }
                 return function () {
                   let returnValue: any;
                   if (originalFunction) {
