@@ -407,7 +407,11 @@ export interface PartytownConfig {
    * @param type - The type of resource the url is being resolved for. For example, `fetch` is the value when resolving for `fetch()`, and `a` would be the value when resolving for an anchor element's `href`.
    * @returns The returned value must be a URL interface, otherwise the default resolved URL is used.
    */
-  resolveUrl?(url: URL, location: Location, type: ResolveUrlType): URL | undefined | null;
+  resolveUrl?(
+    url: URL,
+    location: Location,
+    type: ResolveUrlType
+  ): URL | Readonly<URL> | undefined | null;
   /**
    * The `resolveSendBeaconRequestParameters()` hook can be used to modify the RequestInit parameters
    * being used by the fetch request that polyfills the navigator.sendBeacon API in the worker context.
