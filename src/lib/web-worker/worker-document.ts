@@ -16,7 +16,7 @@ import { createEnvironment } from './worker-environment';
 import { debug, definePrototypePropertyDescriptor, randomId, SCRIPT_TYPE } from '../utils';
 import { ABOUT_BLANK, elementStructurePropNames, IS_TAG_REG, WinIdKey } from './worker-constants';
 import { getInstanceStateValue } from './worker-state';
-import { getPartytownScript } from './worker-exec';
+import { getPartytownScript, resolveUrl } from './worker-exec';
 import { isScriptJsType } from './worker-script';
 import { warnCrossOrigin } from '../log';
 
@@ -77,10 +77,18 @@ export const patchDocument = (
             true
           );
 
-          // iframe's get the native fetch
+          // iframe's get a near-native fetch, only resolving the url first
           // common for analytics to use "const fetch = iframe.contentWindow.fetch"
-          // so they don't go through a patched fetch()
-          env.$window$.fetch = fetch;
+          // so they don't go through a patched fetch(), but the url must still
+          // go through resolveUrl so proxied requests keep working (#525)
+          const fetchStr = String(fetch);
+          const resolvedFetch = (input: any, init: any) => {
+            input = typeof input === 'string' || input instanceof URL ? String(input) : input.url;
+            return fetch(resolveUrl(env, input, 'fetch'), init);
+          };
+          // scripts commonly check the iframe fetch is native before using it
+          resolvedFetch.toString = () => fetchStr;
+          env.$window$.fetch = resolvedFetch;
 
           setter(elm, ['srcdoc'], getPartytownScript());
         } else if (tagName === NodeName.Script) {
@@ -125,6 +133,35 @@ export const patchDocument = (
 
     createEvent: {
       value: (type: string) => new Event(type),
+    },
+
+    createRange: {
+      value() {
+        const doc = this;
+        // a Range isn't a serializable instance, so the copy that comes back
+        // gets a working createContextualFragment() built from a main thread
+        // <template>, whose content is a real DocumentFragment instance
+        const range = callMethod(doc, ['createRange'], []);
+        range.createContextualFragment = (html: string) => {
+          const template: any = (doc as any).createElement('template');
+          template.innerHTML = html;
+          return getter(template, ['content']);
+        };
+        return range;
+      },
+    },
+
+    fonts: {
+      get() {
+        const doc = this;
+        return {
+          load: (...args: any[]) => callMethod(doc, ['fonts', 'load'], args),
+          check: (...args: any[]) => callMethod(doc, ['fonts', 'check'], args),
+          get ready() {
+            return getter(doc, ['fonts', 'ready']);
+          },
+        };
+      },
     },
 
     currentScript: {

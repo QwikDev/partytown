@@ -39,7 +39,11 @@ export const patchHTMLAnchorElement = (WorkerHTMLAnchorElement: any, env: WebWor
           } else {
             const baseHref = env.$location$.href;
             url = resolveToUrl(env, baseHref, null);
-            url.href = new URL(value + '', url.href);
+            try {
+              url.href = new URL(value + '', url.href);
+            } catch (e) {
+              // keep the base url for invalid values, e.g. a.href = 'http://'
+            }
           }
         } else {
           url = resolveToUrl(env, this.href, null);

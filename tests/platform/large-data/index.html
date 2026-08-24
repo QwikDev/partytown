@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Partytown Test Page" />
+    <title>Large Data</title>
+    <script src="/~partytown/debug/partytown.js"></script>
+  </head>
+  <body>
+    <h1>Large Data</h1>
+    <ul>
+      <li>
+        <strong>large value round trip</strong>
+        <code id="testLargeValue"></code>
+        <script type="text/partytown">
+          (function () {
+            const elm = document.getElementById('testLargeValue');
+            const div = document.createElement('div');
+            div.hidden = true;
+            div.setAttribute('data-big', 'x'.repeat(600000));
+            document.body.appendChild(div);
+            elm.textContent = String(
+              document.body.lastElementChild.getAttribute('data-big').length
+            );
+          })();
+        </script>
+      </li>
+    </ul>
+
+    <script type="text/partytown">
+      document.body.classList.add('completed');
+    </script>
+
+    <hr />
+    <p><a href="/tests/">All Tests</a></p>
+    <hr />
+  </body>
+</html>

@@ -6,7 +6,8 @@ import type { OutputOptions, Plugin, RollupOptions } from 'rollup';
 export function buildMainSnippet(opts: BuildOptions): RollupOptions {
   const partytownDebug: OutputOptions = {
     file: join(opts.distLibDebugDir, 'partytown.js'),
-    format: 'es',
+    // iife so top-level helpers can't leak into the page's global scope (#719)
+    format: 'iife',
     exports: 'none',
     plugins: [
       versionPlugin(opts),
@@ -27,7 +28,7 @@ export function buildMainSnippet(opts: BuildOptions): RollupOptions {
 
   const partytownMin: OutputOptions = {
     file: join(opts.distLibDir, 'partytown.js'),
-    format: 'es',
+    format: 'iife',
     exports: 'none',
     plugins: [
       ...minifyPlugin(opts, false),

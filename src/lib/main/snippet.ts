@@ -36,13 +36,16 @@ export function snippet(
         // grab all the partytown scripts
         scripts = doc.querySelectorAll('script[type="text/partytown"]');
 
-        if (top != win) {
-          // this is an iframe
+        if (top != win && canAccessTop()) {
+          // this is an iframe with an accessible same-origin top
           top!.dispatchEvent(new CustomEvent('pt1', { detail: win }));
         } else {
           // set a timeout to fire if PT hasn't initialized in Xms
-          timeout = setTimeout(fallback, config?.fallbackTimeout || 9999);
-          doc.addEventListener('pt0', clearFallback);
+          // a fallbackTimeout of 0 disables the main thread fallback
+          if (config?.fallbackTimeout != 0) {
+            timeout = setTimeout(fallback, config?.fallbackTimeout || 9999);
+            doc.addEventListener('pt0', clearFallback);
+          }
 
           if (useAtomics) {
             // atomics support
@@ -116,7 +119,12 @@ export function snippet(
 
     for (i = 0; i < scripts!.length; i++) {
       script = doc.createElement('script');
-      script.innerHTML = scripts![i].innerHTML;
+      if (scripts![i].src) {
+        // external scripts must fall back through their src (#582)
+        script.src = scripts![i].src;
+      } else {
+        script.innerHTML = scripts![i].innerHTML;
+      }
       // We don't need to set a `nonce` on sandbox script since it is loaded via
       // the `src` attribute. However, we do need to set a `nonce` on the current
       // script because it contains an inline script. This action ensures that the
@@ -134,6 +142,15 @@ export function snippet(
   function clearFallback() {
     // Partytown has initialized, clear the fallback timeout
     clearTimeout(timeout);
+  }
+
+  function canAccessTop() {
+    // accessing anything on a cross-origin top throws
+    try {
+      return !!top!.dispatchEvent;
+    } catch (e) {
+      return false;
+    }
   }
 
   config = win.partytown || {};

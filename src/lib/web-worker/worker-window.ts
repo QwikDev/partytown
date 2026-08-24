@@ -364,7 +364,9 @@ export const createWindow = (
           $parentWinId$,
           $window$: new Proxy(win, {
             get: (win, propName: any) => {
-              if (typeof propName === 'string' && !isNaN(propName as any)) {
+              // only digit names are frame indexes, !isNaN would
+              // also swallow names like 'Infinity' (#389)
+              if (typeof propName === 'string' && /^\d+$/.test(propName)) {
                 // https://developer.mozilla.org/en-US/docs/Web/API/Window/frames
                 let frame = getChildEnvs()[propName as any];
                 return frame ? frame.$window$ : undefined;

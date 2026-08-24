@@ -148,6 +148,9 @@ const testPage = async (page: Page) => {
   const testWorkerGlobalScope = page.locator('#testWorkerGlobalScope');
   await expect(testWorkerGlobalScope).toHaveText('false');
 
+  const testGlobalPrimitives = page.locator('#testGlobalPrimitives');
+  await expect(testGlobalPrimitives).toHaveText('false number number undefined');
+
   const testVisualViewport = page.locator('#testVisualViewport');
   await expect(testVisualViewport).toHaveText('scale:1 VisualViewport');
 
