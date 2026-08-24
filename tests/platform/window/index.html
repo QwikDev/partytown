@@ -758,6 +758,24 @@
       </li>
 
       <li>
+        <strong>global primitives</strong>
+        <code id="testGlobalPrimitives"></code>
+        <script type="text/partytown">
+          (function () {
+            const elm = document.getElementById('testGlobalPrimitives');
+            elm.textContent =
+              (undefined === Infinity) +
+              ' ' +
+              (typeof Infinity) +
+              ' ' +
+              (typeof NaN) +
+              ' ' +
+              (typeof undefined);
+          })();
+        </script>
+      </li>
+
+      <li>
         <strong>visualViewport</strong>
         <code id="testVisualViewport"></code>
         <script type="text/partytown">
