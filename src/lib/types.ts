@@ -380,7 +380,7 @@ export type SerializedInstance =
 /**
  * @public
  */
-export type ResolveUrlType = 'fetch' | 'xhr' | 'script' | 'iframe' | 'image';
+export type ResolveUrlType = 'fetch' | 'xhr' | 'script' | 'iframe' | 'image' | 'sendBeacon';
 
 /**
  * @public
@@ -450,6 +450,7 @@ export interface PartytownConfig {
   forward?: PartytownForwardProperty[];
   /**
    * Timeout in ms before the initialization considered failed and the fallback solution is executed
+   * Set to 0 to disable the fallback entirely.
    * Default: 9999
    */
   fallbackTimeout?: number;
