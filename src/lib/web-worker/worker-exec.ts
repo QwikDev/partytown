@@ -12,7 +12,7 @@ import {
   type WorkerInstance,
   WorkerMessageType,
 } from '../types';
-import { debug } from '../utils';
+import { debug, len } from '../utils';
 import { environments, partytownLibUrl, webWorkerCtx } from './worker-constants';
 import { getOrCreateNodeInstance } from './worker-constructors';
 import { getInstanceStateValue, setInstanceStateValue } from './worker-state';
@@ -118,30 +118,90 @@ export const runScriptContent = (
 
 /**
  * Replace some `this` symbols with a new value.
- * Still not perfect, but might be better than a less advanced regex
+ * String literals, template literal text and comments are skipped, while
+ * template interpolations (`${...}`) are treated as code. Regex literals
+ * are not detected, so `this` inside one is still replaced.
  * Check out the tests for examples: tests/unit/worker-exec.spec.ts
- *
- * This still fails with simple strings like:
- * 'sadly we fail at this simple string'
- *
- * One way to do that would be to remove all comments from code and do single / double quote counting
- * per symbol. But this will still fail with evals.
  */
 export const replaceThisInSource = (scriptContent: string, newThis: string): string => {
   /**
-   * Best for now but not perfect
    * We don't use Regex lookbehind, because of Safari
    */
   const FIND_THIS = /([a-zA-Z0-9_$\.\'\"\`])?(\.\.\.)?this(?![a-zA-Z0-9_$:])/g;
 
-  return scriptContent.replace(FIND_THIS, (match, p1, p2) => {
-    const prefix = (p1 || '') + (p2 || '');
-    if (p1 != null) {
-      return prefix + 'this';
+  const replaceInCode = (code: string) =>
+    code.replace(FIND_THIS, (_, p1, p2) => {
+      const prefix = (p1 || '') + (p2 || '');
+      if (p1 != null) {
+        return prefix + 'this';
+      }
+      return prefix + newThis;
+    });
+
+  let out = '';
+  let code = '';
+  let i = 0;
+  let c: string;
+  // stack of open contexts: a quote char for string/template literals,
+  // or a brace depth (number) for template interpolation code
+  const stack: (string | number)[] = [];
+
+  const flushCode = () => {
+    out += replaceInCode(code);
+    code = '';
+  };
+
+  for (; i < len(scriptContent); i++) {
+    c = scriptContent[i];
+    const top = stack[len(stack) - 1];
+
+    if (typeof top === 'string') {
+      // inside a string or template literal
+      out += c;
+      if (c === '\\') {
+        out += scriptContent[++i] || '';
+      } else if (c === top) {
+        stack.pop();
+      } else if (top === '`' && c === '$' && scriptContent[i + 1] === '{') {
+        out += scriptContent[++i];
+        stack.push(0);
+      }
+    } else {
+      // inside code (top-level or template interpolation)
+      if (c === "'" || c === '"' || c === '`') {
+        flushCode();
+        out += c;
+        stack.push(c);
+      } else if (c === '/' && scriptContent[i + 1] === '/') {
+        flushCode();
+        const end = scriptContent.indexOf('\n', i);
+        out += scriptContent.slice(i, end < 0 ? undefined : end);
+        i = end < 0 ? len(scriptContent) : end - 1;
+      } else if (c === '/' && scriptContent[i + 1] === '*') {
+        flushCode();
+        const end = scriptContent.indexOf('*/', i + 2);
+        out += scriptContent.slice(i, end < 0 ? undefined : end + 2);
+        i = end < 0 ? len(scriptContent) : end + 1;
+      } else if (typeof top === 'number' && (c === '{' || c === '}')) {
+        if (c === '{') {
+          stack[len(stack) - 1] = top + 1;
+          code += c;
+        } else if (top === 0) {
+          // interpolation closed, back inside the template literal
+          flushCode();
+          out += c;
+          stack.pop();
+        } else {
+          stack[len(stack) - 1] = top - 1;
+          code += c;
+        }
+      } else {
+        code += c;
+      }
     }
-    // If there was a preceding character, include it unchanged
-    return prefix + newThis;
-  });
+  }
+  flushCode();
+  return out;
 };
 
 export const run = (env: WebWorkerEnvironment, scriptContent: string, scriptUrl?: string) => {

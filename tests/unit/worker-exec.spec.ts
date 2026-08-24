@@ -100,6 +100,13 @@ test('We should replace `this` keyword more or less sane', ({ env, win }) => {
 
   // Should replace:
   assert.is(r('{this:123}'), '{this:123}');
+  assert.is(
+    r('console.log("I liked this product"); this.go();'),
+    'console.log("I liked this product"); __this.go();'
+  );
+  assert.is(r('// skip this comment\nthis.go();'), '// skip this comment\n__this.go();');
+  assert.is(r('/* and this one */ this.go();'), '/* and this one */ __this.go();');
+  assert.is(r('`text ${fn({ a: this.b })} more this text`'), '`text ${fn({ a: __this.b })} more this text`');
   assert.is(r('a.this'), 'a.this');
   assert.is(r('[`kathis`]'), '[`kathis`]');
   assert.is(r('{ ...this.opts };'), '{ ...__this.opts };');
@@ -137,9 +144,9 @@ test('We should replace `this` keyword more or less sane', ({ env, win }) => {
     ['this', "this", \`this\`]
     {this:123}
     { this: 123 }
-    'sadly we fail at __this simple string'
-    "same as __this"
-    \`and __this is \${false} too\`;
+    'sadly we fail at this simple string'
+    "same as this"
+    \`and this is \${false} too\`;
     a.b.this
     let _this, This, $this
   `;
