@@ -161,8 +161,6 @@ var __spreadArray =
 Object.defineProperty(exports, '__esModule', { value: true });
 // @ts-ignore
 var get_github_info_1 = require('@changesets/get-github-info');
-var dotenv_1 = require('dotenv');
-(0, dotenv_1.config)();
 var changelogFunctions = {
   getDependencyReleaseLine: function (changesets, dependenciesUpdated, options) {
     return __awaiter(void 0, void 0, void 0, function () {

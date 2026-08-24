@@ -1,9 +1,6 @@
 import { ChangelogFunctions } from '@changesets/types';
 // @ts-ignore
 import { getInfo, getInfoFromPullRequest } from '@changesets/get-github-info';
-import { config } from 'dotenv';
-
-config();
 
 const changelogFunctions: ChangelogFunctions = {
   getDependencyReleaseLine: async (changesets, dependenciesUpdated, options) => {
