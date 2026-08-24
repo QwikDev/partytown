@@ -9,8 +9,16 @@ import { onMessageFromWebWorker } from '../sandbox/on-messenge-from-worker';
 import { readMainInterfaces, readMainPlatform } from '../sandbox/read-main-platform';
 
 const createMessengerAtomics: Messenger = async (receiveMessage) => {
-  const size = 1024 * 1024 * 1024;
-  const sharedDataBuffer = new SharedArrayBuffer(size);
+  const maxSize = 1024 * 1024 * 1024;
+  // start small and grow on demand, eagerly allocating
+  // the full 1GB can fail in Chrome (#689)
+  let sharedDataBuffer: SharedArrayBuffer = new (SharedArrayBuffer as any)(1024 * 1024, {
+    maxByteLength: maxSize,
+  });
+  if (!(sharedDataBuffer as any).growable) {
+    // growable SharedArrayBuffer not supported
+    sharedDataBuffer = new SharedArrayBuffer(maxSize);
+  }
   const sharedData = new Int32Array(sharedDataBuffer);
 
   return (worker: PartytownWebWorker, msg: MessageFromWorkerToSandbox) => {
@@ -31,6 +39,10 @@ const createMessengerAtomics: Messenger = async (receiveMessage) => {
       receiveMessage(accessReq, (accessRsp) => {
         const stringifiedData = JSON.stringify(accessRsp);
         const stringifiedDataLength = stringifiedData.length;
+        const neededBytes = (stringifiedDataLength + 1) * 4;
+        if ((sharedDataBuffer as any).growable && sharedDataBuffer.byteLength < neededBytes) {
+          (sharedDataBuffer as any).grow(Math.min(maxSize, neededBytes));
+        }
         for (let i = 0; i < stringifiedDataLength; i++) {
           sharedData[i + 1] = stringifiedData.charCodeAt(i);
         }
