@@ -116,7 +116,12 @@ export function snippet(
 
     for (i = 0; i < scripts!.length; i++) {
       script = doc.createElement('script');
-      script.innerHTML = scripts![i].innerHTML;
+      if (scripts![i].src) {
+        // external scripts must fall back through their src (#582)
+        script.src = scripts![i].src;
+      } else {
+        script.innerHTML = scripts![i].innerHTML;
+      }
       // We don't need to set a `nonce` on sandbox script since it is loaded via
       // the `src` attribute. However, we do need to set a `nonce` on the current
       // script because it contains an inline script. This action ensures that the

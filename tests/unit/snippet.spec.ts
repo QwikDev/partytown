@@ -55,4 +55,25 @@ test('service worker iframe, defaults', ({ win, document, navigator, top }) => {
   assert.not.equal(iframeUrl.search, '');
 });
 
+test('fallback keeps the src of external scripts', ({ win, document, navigator, top }) => {
+  const inlineScript = document.createElement('script');
+  inlineScript.type = 'text/partytown';
+  inlineScript.innerHTML = 'console.log(88)';
+  document.body.appendChild(inlineScript);
+
+  const externalScript = document.createElement('script');
+  externalScript.type = 'text/partytown';
+  externalScript.src = 'http://builder.io/analytics.js';
+  document.body.appendChild(externalScript);
+
+  // no service worker support triggers the fallback
+  delete (navigator as any).serviceWorker;
+  snippet(win, document, navigator, top, false);
+
+  const fallbackScripts = document.head.querySelectorAll('script');
+  assert.is(fallbackScripts.length, 2);
+  assert.is(fallbackScripts[0].innerHTML, 'console.log(88)');
+  assert.is(fallbackScripts[1].src, 'http://builder.io/analytics.js');
+});
+
 test.run();
