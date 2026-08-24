@@ -127,6 +127,35 @@ export const patchDocument = (
       value: (type: string) => new Event(type),
     },
 
+    createRange: {
+      value() {
+        const doc = this;
+        // a Range isn't a serializable instance, so the copy that comes back
+        // gets a working createContextualFragment() built from a main thread
+        // <template>, whose content is a real DocumentFragment instance
+        const range = callMethod(doc, ['createRange'], []);
+        range.createContextualFragment = (html: string) => {
+          const template: any = (doc as any).createElement('template');
+          template.innerHTML = html;
+          return getter(template, ['content']);
+        };
+        return range;
+      },
+    },
+
+    fonts: {
+      get() {
+        const doc = this;
+        return {
+          load: (...args: any[]) => callMethod(doc, ['fonts', 'load'], args),
+          check: (...args: any[]) => callMethod(doc, ['fonts', 'check'], args),
+          get ready() {
+            return getter(doc, ['fonts', 'ready']);
+          },
+        };
+      },
+    },
+
     currentScript: {
       get() {
         if (env.$currentScriptId$) {
