@@ -1,0 +1,56 @@
+---
+title: WordPress
+---
+
+# WordPress
+
+Partytown can be added to any [WordPress](https://wordpress.org) site from a theme (or child theme), without a plugin. The setup is the same as any [HTML integration](/html): host the [library files](/copy-library-files) from your own origin, inline the snippet, and mark the third-party scripts with `type="text/partytown"`.
+
+## Copy Library Files
+
+Copy the Partytown library files into your site's webroot so they're served from `https://your-site.com/~partytown/`:
+
+```bash
+npx @qwik.dev/partytown copylib ~partytown
+```
+
+Upload the generated `~partytown` directory to the root of your WordPress installation (next to `wp-content`). Any location works as long as it's served from your own origin — if you place it elsewhere, set the [`lib`](/configuration) config to that path.
+
+## Inline The Snippet
+
+In your theme's `functions.php`, print the config and the snippet in the `<head>` before any other scripts:
+
+```php
+add_action('wp_head', function () {
+  // keep this before the snippet
+  echo '<script>partytown = { forward: ["dataLayer.push"] };</script>';
+  // partytown.js contents copied to the theme, or printed inline
+  echo '<script>' . file_get_contents(ABSPATH . '~partytown/partytown.js') . '</script>';
+}, 1);
+```
+
+## Mark Scripts For Partytown
+
+Scripts printed directly in your theme just need the `type` attribute:
+
+```html
+<script type="text/partytown" src="https://example.com/analytics.js"></script>
+```
+
+For scripts registered through `wp_enqueue_script()`, change their type with the `script_loader_tag` filter:
+
+```php
+add_filter('script_loader_tag', function ($tag, $handle) {
+  $partytown_handles = ['google-analytics', 'my-tracking-script'];
+  if (in_array($handle, $partytown_handles)) {
+    return str_replace(" src", " type='text/partytown' src", $tag);
+  }
+  return $tag;
+}, 10, 2);
+```
+
+## Plugins That Print Their Own Scripts
+
+Analytics plugins that print their own `<script>` tags (e.g. GTM plugins) don't offer a way to change the script type. In that case either configure the plugin to output only a container ID and print the loader yourself with `type="text/partytown"`, or skip Partytown for that plugin.
+
+Note that a `dataLayer.push` [forward](/forwarding-events) config is required for Google Tag Manager, and services without CORS headers need [request proxying](/proxying-requests) — both work the same as any other Partytown setup.
