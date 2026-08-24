@@ -91,7 +91,7 @@ export const patchHTMLIFrameElement = (WorkerHTMLIFrameElement: any, env: WebWor
 };
 
 const ATTR_REGEXP_STR = `((?:\\w|-)+(?:=(?:(?:\\w|-)+|'[^']*'|"[^"]*")?)?)`;
-const SCRIPT_TAG_REGEXP = new RegExp(`<script\\s*((${ATTR_REGEXP_STR}\\s*)*)>`, 'mg');
+const SCRIPT_TAG_REGEXP = new RegExp(`<script\\s*((${ATTR_REGEXP_STR}\\s*)*)>`, 'mig');
 const ATTR_REGEXP = new RegExp(ATTR_REGEXP_STR, 'mg');
 export function replaceScriptWithPartytownScript(text: string): string {
   return text.replace(SCRIPT_TAG_REGEXP, (_, attrs: string) => {
@@ -100,9 +100,9 @@ export function replaceScriptWithPartytownScript(text: string): string {
     let match: RegExpExecArray | null;
     while ((match = ATTR_REGEXP.exec(attrs))) {
       let [keyValue] = match;
-      if (keyValue.startsWith('type=')) {
+      if (keyValue.toLowerCase().startsWith('type=')) {
         hasType = true;
-        keyValue = keyValue.replace(/(application|text)\/javascript/, SCRIPT_TYPE);
+        keyValue = keyValue.replace(/(application|text)\/javascript/i, SCRIPT_TYPE);
       }
       parts.push(keyValue);
     }
