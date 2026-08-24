@@ -1,5 +1,17 @@
 # @qwik.dev/partytown
 
+## 0.14.1
+
+### Patch Changes
+
+- 🐞🩹 don't throw when a script assigns an invalid value to `a.href`, e.g. `http://` (by [@gioboa](https://github.com/gioboa) in [#725](https://github.com/QwikDev/partytown/pull/725))
+
+- 🐞🩹 allow `resolveUrl` to return a `Readonly<URL>` (by [@gioboa](https://github.com/gioboa) in [#726](https://github.com/QwikDev/partytown/pull/726))
+
+- 🐞🩹 match `<script>` tags case-insensitively when rewriting iframe srcdoc HTML, so `<SCRIPT>` variants can't bypass the rewrite (by [@gioboa](https://github.com/gioboa) in [#724](https://github.com/QwikDev/partytown/pull/724))
+
+- 🐞🩹 wrap the snippet in an IIFE so top-level helpers no longer leak `t`, `e`, `n` into the page's global scope and break other classic scripts (by [@gioboa](https://github.com/gioboa) in [#727](https://github.com/QwikDev/partytown/pull/727))
+
 ## 0.14.0
 
 ### Minor Changes
