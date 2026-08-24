@@ -100,7 +100,12 @@ const serializeObjectForWorker = (
   if (!added.has(obj)) {
     added.add(obj);
     for (propName in obj) {
-      if (isValidMemberName(propName)) {
+      // underscore-prefixed members are serialized too (e.g. wp.i18n.__),
+      // only partytown internals (_pt*) are excluded
+      if (
+        isValidMemberName(propName) ||
+        (startsWith(propName, '_') && !startsWith(propName, '_pt'))
+      ) {
         if (propName === 'path' && getConstructorName(obj).endsWith('Event')) {
           propValue = obj.composedPath();
         } else {

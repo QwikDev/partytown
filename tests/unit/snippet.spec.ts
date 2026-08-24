@@ -55,4 +55,21 @@ test('service worker iframe, defaults', ({ win, document, navigator, top }) => {
   assert.not.equal(iframeUrl.search, '');
 });
 
+test('iframe with a cross-origin top runs its own partytown', ({ win, document, navigator }) => {
+  const script = document.createElement('script');
+  script.type = 'text/partytown';
+  document.body.appendChild(script);
+
+  const crossOriginTop: any = {};
+  Object.defineProperty(crossOriginTop, 'dispatchEvent', {
+    get() {
+      throw new Error('cross-origin');
+    },
+  });
+
+  snippet(win, document, navigator, crossOriginTop, false);
+
+  assert.equal(navigator.$serviceWorkerUrl, '/~partytown/partytown-sw.js');
+});
+
 test.run();
