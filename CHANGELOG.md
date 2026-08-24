@@ -1,5 +1,35 @@
 # @qwik.dev/partytown
 
+## 0.14.2
+
+### Patch Changes
+
+- 🧹 remove the unused dotenv dependency, the package has zero runtime dependencies again (by [@gioboa](https://github.com/gioboa) in [#742](https://github.com/QwikDev/partytown/pull/742))
+
+- ✨ `fallbackTimeout: 0` disables the main thread fallback entirely (by [@gioboa](https://github.com/gioboa) in [#741](https://github.com/QwikDev/partytown/pull/741))
+
+- 🐞🩹 don't throw when the snippet runs in an iframe with a cross-origin top, run Partytown in the iframe itself instead (by [@gioboa](https://github.com/gioboa) in [#735](https://github.com/QwikDev/partytown/pull/735))
+
+- 🐞🩹 support `document.createRange().createContextualFragment()` and `document.fonts` (load/check/ready) in the worker (by [@gioboa](https://github.com/gioboa) in [#731](https://github.com/QwikDev/partytown/pull/731))
+
+- 🐞🩹 the main thread fallback now loads external scripts through their `src`, previously only inline content was copied (by [@gioboa](https://github.com/gioboa) in [#739](https://github.com/QwikDev/partytown/pull/739))
+
+- 🐞🩹 keep forwarded globals (e.g. dataLayer) local to the worker instead of sync-proxying them to the main thread, forward items already pushed before Partytown loads, and stop dropping forwarded events when the worker global doesn't exist yet (by [@gioboa](https://github.com/gioboa) in [#721](https://github.com/QwikDev/partytown/pull/721))
+
+- 🐞🩹 don't crash initialization when a Proxy global (e.g. vinxi's `MANIFEST`) returns unclonable objects during the window snapshot (by [@gioboa](https://github.com/gioboa) in [#737](https://github.com/QwikDev/partytown/pull/737))
+
+- 🐞🩹 run `navigator.sendBeacon` and iframe `contentWindow.fetch` urls through `resolveUrl`, so analytics requests like GA4's `/g/collect` can be proxied (by [@gioboa](https://github.com/gioboa) in [#740](https://github.com/QwikDev/partytown/pull/740))
+
+- 🐞🩹 allocate the atomics SharedArrayBuffer small and grow it on demand instead of eagerly reserving 1GB, which newer Chrome versions can refuse (by [@gioboa](https://github.com/gioboa) in [#729](https://github.com/QwikDev/partytown/pull/729))
+
+- 🐞🩹 add a noindex robots meta to the sandbox html so crawlers stop reporting 404s for it in Search Console (by [@gioboa](https://github.com/gioboa) in [#738](https://github.com/QwikDev/partytown/pull/738))
+
+- 🐞🩹 stop rewriting `this` inside string literals, template literal text and comments when preparing scripts for the worker (by [@gioboa](https://github.com/gioboa) in [#730](https://github.com/QwikDev/partytown/pull/730))
+
+- 🐞🩹 serialize underscore-prefixed object members for the worker (e.g. `wp.i18n.__`), excluding only partytown internals (by [@gioboa](https://github.com/gioboa) in [#736](https://github.com/QwikDev/partytown/pull/736))
+
+- 🐞🩹 only treat digit property names as window frame indexes, so globals like `Infinity` resolve correctly in the worker (by [@gioboa](https://github.com/gioboa) in [#732](https://github.com/QwikDev/partytown/pull/732))
+
 ## 0.14.1
 
 ### Patch Changes
