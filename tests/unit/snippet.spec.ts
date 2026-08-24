@@ -76,4 +76,21 @@ test('fallback keeps the src of external scripts', ({ win, document, navigator, 
   assert.is(fallbackScripts[1].src, 'http://builder.io/analytics.js');
 });
 
+test('iframe with a cross-origin top runs its own partytown', ({ win, document, navigator }) => {
+  const script = document.createElement('script');
+  script.type = 'text/partytown';
+  document.body.appendChild(script);
+
+  const crossOriginTop: any = {};
+  Object.defineProperty(crossOriginTop, 'dispatchEvent', {
+    get() {
+      throw new Error('cross-origin');
+    },
+  });
+
+  snippet(win, document, navigator, crossOriginTop, false);
+
+  assert.equal(navigator.$serviceWorkerUrl, '/~partytown/partytown-sw.js');
+});
+
 test.run();
