@@ -176,7 +176,12 @@ const readImplementationMember = (
       } else if (memberType === 'object' && value != null) {
         cstrName = getConstructorName(value);
         if (cstrName !== 'Object' && cstrName !== 'Function' && (self as any)[cstrName]) {
-          interfaceMembers.push([memberName, value.nodeType || cstrName]);
+          // a Proxy global (e.g. vinxi's MANIFEST) can return an unclonable
+          // object for nodeType, only a number is a valid node type
+          interfaceMembers.push([
+            memberName,
+            typeof value.nodeType === 'number' ? value.nodeType : cstrName,
+          ]);
         }
       } else if (memberType !== 'symbol') {
         // everything else that's not a symbol

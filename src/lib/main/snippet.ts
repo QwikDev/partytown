@@ -36,8 +36,8 @@ export function snippet(
         // grab all the partytown scripts
         scripts = doc.querySelectorAll('script[type="text/partytown"]');
 
-        if (top != win) {
-          // this is an iframe
+        if (top != win && canAccessTop()) {
+          // this is an iframe with an accessible same-origin top
           top!.dispatchEvent(new CustomEvent('pt1', { detail: win }));
         } else {
           // set a timeout to fire if PT hasn't initialized in Xms
@@ -137,6 +137,15 @@ export function snippet(
   function clearFallback() {
     // Partytown has initialized, clear the fallback timeout
     clearTimeout(timeout);
+  }
+
+  function canAccessTop() {
+    // accessing anything on a cross-origin top throws
+    try {
+      return !!top!.dispatchEvent;
+    } catch (e) {
+      return false;
+    }
   }
 
   config = win.partytown || {};
