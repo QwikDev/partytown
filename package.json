@@ -139,8 +139,5 @@
   ],
   "publishConfig": {
     "access": "public"
-  },
-  "dependencies": {
-    "dotenv": "^16.4.7"
   }
 }
