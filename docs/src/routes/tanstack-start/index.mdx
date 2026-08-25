@@ -1,0 +1,57 @@
+---
+title: TanStack Start
+---
+
+# TanStack Start
+
+[TanStack Start](https://tanstack.com/start) apps are Vite-based, so Partytown integrates with the [snippet](/html) plus the library files served from your origin.
+
+## Copy Library Files
+
+Copy the Partytown library files into the `public` directory so they're served from `/~partytown/`:
+
+```bash
+npx @qwik.dev/partytown copylib public/~partytown
+```
+
+Run it from a `package.json` script so the files stay up to date:
+
+```json
+{
+  "scripts": {
+    "dev": "partytown copylib public/~partytown && vite dev",
+    "build": "partytown copylib public/~partytown && vite build"
+  }
+}
+```
+
+## Add The Snippet
+
+In your root route, inline the snippet with the [config](/configuration) before it, and mark third-party scripts with `type="text/partytown"`:
+
+```tsx
+// src/routes/__root.tsx
+import { partytownSnippet } from '@qwik.dev/partytown/integration';
+
+export const Route = createRootRoute({
+  head: () => ({
+    scripts: [
+      {
+        children: 'partytown = { forward: ["dataLayer.push"] };',
+      },
+      {
+        children: partytownSnippet(),
+      },
+      {
+        type: 'text/partytown',
+        src: 'https://example.com/analytics.js',
+      },
+    ],
+  }),
+  component: RootComponent,
+});
+```
+
+Note that the config and snippet scripts must **not** have the `text/partytown` type — they're the small bit of JavaScript that runs on the main thread to initialize everything.
+
+Services like Google Tag Manager also need [forwarding](/forwarding-events) configured, and services without CORS headers need [request proxying](/proxying-requests) — both work the same as any other Partytown setup.

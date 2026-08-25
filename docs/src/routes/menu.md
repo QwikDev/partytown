@@ -32,6 +32,7 @@
 - [Shopify OS 2.0](/shopify-os2)
 - [Solid](/solid)
 - [SvelteKit](/sveltekit)
+- [TanStack Start](/tanstack-start)
 - [WordPress](/wordpress)
 
 ## Configuration|/configuration
