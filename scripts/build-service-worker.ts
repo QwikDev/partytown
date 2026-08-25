@@ -72,8 +72,13 @@ async function buildSandboxServiceWorker(opts: BuildOptions, msgType: MessageTyp
     const outName = `partytown-sandbox-${msgType}.js`;
     await writeFile(join(opts.distLibDebugDir, outName), sandboxJsCode);
     sandboxHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="robots" content="noindex"><script src="./partytown-sandbox-${msgType}.js?v=${opts.packageJson.version}"></script></head></html>`;
+    // the sandbox html is normally served by the service worker, but ship it as
+    // a real file too so requests that bypass the service worker (crawlers,
+    // private browsing, encoded urls) get a 200 instead of a 404
+    await writeFile(join(opts.distLibDebugDir, `partytown-sandbox-${msgType}.html`), sandboxHtml);
   } else {
     sandboxHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="robots" content="noindex"><script type="module">${sandboxJsCode}</script></head></html>`;
+    await writeFile(join(opts.distLibDir, `partytown-sandbox-${msgType}.html`), sandboxHtml);
   }
 
   return sandboxHtml;
