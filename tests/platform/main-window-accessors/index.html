@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Partytown Test Page" />
+    <title>Main Window Accessors</title>
+
+    <!-- a main thread global with data and methods, like many 3rd party settings objects -->
+    <script>
+      window.mainSettings = {
+        accountId: 'abc-123',
+        getToken: function () {
+          return 'token-88';
+        },
+      };
+    </script>
+
+    <script>
+      partytown = {
+        mainWindowAccessors: ['mainSettings'],
+      };
+    </script>
+    <script src="/~partytown/debug/partytown.js"></script>
+  </head>
+  <body>
+    <h1>Main Window Accessors</h1>
+    <ul>
+      <li>
+        <strong>read main thread object property</strong>
+        <code id="testAccessorProp"></code>
+      </li>
+      <li>
+        <strong>call main thread object method</strong>
+        <code id="testAccessorMethod"></code>
+      </li>
+    </ul>
+
+    <script type="text/partytown">
+      (function () {
+        var settings = window.mainSettings;
+        document.getElementById('testAccessorProp').textContent = settings.accountId;
+        document.getElementById('testAccessorMethod').textContent = settings.getToken();
+      })();
+    </script>
+
+    <script type="text/partytown">
+      document.body.classList.add('completed');
+    </script>
+
+    <hr />
+    <p><a href="/tests/">All Tests</a></p>
+    <hr />
+  </body>
+</html>
