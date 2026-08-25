@@ -266,7 +266,9 @@ export const createWindow = (
                   if (memberType === InterfaceType.Function) {
                     // method that should access main
                     definePrototypeValue(Cstr, memberName, function (this: Node, ...args: any[]) {
-                      return callMethod(this, [memberName], args);
+                      // scripts can call methods unbound, e.g. `var f = win.fn; f()`,
+                      // native window functions tolerate that, so fall back to the window
+                      return callMethod(this || (win as any), [memberName], args);
                     });
                   } else if (memberType > 0) {
                     // property

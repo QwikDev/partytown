@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Partytown Test Page" />
+    <title>Google Publisher Tag</title>
+    <script>
+      partytown = {
+        logCalls: true,
+        logScriptExecution: true,
+      };
+    </script>
+    <script src="/~partytown/debug/partytown.js"></script>
+  </head>
+  <body>
+    <h1>Google Publisher Tag</h1>
+    <ul>
+      <li><strong>googletag api ready</strong> <code id="testApiReady"></code></li>
+      <li><strong>slot defined and displayed</strong> <code id="testSlot"></code></li>
+      <li><strong>ad iframe created</strong> <code id="testAdFrame"></code></li>
+    </ul>
+    <div id="ad-slot" style="width: 300px; height: 250px"></div>
+    <script type="text/partytown">
+      window.googletag = window.googletag || { cmd: [] };
+      googletag.cmd.push(function () {
+        googletag
+          .defineSlot('/6355419/Travel/Europe/France/Paris', [300, 250], 'ad-slot')
+          .addService(googletag.pubads());
+        googletag.enableServices();
+        document.getElementById('testApiReady').textContent = 'ready';
+        googletag.display('ad-slot');
+        document.getElementById('testSlot').textContent = 'displayed';
+        var check = setInterval(function () {
+          var frame = document.querySelector('#ad-slot iframe');
+          if (frame) {
+            document.getElementById('testAdFrame').textContent = 'created';
+            clearInterval(check);
+          }
+        }, 250);
+      });
+    </script>
+    <script
+      type="text/partytown"
+      async
+      src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"
+    ></script>
+  </body>
+</html>
