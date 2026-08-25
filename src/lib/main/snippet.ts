@@ -3,6 +3,7 @@ import {
   emptyObjectValue,
   getOriginalBehavior,
   resolvePartytownForwardProperty,
+  trustedType,
 } from '../utils';
 import type { MainWindow, PartytownConfig } from '../types';
 
@@ -53,9 +54,12 @@ export function snippet(
           } else if (nav.serviceWorker) {
             // service worker support
             nav.serviceWorker
-              .register(libPath + (config!.swPath || 'partytown-sw.js'), {
-                scope: libPath,
-              })
+              .register(
+                trustedType('createScriptURL', libPath + (config!.swPath || 'partytown-sw.js')),
+                {
+                  scope: libPath,
+                }
+              )
               .then(
                 function (swRegistration) {
                   if (swRegistration.active) {
@@ -99,10 +103,11 @@ export function snippet(
       sandbox.style.visibility = 'hidden';
       sandbox.setAttribute('aria-hidden', !0 as any);
     }
-    sandbox.src =
-      libPath +
-      'partytown-' +
-      (isAtomics ? 'atomics.js?v=_VERSION_' : 'sandbox-sw.html?' + win._pttab);
+    sandbox.src = (
+      isAtomics
+        ? trustedType('createScriptURL', libPath + 'partytown-atomics.js?v=_VERSION_')
+        : libPath + 'partytown-sandbox-sw.html?' + win._pttab
+    ) as any;
 
     doc.querySelector(config!.sandboxParent || 'body')!.appendChild(sandbox);
   }
@@ -161,9 +166,9 @@ export function snippet(
     script = doc.createElement('script');
     if (orgScript.src) {
       // external scripts must fall back through their src (#582)
-      script.src = orgScript.src;
+      script.src = trustedType('createScriptURL', orgScript.src);
     } else {
-      script.innerHTML = orgScript.innerHTML;
+      script.innerHTML = trustedType('createHTML', orgScript.innerHTML);
     }
     // We don't need to set a `nonce` on sandbox script since it is loaded via
     // the `src` attribute. However, we do need to set a `nonce` on the current

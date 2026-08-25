@@ -153,6 +153,33 @@ export const createElementFromConstructor = (
   }
 };
 
+/**
+ * Wrap a value for a Trusted Types enforced document, using a policy named
+ * `partytown` (add it to the `trusted-types` CSP directive). Falls back to
+ * the plain value when Trusted Types aren't enforced or the policy is blocked.
+ * The policy is cached on globalThis, snippet and sandbox bundles can run in
+ * the same document and a duplicate policy name would be refused.
+ */
+export const trustedType = (
+  create: 'createHTML' | 'createScript' | 'createScriptURL',
+  value: any,
+  g?: any
+) => {
+  g = globalThis as any;
+  if (g._pttt === undefined) {
+    g._pttt = null;
+    try {
+      g._pttt =
+        g.trustedTypes?.createPolicy('partytown', {
+          createHTML: (s: string) => s,
+          createScript: (s: string) => s,
+          createScriptURL: (s: string) => s,
+        }) || null;
+    } catch (e) {}
+  }
+  return g._pttt ? g._pttt[create](value) : value;
+};
+
 export const isValidUrl = (url: any): boolean => {
   try {
     new URL(url);

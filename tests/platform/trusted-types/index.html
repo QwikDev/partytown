@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="require-trusted-types-for 'script'; trusted-types partytown" />
+  <title>Trusted Types</title>
+  <script>partytown = { debug: true };</script>
+  <script src="/~partytown/debug/partytown.js"></script>
+  <script type="text/partytown">
+    document.getElementById('out').textContent = 'worker executed';
+    var d = document.createElement('div');
+    d.innerHTML = '<i>html set from worker</i>';
+    document.body.appendChild(d);
+    d.insertAdjacentHTML('beforeend', '<em>adjacent html</em>');
+    document.body.classList.add('completed');
+  </script>
+</head>
+<body>
+  <h1>TT repro</h1>
+  <div id="out"></div>
+</body>
+</html>

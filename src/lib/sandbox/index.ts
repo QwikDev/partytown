@@ -1,4 +1,4 @@
-import { debug } from '../utils';
+import { debug, trustedType } from '../utils';
 import { getAndSetInstanceId } from './main-instances';
 import { libPath, mainWindow } from './main-globals';
 import { logMain } from '../log';
@@ -23,13 +23,16 @@ const receiveMessage: MessengerRequestCallback = (accessReq, responseCallback) =
 syncCreateMessenger(receiveMessage).then((onMessageHandler) => {
   if (onMessageHandler) {
     worker = new Worker(
-      debug
-        ? libPath + WebWorkerUrl
-        : URL.createObjectURL(
-            new Blob([WebWorkerBlob], {
-              type: 'text/javascript',
-            })
-          ),
+      trustedType(
+        'createScriptURL',
+        debug
+          ? libPath + WebWorkerUrl
+          : URL.createObjectURL(
+              new Blob([WebWorkerBlob], {
+                type: 'text/javascript',
+              })
+            )
+      ) as any,
       { name: `Partytown 🎉` }
     );
 

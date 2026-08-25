@@ -1,4 +1,5 @@
 import { commaSplit, webWorkerCtx } from './worker-constants';
+import { trustedType } from '../utils';
 import type { InitWebWorkerData, PartytownInternalConfig } from '../types';
 
 export const initWebWorker = (initWebWorkerData: InitWebWorkerData) => {
@@ -21,7 +22,9 @@ export const initWebWorker = (initWebWorkerData: InitWebWorkerData) => {
   (commaSplit('resolveUrl,resolveSendBeaconRequestParameters,get,set,apply') as any).map(
     (configName: keyof PartytownInternalConfig) => {
       if (config[configName]) {
-        config[configName] = new Function('return ' + config[configName])();
+        config[configName] = new Function(
+          trustedType('createScript', 'return ' + config[configName]) as any
+        )();
       }
     }
   );

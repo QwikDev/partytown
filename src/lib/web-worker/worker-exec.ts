@@ -12,7 +12,7 @@ import {
   type WorkerInstance,
   WorkerMessageType,
 } from '../types';
-import { debug, len } from '../utils';
+import { debug, len, trustedType } from '../utils';
 import { environments, partytownLibUrl, webWorkerCtx } from './worker-constants';
 import { callMethod, setter } from './worker-proxy';
 import { getOrCreateNodeInstance } from './worker-constructors';
@@ -242,7 +242,7 @@ export const run = (env: WebWorkerEnvironment, scriptContent: string, scriptUrl?
     scriptContent = scriptContent.replace(/.postMessage\(/g, `.postMessage('${env.$winId$}',`);
   }
 
-  new Function(scriptContent).call(env.$window$);
+  new Function(trustedType('createScript', scriptContent) as any).call(env.$window$);
 
   env.$runWindowLoadEvent$ = 0;
 };

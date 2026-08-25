@@ -7,7 +7,7 @@ import {
   type PartytownWebWorker,
   type WinId,
 } from '../types';
-import { debug, getConstructorName, isPromise, len } from '../utils';
+import { debug, getConstructorName, isPromise, len, trustedType } from '../utils';
 import { defineCustomElement } from './main-custom-element';
 import { deserializeFromWorker, serializeForWorker } from './main-serialization';
 import { getInstance, setInstanceId } from './main-instances';
@@ -169,7 +169,11 @@ const applyToInstance = (
           // previous is the setter name
           // current is the setter value
           // next tells us this was a setter
-          instance[previous] = deserializeFromWorker(worker, current);
+          instance[previous] = trustSetterValue(
+            instance,
+            previous,
+            deserializeFromWorker(worker, current)
+          );
 
           // setters never return a value
           return;
@@ -181,6 +185,15 @@ const applyToInstance = (
 
           if (previous === 'define' && getConstructorName(instance) === 'CustomElementRegistry') {
             args[1] = defineCustomElement(winId, worker, args[1]);
+          }
+
+          if ((globalThis as any).trustedTypes) {
+            // html string arguments must also pass Trusted Types enforcement
+            if (previous === 'insertAdjacentHTML') {
+              args[1] = trustedType('createHTML', args[1]);
+            } else if (previous === 'write' || previous === 'writeln') {
+              args = args.map((arg) => trustedType('createHTML', arg));
+            }
           }
 
           if (previous === 'insertRule') {
@@ -211,4 +224,22 @@ const applyToInstance = (
   }
 
   return instance;
+};
+
+const trustSetterValue = (instance: any, memberName: string, value: any) => {
+  if (typeof value === 'string' && (globalThis as any).trustedTypes) {
+    // Trusted Types enforced documents reject plain strings on these sinks
+    if (memberName === 'innerHTML' || memberName === 'outerHTML' || memberName === 'srcdoc') {
+      return trustedType('createHTML', value);
+    }
+    if (getConstructorName(instance) === 'HTMLScriptElement') {
+      if (memberName === 'src') {
+        return trustedType('createScriptURL', value);
+      }
+      if (memberName === 'text' || memberName === 'textContent' || memberName === 'innerText') {
+        return trustedType('createScript', value);
+      }
+    }
+  }
+  return value;
 };
