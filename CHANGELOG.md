@@ -1,5 +1,25 @@
 # @qwik.dev/partytown
 
+## 0.14.3
+
+### Patch Changes
+
+- 🐞🩹 large non-blocking DOM operation batches now yield the main thread every ~40ms, keeping tasks under the 50ms long-task threshold and reducing reported TBT (by [@gioboa](https://github.com/gioboa) in [#756](https://github.com/QwikDev/partytown/pull/756))
+
+- ✨ automatically execute partytown scripts added to the page after initialization, e.g. on client-side route transitions, without needing to dispatch a `ptupdate` event (by [@gioboa](https://github.com/gioboa) in [#746](https://github.com/QwikDev/partytown/pull/746))
+
+- ✨ GTM's Tag Assistant preview now connects to pages running GTM inside Partytown: scripts the worker can't read (no CORS headers, like the debug bootstrap) fall back to the main thread, the container's debug queue is bridged during `gtm_debug` sessions, and `window.opener` / message `event.source` work from the worker (by [@gioboa](https://github.com/gioboa) in [#753](https://github.com/QwikDev/partytown/pull/753))
+
+- ✨ CSP Trusted Types support: Partytown now works on pages enforcing `require-trusted-types-for 'script'` — add `partytown` to the `trusted-types` directive to allow its policy (by [@gioboa](https://github.com/gioboa) in [#754](https://github.com/QwikDev/partytown/pull/754))
+
+- 🐞🩹 load cross-origin iframes natively when their content can't be fetched, so widgets like the reCAPTCHA badge work instead of crashing with a NetworkError (by [@gioboa](https://github.com/gioboa) in [#749](https://github.com/QwikDev/partytown/pull/749))
+
+- 🐞🩹 partytown scripts added after the main thread fallback ran, e.g. gtm.js injected by the GTM snippet, now fall back too — previously they were silently dropped in webviews without service worker support (by [@gioboa](https://github.com/gioboa) in [#751](https://github.com/QwikDev/partytown/pull/751))
+
+- 🐞🩹 ship `partytown-sandbox-sw.html` as a real library file, so requests that bypass the service worker (crawlers, private browsing, encoded urls) get a 200 instead of a 404 (by [@gioboa](https://github.com/gioboa) in [#750](https://github.com/QwikDev/partytown/pull/750))
+
+- 🐞🩹 methods called unbound by scripts (e.g. `var f = win.fn; f()`) no longer crash the worker proxy, fixing Google Publisher Tag ad serving (by [@gioboa](https://github.com/gioboa) in [#755](https://github.com/QwikDev/partytown/pull/755))
+
 ## 0.14.2
 
 ### Patch Changes
