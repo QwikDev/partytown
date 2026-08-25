@@ -7,11 +7,12 @@ import {
   webWorkerCtx,
   WinIdKey,
 } from './worker-constants';
-import { getPartytownScript, resolveUrl } from './worker-exec';
-import { getter, sendToMain, setter } from './worker-proxy';
+import { getPartytownScript, resolveUrl, runStateLoadHandlers } from './worker-exec';
+import { callMethod, getter, sendToMain, setter } from './worker-proxy';
 import { HTMLSrcElementDescriptorMap } from './worker-src-element';
 import { setInstanceStateValue, getInstanceStateValue } from './worker-state';
 import {
+  CallType,
   StateProp,
   type WebWorkerEnvironment,
   type WorkerInstance,
@@ -61,11 +62,32 @@ export const patchHTMLIFrameElement = (WorkerHTMLIFrameElement: any, env: WebWor
 
           setInstanceStateValue(this, StateProp.loadErrorStatus, undefined);
 
-          xhr.open('GET', src, false);
-          xhr.send();
-          xhrStatus = xhr.status;
+          try {
+            xhr.open('GET', src, false);
+            xhr.send();
+            xhrStatus = xhr.status;
+          } catch (e) {
+            // cross-origin without CORS, the content can't be read
+            xhrStatus = 0;
+          }
 
-          if (xhrStatus > 199 && xhrStatus < 300) {
+          if (xhrStatus === 0) {
+            // let the browser load the cross-origin iframe natively, same as
+            // it would without partytown, e.g. the recaptcha badge iframe
+            callMethod(
+              this,
+              ['addEventListener'],
+              [
+                'load',
+                () => {
+                  env.$isLoading$ = 0;
+                  runStateLoadHandlers(this, StateProp.loadHandlers);
+                },
+              ],
+              CallType.NonBlocking
+            );
+            setter(this, ['src'], src);
+          } else if (xhrStatus > 199 && xhrStatus < 300) {
             setter(
               this,
               ['srcdoc'],

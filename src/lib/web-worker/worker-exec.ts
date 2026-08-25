@@ -228,7 +228,7 @@ export const run = (env: WebWorkerEnvironment, scriptContent: string, scriptUrl?
   env.$runWindowLoadEvent$ = 0;
 };
 
-const runStateLoadHandlers = (
+export const runStateLoadHandlers = (
   instance: WorkerInstance,
   type: StateProp,
   handlers?: EventHandler[]

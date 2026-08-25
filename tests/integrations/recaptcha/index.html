@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Partytown Test Page" />
+    <title>Recaptcha</title>
+    <script>
+      partytown = {
+        logCalls: true,
+        logGetters: false,
+        logSetters: false,
+        logScriptExecution: true,
+      };
+    </script>
+    <script src="/~partytown/debug/partytown.js"></script>
+  </head>
+  <body>
+    <h1>Recaptcha</h1>
+    <ul>
+      <li>
+        <strong>grecaptcha loaded</strong>
+        <code id="testLoaded"></code>
+      </li>
+      <li>
+        <strong>grecaptcha.ready fired</strong>
+        <code id="testReady"></code>
+      </li>
+      <li>
+        <strong>badge rendered</strong>
+        <code id="testBadge"></code>
+      </li>
+    </ul>
+
+    <!-- google's public always-passing test site key -->
+    <script
+      type="text/partytown"
+      src="https://www.google.com/recaptcha/api.js?render=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+    ></script>
+
+    <script type="text/partytown">
+      (function () {
+        var check = setInterval(function () {
+          if (window.grecaptcha) {
+            document.getElementById('testLoaded').textContent = 'loaded';
+            clearInterval(check);
+            window.grecaptcha.ready(function () {
+              document.getElementById('testReady').textContent = 'ready';
+              var badgeCheck = setInterval(function () {
+                var badge = document.querySelector('.grecaptcha-badge');
+                if (badge) {
+                  document.getElementById('testBadge').textContent = 'rendered';
+                  clearInterval(badgeCheck);
+                }
+              }, 100);
+            });
+          }
+        }, 100);
+      })();
+    </script>
+
+    <script type="text/partytown">
+      document.body.classList.add('completed');
+    </script>
+
+    <hr />
+    <p><a href="/tests/">All Tests</a></p>
+    <hr />
+  </body>
+</html>
