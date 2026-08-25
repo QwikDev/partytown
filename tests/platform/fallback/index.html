@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Partytown Test Page" />
+    <title>Fallback</title>
+    <script>
+      partytown = {
+        fallbackTimeout: 1000,
+      };
+    </script>
+    <script src="/~partytown/debug/partytown.js"></script>
+  </head>
+  <body>
+    <h1>Fallback</h1>
+    <ul>
+      <li>
+        <strong>initial script falls back</strong>
+        <code id="testInitial"></code>
+      </li>
+      <li>
+        <strong>dynamically added script falls back</strong>
+        <code id="testDynamic"></code>
+      </li>
+    </ul>
+
+    <script type="text/partytown">
+      document.getElementById('testInitial').textContent = 'executed';
+      document.body.classList.add('completed');
+    </script>
+
+    <!-- gtm-style: a partytown script injected after the fallback already ran -->
+    <script>
+      setTimeout(function () {
+        var s = document.createElement('script');
+        s.type = 'text/partytown';
+        s.innerHTML = "document.getElementById('testDynamic').textContent = 'executed';";
+        document.body.appendChild(s);
+      }, 1000);
+    </script>
+
+    <hr />
+    <p><a href="/tests/">All Tests</a></p>
+    <hr />
+  </body>
+</html>

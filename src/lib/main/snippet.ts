@@ -56,19 +56,27 @@ export function snippet(
               .register(libPath + (config!.swPath || 'partytown-sw.js'), {
                 scope: libPath,
               })
-              .then(function (swRegistration) {
-                if (swRegistration.active) {
-                  loadSandbox();
-                } else if (swRegistration.installing) {
-                  swRegistration.installing.addEventListener('statechange', function (ev) {
-                    if ((ev.target as any as ServiceWorker).state == 'activated') {
-                      loadSandbox();
-                    }
-                  });
-                } else if (debug) {
-                  console.warn(swRegistration);
+              .then(
+                function (swRegistration) {
+                  if (swRegistration.active) {
+                    loadSandbox();
+                  } else if (swRegistration.installing) {
+                    swRegistration.installing.addEventListener('statechange', function (ev) {
+                      if ((ev.target as any as ServiceWorker).state == 'activated') {
+                        loadSandbox();
+                      }
+                    });
+                  } else if (debug) {
+                    console.warn(swRegistration);
+                  }
+                },
+                function (e) {
+                  // registration failed, e.g. webviews blocking service
+                  // workers, no reason to wait for the fallback timeout
+                  console.error(e);
+                  fallback();
                 }
-              }, console.error);
+              );
           } else {
             // no support for atomics or service worker
             fallback();
@@ -117,26 +125,55 @@ export function snippet(
       });
     }
 
+    // re-query the scripts, more could have been added since the initial read
+    scripts = doc.querySelectorAll('script[type="text/partytown"]');
     for (i = 0; i < scripts!.length; i++) {
-      script = doc.createElement('script');
-      if (scripts![i].src) {
-        // external scripts must fall back through their src (#582)
-        script.src = scripts![i].src;
-      } else {
-        script.innerHTML = scripts![i].innerHTML;
-      }
-      // We don't need to set a `nonce` on sandbox script since it is loaded via
-      // the `src` attribute. However, we do need to set a `nonce` on the current
-      // script because it contains an inline script. This action ensures that the
-      // script can still be executed even when inline scripts are blocked
-      // (assuming `unsafe-inline` is disabled and `nonce-*` is used instead).
-      script.nonce = config!.nonce;
-      doc.head.appendChild(script);
+      fallbackScript(scripts![i]);
+    }
+
+    // scripts added later, e.g. gtm.js injected by the GTM snippet, must also
+    // fall back, common in webviews without service worker support (#554)
+    if (typeof MutationObserver != 'undefined') {
+      new MutationObserver(function (mutations) {
+        mutations.map(function (mutation) {
+          for (var i = 0; i < mutation.addedNodes.length; i++) {
+            var node = mutation.addedNodes[i] as HTMLScriptElement;
+            if (node.nodeType == 1) {
+              if (node.nodeName == 'SCRIPT' && node.type == 'text/partytown') {
+                fallbackScript(node);
+              } else if (node.querySelectorAll) {
+                node
+                  .querySelectorAll('script[type="text/partytown"]')
+                  .forEach(fallbackScript as any);
+              }
+            }
+          }
+        });
+      }).observe(doc.documentElement, { childList: true, subtree: true });
     }
 
     if (sandbox) {
       sandbox.parentNode!.removeChild(sandbox);
     }
+  }
+
+  function fallbackScript(orgScript: HTMLScriptElement, script?: HTMLScriptElement) {
+    script = doc.createElement('script');
+    if (orgScript.src) {
+      // external scripts must fall back through their src (#582)
+      script.src = orgScript.src;
+    } else {
+      script.innerHTML = orgScript.innerHTML;
+    }
+    // We don't need to set a `nonce` on sandbox script since it is loaded via
+    // the `src` attribute. However, we do need to set a `nonce` on the current
+    // script because it contains an inline script. This action ensures that the
+    // script can still be executed even when inline scripts are blocked
+    // (assuming `unsafe-inline` is disabled and `nonce-*` is used instead).
+    script.nonce = config!.nonce;
+    // mark the original so it can't fall back twice
+    orgScript.type += '-x';
+    doc.head.appendChild(script);
   }
 
   function clearFallback() {
