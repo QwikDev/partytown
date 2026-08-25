@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Partytown Test Page" />
+    <title>Dynamic Script</title>
+    <script src="/~partytown/debug/partytown.js"></script>
+  </head>
+  <body>
+    <h1>Dynamic Script</h1>
+    <ul>
+      <li>
+        <strong>script added after initialization</strong>
+        <code id="testDynamicInline"></code>
+      </li>
+      <li>
+        <strong>external script added after initialization</strong>
+        <code id="testDynamicSrc"></code>
+      </li>
+      <li>
+        <strong>script inside an added subtree</strong>
+        <code id="testDynamicSubtree"></code>
+      </li>
+    </ul>
+
+    <script type="text/partytown">
+      document.body.classList.add('completed');
+    </script>
+
+    <!-- simulate a client-side route transition adding partytown scripts later -->
+    <script>
+      setTimeout(function () {
+        var inlineScript = document.createElement('script');
+        inlineScript.type = 'text/partytown';
+        inlineScript.innerHTML =
+          "document.getElementById('testDynamicInline').textContent = 'executed';";
+        document.body.appendChild(inlineScript);
+
+        var srcScript = document.createElement('script');
+        srcScript.type = 'text/partytown';
+        srcScript.src = '/tests/platform/dynamic-script/dynamic.js';
+        document.body.appendChild(srcScript);
+
+        // SPA-style: the script is a descendant of the inserted subtree
+        var container = document.createElement('div');
+        container.innerHTML =
+          '<section><script type="text/partytown">' +
+          "document.getElementById('testDynamicSubtree').textContent = 'executed';" +
+          '<\/script></section>';
+        document.body.appendChild(container);
+      }, 300);
+    </script>
+
+    <hr />
+    <p><a href="/tests/">All Tests</a></p>
+    <hr />
+  </body>
+</html>

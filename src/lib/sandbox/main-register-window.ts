@@ -1,4 +1,4 @@
-import { debug } from '../utils';
+import { debug, SCRIPT_TYPE } from '../utils';
 import { logMain, normalizedWinId } from '../log';
 import {
   type MainWindow,
@@ -91,6 +91,25 @@ export const registerWindow = (
     $window$.addEventListener('ptupdate', () => {
       readNextScript(worker, winCtxs[$winId$]!);
     });
+
+    // execute partytown scripts added after initialization,
+    // e.g. on client-side route transitions
+    const scriptSelector = `script[type="${SCRIPT_TYPE}"]`;
+    new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (let i = 0; i < mutation.addedNodes.length; i++) {
+          const addedNode = mutation.addedNodes[i] as Element;
+          if (
+            addedNode.nodeType === 1 &&
+            // the added node can also be a subtree containing partytown scripts
+            (addedNode.matches(scriptSelector) || addedNode.querySelector(scriptSelector))
+          ) {
+            readNextScript(worker, winCtxs[$winId$]!);
+            return;
+          }
+        }
+      }
+    }).observe(doc.documentElement, { childList: true, subtree: true });
     doc.addEventListener('visibilitychange', () =>
       worker.postMessage([WorkerMessageType.DocumentVisibilityState, $winId$, doc.visibilityState])
     );
