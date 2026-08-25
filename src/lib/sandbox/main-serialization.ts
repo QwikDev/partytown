@@ -108,6 +108,15 @@ const serializeObjectForWorker = (
       ) {
         if (propName === 'path' && getConstructorName(obj).endsWith('Event')) {
           propValue = obj.composedPath();
+        } else if (
+          propName === 'source' &&
+          obj[propName] != null &&
+          // this code runs in the sandbox iframe, the page is its parent
+          obj[propName] === (window as any).parent?.opener
+        ) {
+          // mark message events sent by the opener window, so the worker can
+          // give them a source that replies to the real opener (Tag Assistant)
+          propValue = '_pt_opener_';
         } else {
           propValue = obj[propName];
         }

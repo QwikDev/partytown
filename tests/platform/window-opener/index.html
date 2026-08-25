@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Partytown Test Page" />
+    <title>Window Opener</title>
+    <script>
+      partytown = {};
+    </script>
+    <script src="/~partytown/debug/partytown.js"></script>
+    <script type="text/partytown">
+      window.addEventListener('message', function (ev) {
+        document.getElementById('testMessage').textContent = JSON.stringify(ev.data);
+        // reply to the opener, like GTM's Tag Assistant debug handshake does
+        if (window.opener) {
+          window.opener.postMessage({ reply: 'from-worker' }, '*');
+        }
+        // Tag Assistant replies through the event source
+        if (ev.source && ev.source.postMessage) {
+          ev.source.postMessage({ reply: 'via-source' }, '*');
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Window Opener</h1>
+    <ul>
+      <li>
+        <strong>message received in worker</strong>
+        <code id="testMessage"></code>
+      </li>
+    </ul>
+    <script type="text/partytown">
+      document.body.classList.add('completed');
+    </script>
+  </body>
+</html>

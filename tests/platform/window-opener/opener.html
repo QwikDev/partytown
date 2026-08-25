@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><meta charset="UTF-8" /><title>Opener</title></head>
+  <body>
+    <script>
+      window.received = [];
+      window.addEventListener('message', function (ev) {
+        window.received.push(ev.data);
+      });
+    </script>
+  </body>
+</html>

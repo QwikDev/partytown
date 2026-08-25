@@ -203,6 +203,12 @@ export const deserializeFromMain = (
           }
         }
       }
+      if (obj.source === '_pt_opener_') {
+        // a message that came from the opener window, e.g. GTM's Tag Assistant,
+        // use the same opener reference the window getter returns, so identity
+        // checks like event.source === window.opener work
+        obj.source = (environments[winId!].$window$ as any).opener;
+      }
       return new Proxy(new Event(obj.type, obj), {
         get: (target: any, propName) => {
           if (propName in obj) {

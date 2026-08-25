@@ -463,6 +463,39 @@ export const createWindow = (
         }
 
         win.Worker = undefined;
+
+        if ($location$.href.includes('gtm_debug=')) {
+          // bridge GTM's debug queue to the main thread, where the debug
+          // bootstrap runs (it has no CORS headers so it can't run in the
+          // worker), used by GTM's Tag Assistant preview
+          const queueKey = 'google.tagmanager.debugui2.queue';
+          let localQueue: any[] | undefined;
+          let flushTimer: any;
+          let flushAttempts = 0;
+          const forwardItem = (item: any) =>
+            callMethod(win, [queueKey, 'push'], [item], CallType.NonBlocking);
+          const flush = () => {
+            if (++flushAttempts > 100) {
+              // the main thread bootstrap never created the queue, give up
+              clearInterval(flushTimer);
+            } else if (getter(win, [queueKey]) != null) {
+              clearInterval(flushTimer);
+              localQueue!.splice(0).map(forwardItem);
+              localQueue!.push = ((item: any) => forwardItem(item)) as any;
+            }
+          };
+          defineProperty(win, queueKey, {
+            // gtm.js only loads the debug bootstrap when the queue is undefined
+            get: () => localQueue,
+            set: (v) => {
+              if (!localQueue) {
+                localQueue = v || [];
+                // wait for the main thread bootstrap to create the real queue
+                flushTimer = setInterval(flush, 100);
+              }
+            },
+          });
+        }
       }
 
       addEventListener = (...args: any[]) => {
@@ -541,6 +574,22 @@ export const createWindow = (
         return $location$.origin;
       }
       set origin(_) {}
+
+      get opener(): any {
+        // reading the opener from main returns null when there isn't one
+        if (getter(this, ['opener']) == null) {
+          return null;
+        }
+        const win = this;
+        // a small remote reference, so debug tools like Tag Assistant can
+        // postMessage their opener window from the worker. The same object is
+        // always returned so identity checks like event.source === opener work
+        return ((env as any).$openerRef$ = (env as any).$openerRef$ || {
+          closed: false,
+          postMessage: (...args: any[]) =>
+            callMethod(win, ['opener', 'postMessage'], args, CallType.NonBlocking),
+        });
+      }
 
       get parent(): any {
         for (let envWinId in environments) {

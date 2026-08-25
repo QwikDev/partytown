@@ -14,6 +14,7 @@ import {
 } from '../types';
 import { debug, len } from '../utils';
 import { environments, partytownLibUrl, webWorkerCtx } from './worker-constants';
+import { callMethod, setter } from './worker-proxy';
 import { getOrCreateNodeInstance } from './worker-constructors';
 import { getInstanceStateValue, setInstanceStateValue } from './worker-state';
 
@@ -65,9 +66,27 @@ export const initNextScriptsInWebWorker = async (initScript: InitializeScriptDat
         runStateLoadHandlers(instance!, StateProp.errorHandlers);
       }
     } catch (urlError: any) {
-      console.error(urlError);
-      errorMsg = String(urlError.stack || urlError);
-      runStateLoadHandlers(instance!, StateProp.errorHandlers);
+      // fetch errors here are network or CORS failures (a 404 is handled
+      // above), meaning the worker can't read the script, e.g. GTM's debug
+      // bootstrap has no CORS headers. Run it on the main thread instead,
+      // same as the browser would without partytown
+      if (debug && webWorkerCtx.$config$.logScriptExecution) {
+        logWorker(`Fallback script to main: ${scriptOrgSrc || scriptSrc}`, winId);
+      }
+      const el = (env.$document$ as any).createElement('script');
+      setter(el, ['type'], 'text/javascript');
+      setter(el, ['src'], scriptSrc);
+      callMethod(
+        el,
+        ['addEventListener'],
+        ['load', () => runStateLoadHandlers(instance!, StateProp.loadHandlers)]
+      );
+      callMethod(
+        el,
+        ['addEventListener'],
+        ['error', () => runStateLoadHandlers(instance!, StateProp.errorHandlers)]
+      );
+      callMethod(env.$body$, ['appendChild'], [el]);
     }
   } else if (scriptContent) {
     errorMsg = runScriptContent(env, instanceId, scriptContent, winId, errorMsg);
