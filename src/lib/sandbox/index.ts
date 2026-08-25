@@ -40,7 +40,7 @@ syncCreateMessenger(receiveMessage).then((onMessageHandler) => {
       const msg: MessageFromWorkerToSandbox = ev.data;
       if (msg[0] === WorkerMessageType.AsyncAccessRequest) {
         // fire and forget async call within web worker
-        mainAccessHandler(worker, msg[1]);
+        mainAccessHandler(worker, msg[1], 1);
       } else {
         // blocking call within web worker
         onMessageHandler(worker, msg);

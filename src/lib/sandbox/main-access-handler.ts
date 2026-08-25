@@ -7,16 +7,30 @@ import {
   type PartytownWebWorker,
   type WinId,
 } from '../types';
-import { debug, getConstructorName, isPromise, len, trustedType } from '../utils';
+import { debug, getConstructorName, isPromise, len, noop, trustedType } from '../utils';
 import { defineCustomElement } from './main-custom-element';
 import { deserializeFromWorker, serializeForWorker } from './main-serialization';
 import { getInstance, setInstanceId } from './main-instances';
 import { normalizedWinId } from '../log';
 import { winCtxs } from './main-constants';
 
-export const mainAccessHandler = async (
+// requests must apply their DOM operations in the order the worker sent them,
+// even when a handler yields the main thread mid-batch (see the loop below)
+let taskChain: Promise<any> = Promise.resolve();
+
+export const mainAccessHandler = (
   worker: PartytownWebWorker,
-  accessReq: MainAccessRequest
+  accessReq: MainAccessRequest,
+  isNonBlocking?: number
+) =>
+  (taskChain = taskChain
+    .catch(noop)
+    .then(() => handleAccessRequest(worker, accessReq, isNonBlocking)));
+
+const handleAccessRequest = async (
+  worker: PartytownWebWorker,
+  accessReq: MainAccessRequest,
+  isNonBlocking?: number
 ) => {
   let accessRsp: MainAccessResponse = {
     $msgId$: accessReq.$msgId$,
@@ -29,7 +43,15 @@ export const mainAccessHandler = async (
   let instance: any;
   let rtnValue: any;
   let isLast: boolean;
+  let sliceStart = Date.now();
   for (; i < totalTasks; i++) {
+    if (isNonBlocking && Date.now() - sliceStart > 40) {
+      // the worker isn't awaiting this response, so a large batch of DOM
+      // operations can yield between tasks and stay under the 50ms
+      // long-task threshold instead of blocking the main thread
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      sliceStart = Date.now();
+    }
     try {
       isLast = i === totalTasks - 1;
       task = accessReq.$tasks$[i];
