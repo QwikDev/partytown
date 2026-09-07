@@ -19,13 +19,15 @@ export const initWebWorker = (initWebWorkerData: InitWebWorkerData) => {
   delete (self as any).postMessage;
   delete (self as any).WorkerGlobalScope;
 
-  (commaSplit('resolveUrl,resolveSendBeaconRequestParameters,get,set,apply') as any).map(
-    (configName: keyof PartytownInternalConfig) => {
-      if (config[configName]) {
-        config[configName] = new Function(
-          trustedType('createScript', 'return ' + config[configName]) as any
-        )();
-      }
+  (
+    commaSplit(
+      'resolveUrl,resolveSendBeaconRequestParameters,loadIframesOnMainThread,get,set,apply'
+    ) as any
+  ).map((configName: keyof PartytownInternalConfig) => {
+    if (config[configName]) {
+      config[configName] = new Function(
+        trustedType('createScript', 'return ' + config[configName]) as any
+      )();
     }
-  );
+  });
 };

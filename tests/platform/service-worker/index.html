@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+  <head>
+    <script>
+      window.partytown = {
+        debug: !location.search.includes('production=1'),
+        fallbackTimeout: 0,
+        loadIframesOnMainThread: (url) =>
+          url.pathname === '/tests/platform/service-worker/child.html',
+      };
+      window.results = [];
+      addEventListener('message', (event) => results.push(event.data));
+    </script>
+    <script src="/~partytown/partytown.js"></script>
+  </head>
+  <body>
+    <script>
+      const params = new URLSearchParams(location.search);
+      const childOrigin = params.has('cross')
+        ? location.origin.replace('localhost', '127.0.0.1')
+        : location.origin;
+      const script = document.createElement('script');
+      if (!params.has('native')) script.type = 'text/partytown';
+      script.textContent = `
+        const frame = document.createElement('iframe');
+        let identity;
+        let loads = 0;
+        let pongs = 0;
+        frame.onload = () => {
+          document.body.dataset.frameLoaded = 'true';
+          document.body.dataset.loads = String(++loads);
+        };
+        addEventListener('message', (event) => {
+          if (event.data === 'child-ready') {
+            identity = identity || frame.contentWindow;
+            document.body.dataset.sourceMatches = String(event.source === frame.contentWindow && identity === frame.contentWindow);
+            frame.contentWindow.postMessage('parent-ping', '${childOrigin}');
+          }
+          if (event.data === 'child-pong') {
+            document.body.dataset.childPong = 'true';
+            document.body.dataset.pongs = String(++pongs);
+          }
+          if (event.data === 'navigate') frame.src = '/tests/platform/service-worker/child.html?${params.toString()}&second=1';
+          if (event.data === 'blank') frame.src = 'about:blank';
+          if (event.data === 'remove') frame.remove();
+        });
+        frame.src = '${childOrigin}/tests/platform/service-worker/child.html${location.search}';
+        document.body.appendChild(frame);
+      `;
+      document.body.appendChild(script);
+    </script>
+  </body>
+</html>

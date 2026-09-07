@@ -196,6 +196,7 @@ export interface WebWorkerEnvironment {
   $currentScriptId$?: InstanceId;
   $isInitialized$?: number;
   $isLoading$?: number;
+  $isNativeIframe$?: boolean;
   $runWindowLoadEvent$?: number;
   $isSameOrigin$?: boolean;
   $isTopWindow$?: boolean;
@@ -477,6 +478,14 @@ export interface PartytownConfig {
    * // Loads the `https://test.com/analytics.js` script on the main thread
    */
   loadScriptsOnMainThread?: (string | RegExp)[];
+  /**
+   * Keep matching iframe documents browser-owned, including their scripts and
+   * service workers. Once selected, the frame stays native across navigations.
+   * The callback receives the resolved URL and must not capture outer variables.
+   * This boundary supports load events and postMessage, not virtual DOM access
+   * to the native document. Use a narrowly scoped URL predicate.
+   */
+  loadIframesOnMainThread?(url: URL): boolean;
   get?: GetHook;
   set?: SetHook;
   apply?: ApplyHook;

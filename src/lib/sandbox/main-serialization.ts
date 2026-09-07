@@ -1,6 +1,6 @@
 import { getConstructorName, getNodeName, isValidMemberName, startsWith } from '../utils';
 import { getInstance, getAndSetInstanceId } from './main-instances';
-import { mainRefs } from './main-constants';
+import { instances, mainRefs } from './main-constants';
 import {
   type PartytownWebWorker,
   type SerializedCSSRule,
@@ -119,6 +119,16 @@ const serializeObjectForWorker = (
           propValue = '_pt_opener_';
         } else {
           propValue = obj[propName];
+        }
+        if (propName === 'source' && propValue && getConstructorName(obj) === 'MessageEvent') {
+          // Compare WindowProxy identities without reading cross-origin window properties.
+          const nativeFrame = Array.from(instances).find(
+            ([, instance]) => instance._ptNativeIframe && instance.contentWindow === propValue
+          );
+          if (nativeFrame) {
+            serializedObj[propName] = [SerializedType.Instance, [nativeFrame[0], nativeFrame[0]]];
+            continue;
+          }
         }
         if (includeFunctions || typeof propValue !== 'function') {
           if (includeEmptyStrings || propValue !== '') {

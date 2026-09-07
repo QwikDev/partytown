@@ -1,0 +1,36 @@
+<!doctype html>
+<body>
+  <script>
+    const report = (data) => parent.postMessage(data, '*');
+    addEventListener('message', (event) => {
+      if (event.data === 'parent-ping' && event.source === parent) report('child-pong');
+    });
+    report('child-ready');
+    const params = new URLSearchParams(location.search);
+    const path = '/tests/platform/service-worker/dummy-sw.js';
+    const url = params.has('trusted')
+      ? trustedTypes
+          .createPolicy('dummy-worker', { createScriptURL: (value) => value })
+          .createScriptURL(path)
+      : path;
+    navigator.serviceWorker.addEventListener('message', (event) => report(event.data));
+    const ready = navigator.serviceWorker.ready;
+    report({ readyIdentity: ready === navigator.serviceWorker.ready });
+    try {
+      navigator.serviceWorker
+        .register(url, { scope: '/tests/platform/service-worker/' })
+        .then((registration) => report({ registered: registration.scope }))
+        .catch((error) => report({ registerError: error.message }));
+    } catch (error) {
+      report({ registerError: error.message });
+    }
+    try {
+      ready.then((registration) => {
+        report({ ready: registration.scope, active: registration.active.scriptURL });
+        registration.active.postMessage('ping');
+      });
+    } catch (error) {
+      report({ readyError: error.message });
+    }
+  </script>
+</body>

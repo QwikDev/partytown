@@ -67,6 +67,10 @@ exports.createServer = function (port, enableAtomics) {
       res.setHeader('Cache-Control', 'max-age=0');
       res.setHeader('Access-Control-Allow-Origin', '*');
 
+      if (url.pathname.startsWith('/tests/platform/service-worker/')) {
+        res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      }
+
       if (enableAtomics || url.searchParams.has('atomics')) {
         if (url.searchParams.get('coep') === 'require-corp') {
           res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');

@@ -266,6 +266,7 @@ export const insertIframe = (winId: WinId, iframe: WorkerInstance) => {
   let handlers: EventHandler[];
 
   let callback = () => {
+    if (environments[winId]?.$isNativeIframe$) return;
     if (
       environments[winId] &&
       environments[winId].$isInitialized$ &&

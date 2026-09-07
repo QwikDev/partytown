@@ -197,6 +197,11 @@ export function snippet(
 
   config = win.partytown || {};
 
+  // A function created in the sender realm preserves MessageEvent.source.
+  win._ptSendMessage = function (frame: HTMLIFrameElement, args: any[]) {
+    frame.contentWindow!.postMessage.apply(frame.contentWindow, args as any);
+  };
+
   if (top == win) {
     // this is the top window
     // patch the functions that'll be forwarded to the worker

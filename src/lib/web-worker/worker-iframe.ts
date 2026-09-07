@@ -40,8 +40,9 @@ export const patchHTMLIFrameElement = (WorkerHTMLIFrameElement: any, env: WebWor
         if (src && src.startsWith('javascript:')) {
           return src;
         }
-        src = getIframeEnv(this).$location$.href;
-        return src.startsWith('about:') ? '' : src;
+        const iframeEnv = getIframeEnv(this);
+        src = iframeEnv.$location$.href;
+        return src.startsWith('about:') && !iframeEnv.$isNativeIframe$ ? '' : src;
       },
       set(src: string) {
         if (!src) {
@@ -51,7 +52,7 @@ export const patchHTMLIFrameElement = (WorkerHTMLIFrameElement: any, env: WebWor
           setInstanceStateValue(this, StateProp.src, src);
           return;
         }
-        if (!src.startsWith('about:')) {
+        if (!src.startsWith('about:') || getIframeEnv(this).$isNativeIframe$) {
           let xhr = new XMLHttpRequest();
           let xhrStatus: number;
           let env = getIframeEnv(this);
@@ -61,6 +62,40 @@ export const patchHTMLIFrameElement = (WorkerHTMLIFrameElement: any, env: WebWor
           env.$isSameOrigin$ = webWorkerCtx.$origin$ === env.$location$.origin;
 
           setInstanceStateValue(this, StateProp.loadErrorStatus, undefined);
+
+          if (
+            env.$isNativeIframe$ ||
+            webWorkerCtx.$config$.loadIframesOnMainThread?.(new URL(src))
+          ) {
+            if (!env.$isNativeIframe$) {
+              env.$isNativeIframe$ = true;
+              setter(this, ['_ptNativeIframe'], true);
+              callMethod(
+                this,
+                ['addEventListener'],
+                [
+                  'load',
+                  () => {
+                    env.$isLoading$ = 0;
+                    runStateLoadHandlers(this, StateProp.loadHandlers);
+                  },
+                ],
+                CallType.NonBlocking
+              );
+              env.$window$.postMessage = (...args: any[]) => {
+                if (environments[args[0]]) args = args.slice(1);
+                callMethod(
+                  environments[this[WinIdKey]].$window$,
+                  ['_ptSendMessage'],
+                  [this, args],
+                  CallType.NonBlockingNoSideEffect
+                );
+              };
+            }
+            callMethod(this, ['removeAttribute'], ['srcdoc'], CallType.NonBlocking);
+            setter(this, ['src'], src);
+            return;
+          }
 
           try {
             xhr.open('GET', src, false);
