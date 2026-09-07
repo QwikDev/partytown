@@ -1,5 +1,9 @@
 import { createEnvironment } from './worker-environment';
-import { definePrototypePropertyDescriptor, SCRIPT_TYPE } from '../utils';
+import {
+  definePrototypePropertyDescriptor,
+  SCRIPT_TYPE,
+  testIfMustLoadScriptOnMainThread,
+} from '../utils';
 import {
   ABOUT_BLANK,
   environments,
@@ -62,18 +66,27 @@ export const patchHTMLIFrameElement = (WorkerHTMLIFrameElement: any, env: WebWor
 
           setInstanceStateValue(this, StateProp.loadErrorStatus, undefined);
 
-          try {
-            xhr.open('GET', src, false);
-            xhr.send();
-            xhrStatus = xhr.status;
-          } catch (e) {
-            // cross-origin without CORS, the content can't be read
+          if (testIfMustLoadScriptOnMainThread(webWorkerCtx.$config$, src)) {
+            // iframe opted out of the web worker, load it natively so document
+            // semantics are preserved, e.g. service worker registration
             xhrStatus = 0;
+          } else {
+            try {
+              xhr.open('GET', src, false);
+              xhr.send();
+              xhrStatus = xhr.status;
+            } catch (e) {
+              // cross-origin without CORS, the content can't be read
+              xhrStatus = 0;
+            }
           }
 
           if (xhrStatus === 0) {
-            // let the browser load the cross-origin iframe natively, same as
-            // it would without partytown, e.g. the recaptcha badge iframe
+            // let the browser load the iframe natively, same as it would
+            // without partytown, e.g. the recaptcha badge iframe
+            // worker-created iframes get a partytown srcdoc bootstrap which
+            // takes precedence over src, remove it so the native src loads
+            callMethod(this, ['removeAttribute'], ['srcdoc'], CallType.NonBlocking);
             callMethod(
               this,
               ['addEventListener'],

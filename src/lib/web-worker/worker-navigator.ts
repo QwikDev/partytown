@@ -1,5 +1,5 @@
 import type { WebWorkerEnvironment } from '../types';
-import { debug } from '../utils';
+import { debug, noop } from '../utils';
 import { logWorker } from '../log';
 import { resolveSendBeaconRequestParameters, resolveUrl } from './worker-exec';
 import { webWorkerCtx } from './worker-constants';
@@ -49,6 +49,12 @@ export const createNavigator = (env: WebWorkerEnvironment) => {
         return target[prop];
       }
       const value = getter(env.$window$, ['navigator', prop]);
+      if (prop === 'serviceWorker' && value) {
+        // the container is a serialized snapshot and its ready promise doesn't
+        // survive the transfer, keep it thenable so scripts don't crash
+        // (a worker-virtualized document can't activate a service worker)
+        value.ready = new Promise(noop);
+      }
       return value;
     },
   });

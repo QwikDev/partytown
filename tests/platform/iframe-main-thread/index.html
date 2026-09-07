@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Iframe Main Thread</title>
+  <script>
+    partytown = {
+      loadScriptsOnMainThread: ['native-child'],
+    };
+  </script>
+  <script src="/~partytown/debug/partytown.js"></script>
+  <script>
+    addEventListener('message', (ev) => {
+      if (ev.data && ev.data.nativeChild) {
+        document.getElementById('testNativeIframe').textContent = ev.data.url;
+        document.body.classList.add('completed');
+      }
+    });
+  </script>
+</head>
+<body>
+  <h1>Iframe Main Thread</h1>
+  <p>native iframe url: <code id="testNativeIframe"></code></p>
+  <script type="text/partytown">
+    var frame = document.createElement('iframe');
+    frame.src = './native-child.html';
+    document.body.appendChild(frame);
+  </script>
+</body>
+</html>

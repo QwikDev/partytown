@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+  <script>
+    // this runs natively, the iframe matched loadScriptsOnMainThread
+    parent.postMessage({ nativeChild: true, url: location.pathname }, '*');
+  </script>
+</body>
+</html>
