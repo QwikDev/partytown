@@ -1,5 +1,11 @@
 # @qwik.dev/partytown
 
+## 0.14.4
+
+### Patch Changes
+
+- 🐞🩹 iframes matching `loadScriptsOnMainThread` now load natively, preserving document semantics like service worker registration, and `navigator.serviceWorker.ready` stays thenable inside worker-virtualized iframes (by [@gioboa](https://github.com/gioboa) in [#758](https://github.com/QwikDev/partytown/pull/758))
+
 ## 0.14.3
 
 ### Patch Changes
