@@ -80,6 +80,22 @@
       </li>
 
       <li>
+        <strong>HTMLCollection is defined</strong>
+        <code id="testHTMLCollection"></code>
+        <script type="text/partytown">
+          (function () {
+            const parentNode = document.createElement('div');
+            parentNode.appendChild(document.createElement('p'));
+            const children = parentNode.children;
+
+            const isDefined = Boolean(HTMLCollection && children instanceof HTMLCollection);
+
+            document.getElementById('testHTMLCollection').textContent += String(isDefined);
+          })();
+        </script>
+      </li>
+
+      <li>
         <strong>entries()</strong>
         <code id="testNodeListEntries"></code>
         <script type="text/partytown">

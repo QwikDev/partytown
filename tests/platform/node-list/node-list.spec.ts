@@ -8,6 +8,9 @@ test('node-list', async ({ page }) => {
   const testNodeList = page.locator('#testNodeList');
   await expect(testNodeList).toHaveText('true');
 
+  const testHTMLCollection = page.locator('#testHTMLCollection');
+  await expect(testHTMLCollection).toHaveText('true');
+
   const testNodeListEntries = page.locator('#testNodeListEntries');
   await expect(testNodeListEntries).toHaveText('0 P 1 A 2 SPAN');
 

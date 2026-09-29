@@ -323,7 +323,7 @@ export class NodeList {
 }
 
 export const createNodeListCstr = (win: any) => {
-  win.NodeList = defineConstructorName(NodeList, 'NodeList');
+  win.NodeList = win.HTMLCollection = defineConstructorName(NodeList, 'NodeList');
 };
 
 const Attr = class {
