@@ -62,7 +62,11 @@ export function snippet(
               )
               .then(
                 function (swRegistration) {
-                  if (swRegistration.active) {
+                  if (!swRegistration) {
+                    // no registration, e.g. service workers blocked by
+                    // automation, handle it like a failed registration
+                    fallback();
+                  } else if (swRegistration.active) {
                     loadSandbox();
                   } else if (swRegistration.installing) {
                     swRegistration.installing.addEventListener('statechange', function (ev) {

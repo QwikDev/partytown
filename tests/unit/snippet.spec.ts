@@ -93,6 +93,30 @@ test('fallback keeps the src of external scripts', ({ win, document, navigator, 
   assert.is(fallbackScripts[1].src, 'http://builder.io/analytics.js');
 });
 
+test('fallback when service worker registration fulfills without a registration', ({
+  win,
+  document,
+  navigator,
+  top,
+}) => {
+  const script = document.createElement('script');
+  script.type = 'text/partytown';
+  script.innerHTML = 'console.log(88)';
+  document.body.appendChild(script);
+
+  // e.g. Playwright with serviceWorkers: 'block' fulfills register() with undefined
+  (navigator as any).serviceWorker.register = () => ({
+    then(onFulfilled: any) {
+      onFulfilled(undefined);
+    },
+  });
+  snippet(win, document, navigator, top, false);
+
+  const fallbackScripts = document.head.querySelectorAll('script');
+  assert.is(fallbackScripts.length, 1);
+  assert.is(fallbackScripts[0].innerHTML, 'console.log(88)');
+});
+
 test('iframe with a cross-origin top runs its own partytown', ({ win, document, navigator }) => {
   const script = document.createElement('script');
   script.type = 'text/partytown';
