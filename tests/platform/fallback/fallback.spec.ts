@@ -9,6 +9,10 @@ test('fallback', async ({ page, baseURL }) => {
   // partytown initializes fine and dynamic scripts are covered by the
   // dynamic-script test
   test.skip(new URL(baseURL!).port === '4003', 'service-worker mode only');
+  // a blocked service worker fulfills register() with undefined, which must
+  // fall back without throwing
+  const pageErrors: string[] = [];
+  page.on('pageerror', (err) => pageErrors.push(err.message));
   await page.goto('/tests/platform/fallback/');
   await page.waitForSelector('.completed');
 
@@ -19,4 +23,6 @@ test('fallback', async ({ page, baseURL }) => {
   // from the GTM snippet, must also execute (#554)
   const testDynamic = page.locator('#testDynamic');
   await expect(testDynamic).toHaveText('executed');
+
+  expect(pageErrors).toEqual([]);
 });
