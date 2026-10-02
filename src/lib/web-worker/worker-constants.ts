@@ -43,9 +43,9 @@ export const partytownLibUrl = (url: string) => {
   return url;
 };
 
-/** property getters for dimensions */
+/** Cached dimension getters. Scroll offsets must be read live from the main thread. */
 export const getterDimensionPropNames = /*#__PURE__*/ commaSplit(
-  'clientWidth,clientHeight,clientTop,clientLeft,innerWidth,innerHeight,offsetWidth,offsetHeight,offsetTop,offsetLeft,outerWidth,outerHeight,pageXOffset,pageYOffset,scrollWidth,scrollHeight,scrollTop,scrollLeft'
+  'clientWidth,clientHeight,clientTop,clientLeft,innerWidth,innerHeight,offsetWidth,offsetHeight,offsetTop,offsetLeft,outerWidth,outerHeight,scrollWidth,scrollHeight'
 );
 
 /** element properties in regards to the DOM structure */
