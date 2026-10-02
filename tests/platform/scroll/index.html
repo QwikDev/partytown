@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Scroll offsets</title>
+    <script src="/~partytown/debug/partytown.js"></script>
+    <style>
+      body {
+        width: 4000px;
+        height: 4000px;
+      }
+      #read {
+        position: fixed;
+        top: 0;
+        left: 0;
+      }
+      #scroller {
+        width: 100px;
+        height: 100px;
+        overflow: scroll;
+      }
+      #scroller div {
+        width: 1000px;
+        height: 1000px;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="read">Read scroll offsets</button>
+    <div id="scroller"><div></div></div>
+    <code id="offsets"></code>
+    <script type="text/partytown">
+      const root = document.scrollingElement;
+      const scroller = document.getElementById('scroller');
+      const readOffsets = () => [
+        window.pageXOffset, window.pageYOffset,
+        root.scrollLeft, root.scrollTop,
+        scroller.scrollLeft, scroller.scrollTop,
+      ];
+      document.getElementById('read').addEventListener('click', () => {
+        document.getElementById('offsets').textContent = JSON.stringify(readOffsets());
+        // Prime the cache again after writing the result invalidates dimensions.
+        readOffsets();
+      });
+      document.body.classList.add('completed');
+    </script>
+  </body>
+</html>
