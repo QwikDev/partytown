@@ -1,5 +1,15 @@
 # @qwik.dev/partytown
 
+## 0.14.5
+
+### Patch Changes
+
+- 🐞🩹 fall back right away when `navigator.serviceWorker.register()` fulfills without a registration (e.g. Playwright's `serviceWorkers: 'block'`), instead of throwing `Cannot read properties of undefined (reading 'active')` (by [@MFA-G](https://github.com/MFA-G) in [#764](https://github.com/QwikDev/partytown/pull/764))
+
+- 🐞🩹 read scroll offsets from the main thread instead of caching them, so scripts such as GA4 observe scrolling after their initial read. (by [@Niek](https://github.com/Niek) in [#766](https://github.com/QwikDev/partytown/pull/766))
+
+- 🐞🩹 define `HTMLCollection` in the web worker so `x instanceof HTMLCollection` no longer throws (e.g. gtag's user-provided-data DOM scan) (by [@gioboa](https://github.com/gioboa) in [#762](https://github.com/QwikDev/partytown/pull/762))
+
 ## 0.14.4
 
 ### Patch Changes
