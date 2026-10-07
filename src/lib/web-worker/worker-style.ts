@@ -97,3 +97,56 @@ const getCssRule = (ownerNode: WorkerNode, index: any, cssRules?: any) => {
   }
   return cssRules[index];
 };
+
+export const createCSS = (win: any) => {
+  win.CSS = new Proxy(
+    { escape: cssEscape },
+    {
+      get: (target: any, prop) =>
+        Object.prototype.hasOwnProperty.call(target, prop) || typeof prop !== 'string'
+          ? target[prop]
+          : getter(win, ['CSS', prop]),
+    }
+  );
+};
+
+// https://drafts.csswg.org/cssom/#serialize-an-identifier
+const cssEscape = (...args: any[]) => {
+  if (!args.length) {
+    throw new TypeError(
+      "Failed to execute 'escape' on 'CSS': 1 argument required, but only 0 present."
+    );
+  }
+  const str = String(args[0]);
+  const firstCodeUnit = str.charCodeAt(0);
+  let result = '';
+  let codeUnit: number;
+
+  for (let index = 0; index < str.length; index++) {
+    codeUnit = str.charCodeAt(index);
+    if (codeUnit === 0x0000) {
+      result += '\uFFFD';
+    } else if (
+      (codeUnit >= 0x0001 && codeUnit <= 0x001f) ||
+      codeUnit === 0x007f ||
+      (index === 0 && codeUnit >= 0x0030 && codeUnit <= 0x0039) ||
+      (index === 1 && codeUnit >= 0x0030 && codeUnit <= 0x0039 && firstCodeUnit === 0x002d)
+    ) {
+      result += '\\' + codeUnit.toString(16) + ' ';
+    } else if (index === 0 && str.length === 1 && codeUnit === 0x002d) {
+      result += '\\' + str.charAt(index);
+    } else if (
+      codeUnit >= 0x0080 ||
+      codeUnit === 0x002d ||
+      codeUnit === 0x005f ||
+      (codeUnit >= 0x0030 && codeUnit <= 0x0039) ||
+      (codeUnit >= 0x0041 && codeUnit <= 0x005a) ||
+      (codeUnit >= 0x0061 && codeUnit <= 0x007a)
+    ) {
+      result += str.charAt(index);
+    } else {
+      result += '\\' + str.charAt(index);
+    }
+  }
+  return result;
+};
