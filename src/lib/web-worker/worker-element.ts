@@ -9,7 +9,14 @@ import {
   elementStructurePropNames,
   InstanceDataKey,
   NamespaceKey,
+  webWorkerCtx,
 } from './worker-constants';
+import {
+  getInstanceStateValue,
+  hasInstanceStateValue,
+  setInstanceStateValue,
+} from './worker-state';
+import { getter, setter } from './worker-proxy';
 import { definePrototypePropertyDescriptor } from '../utils';
 import type { WorkerNode } from '../types';
 
@@ -34,6 +41,22 @@ export const patchElement = (WorkerElement: any, WorkerHTMLElement: any) => {
       },
     },
   };
+
+  // Configured expando properties (`mainElementProperties`) also live on the main thread element,
+  // e.g. a function an iframe's inline `onload` calls; the worker keeps reading what it set.
+  (webWorkerCtx.$config$.mainElementProperties || []).map((propName) => {
+    ElementDescriptorMap[propName] = {
+      get(this: WorkerNode) {
+        return hasInstanceStateValue(this, propName)
+          ? getInstanceStateValue(this, propName)
+          : getter(this, [propName]);
+      },
+      set(this: WorkerNode, value: any) {
+        setInstanceStateValue(this, propName, value);
+        setter(this, [propName], value);
+      },
+    };
+  });
 
   definePrototypePropertyDescriptor(WorkerElement, ElementDescriptorMap);
 
