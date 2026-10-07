@@ -1,7 +1,7 @@
 import { cachedDimensions } from './worker-constants';
 import { callMethod, getter } from './worker-proxy';
 import { CallType, StateProp, type WorkerNode } from '../types';
-import { defineConstructorName, definePrototypePropertyDescriptor } from '../utils';
+import { defineConstructorName, definePrototypePropertyDescriptor, len } from '../utils';
 import { getInstanceStateValue, setInstanceStateValue } from './worker-state';
 import { logDimensionCacheClearMethod } from '../log';
 
@@ -112,7 +112,7 @@ export const createCSS = (win: any) => {
 
 // https://drafts.csswg.org/cssom/#serialize-an-identifier
 const cssEscape = (...args: any[]) => {
-  if (!args.length) {
+  if (!len(args)) {
     throw new TypeError(
       "Failed to execute 'escape' on 'CSS': 1 argument required, but only 0 present."
     );
@@ -122,7 +122,7 @@ const cssEscape = (...args: any[]) => {
   let result = '';
   let codeUnit: number;
 
-  for (let index = 0; index < str.length; index++) {
+  for (let index = 0; index < len(str); index++) {
     codeUnit = str.charCodeAt(index);
     if (codeUnit === 0x0000) {
       result += '\uFFFD';
@@ -133,7 +133,7 @@ const cssEscape = (...args: any[]) => {
       (index === 1 && codeUnit >= 0x0030 && codeUnit <= 0x0039 && firstCodeUnit === 0x002d)
     ) {
       result += '\\' + codeUnit.toString(16) + ' ';
-    } else if (index === 0 && str.length === 1 && codeUnit === 0x002d) {
+    } else if (index === 0 && len(str) === 1 && codeUnit === 0x002d) {
       result += '\\' + str.charAt(index);
     } else if (
       codeUnit >= 0x0080 ||
