@@ -5,7 +5,7 @@
 ```ts
 
 // @public
-export const Partytown: ({ nonce, ...props }?: PartytownProps) => any;
+export const Partytown: (input?: PartytownProps) => any;
 
 // Warning: (ae-forgotten-export) The symbol "PartytownConfig" needs to be exported by the entry point index.d.ts
 //

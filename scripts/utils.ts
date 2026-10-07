@@ -1,7 +1,7 @@
-import gzipSize from 'gzip-size';
+import { gzipSizeSync } from 'gzip-size';
 import { basename, join } from 'path';
 import fsExtra from 'fs-extra';
-import type { Plugin, RollupWarning } from 'rollup';
+import type { Plugin, RollupLog } from 'rollup';
 
 const { readdirSync, readFileSync, readJson, statSync, writeJson } = fsExtra;
 
@@ -37,7 +37,7 @@ export function fileSize(): Plugin {
       const filePath = options.file!;
       if (!filePath.includes('debug')) {
         const s = statSync(filePath);
-        const gzip = gzipSize.sync(readFileSync(filePath, 'utf-8'));
+        const gzip = gzipSizeSync(readFileSync(filePath, 'utf-8'));
         console.log(`🕺 ${basename(filePath)}: ${s.size} b`);
         console.log(`🎉 ${basename(filePath)}: ${gzip} b (gzip)`);
       }
@@ -106,7 +106,7 @@ export function watchDir(opts: BuildOptions, dir: string): Plugin {
   };
 }
 
-export function onwarn(warning: RollupWarning) {
+export function onwarn(warning: RollupLog) {
   if (warning.code === 'CIRCULAR_DEPENDENCY') return;
   console.log(warning.code);
 }

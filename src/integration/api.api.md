@@ -41,10 +41,11 @@ export interface PartytownConfig {
     nonce?: string;
     // Warning: (ae-forgotten-export) The symbol "SendBeaconParameters" needs to be exported by the entry point index.d.ts
     resolveSendBeaconRequestParameters?(url: URL, location: Location): SendBeaconParameters | undefined | null;
-    resolveUrl?(url: URL, location: Location, type: ResolveUrlType): URL | undefined | null;
+    resolveUrl?(url: URL, location: Location, type: ResolveUrlType): URL | Readonly<URL> | undefined | null;
     sandboxParent?: string;
     // (undocumented)
     set?: SetHook;
+    strictProxyHas?: boolean;
     swPath?: string;
 }
 
@@ -63,7 +64,7 @@ export type PartytownForwardPropertyWithSettings = [string, PartytownForwardProp
 export const partytownSnippet: (config?: PartytownConfig) => string;
 
 // @public (undocumented)
-export type ResolveUrlType = 'fetch' | 'xhr' | 'script' | 'iframe' | 'image';
+export type ResolveUrlType = 'fetch' | 'xhr' | 'script' | 'iframe' | 'image' | 'sendBeacon';
 
 // @public
 export const SCRIPT_TYPE = "text/partytown";
