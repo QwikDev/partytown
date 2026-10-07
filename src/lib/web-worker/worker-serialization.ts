@@ -2,6 +2,7 @@ import {
   type ApplyPath,
   CallType,
   type InstanceId,
+  NodeName,
   type RefHandlerCallbackData,
   type RefId,
   type SerializedAttr,
@@ -202,6 +203,17 @@ export const deserializeFromMain = (
             obj.origin = env.$location$.origin;
           }
         }
+      }
+      if (typeof obj.source === 'string' && obj.source.startsWith('_pt_frame_')) {
+        // a message from one of the page's iframes: replies go to that iframe's window
+        const frameInstanceId = obj.source.slice(10);
+        const frame = getOrCreateNodeInstance(winId!, frameInstanceId, NodeName.IFrame) as any;
+        obj.source = environments[frameInstanceId]
+          ? environments[frameInstanceId].$window$
+          : {
+              postMessage: (...args: any[]) =>
+                callMethod(frame, ['contentWindow', 'postMessage'], args, CallType.NonBlocking),
+            };
       }
       if (obj.source === '_pt_opener_') {
         // a message that came from the opener window, e.g. GTM's Tag Assistant,

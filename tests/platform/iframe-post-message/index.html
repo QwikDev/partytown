@@ -21,6 +21,10 @@
         <strong>post a message to a cross-origin iframe the browser loaded itself</strong>
         <code id="testNativeFramePostMessage"></code>
       </li>
+      <li>
+        <strong>reply to a message from a cross-origin iframe through event.source</strong>
+        <code id="testReplyToSource"></code>
+      </li>
     </ul>
 
     <script type="text/partytown">
@@ -34,6 +38,12 @@
         window.addEventListener('message', function (event) {
           if (event.data && event.data.ready) {
             frame.contentWindow.postMessage({ ask: 'from the worker' }, '*');
+          }
+          if (event.data && event.data.question) {
+            event.source.postMessage({ reply: 'replied to ' + event.data.question }, '*');
+          }
+          if (event.data && event.data.replied) {
+            document.getElementById('testReplyToSource').textContent = event.data.replied;
           }
           if (event.data && event.data.answer) {
             document.getElementById('testNativeFramePostMessage').textContent = event.data.answer;

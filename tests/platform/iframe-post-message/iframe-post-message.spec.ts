@@ -5,4 +5,5 @@ test('iframe post message', async ({ page }) => {
   await page.waitForSelector('.completed');
 
   await expect(page.locator('#testNativeFramePostMessage')).toHaveText('answered from the worker');
+  await expect(page.locator('#testReplyToSource')).toHaveText('replied to consent?');
 });
