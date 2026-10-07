@@ -348,6 +348,20 @@ export const createWindow = (
         patchDocument(win.Document, env, isDocumentImplementation);
         patchDocumentFragment(win.DocumentFragment);
         patchHTMLAnchorElement(win.HTMLAnchorElement, env);
+        // every node has a no-op href so scripts walking up the tree don't access main; link
+        // and base elements have a real one, e.g. a stylesheet a consent tool adds
+        [win.HTMLLinkElement, win.HTMLBaseElement].map(
+          (Cstr) =>
+            Cstr &&
+            definePrototypeProperty(Cstr, 'href', {
+              get(this: WorkerNode) {
+                return getter(this, ['href']);
+              },
+              set(this: WorkerNode, value: string) {
+                setter(this, ['href'], value);
+              },
+            })
+        );
         patchHTMLFormElement(win.HTMLFormElement);
         patchHTMLIFrameElement(win.HTMLIFrameElement, env);
         patchHTMLScriptElement(win.HTMLScriptElement, env);
