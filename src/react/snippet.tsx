@@ -35,7 +35,7 @@ export const Partytown = ({ nonce, ...props }: PartytownProps = {}): any => {
       const scriptElm = document.createElement('script');
       scriptElm.dataset.partytown = '';
       scriptElm.innerHTML = partytownSnippet(props);
-      scriptElm.nonce = nonce;
+      scriptElm.nonce = nonce as string;
       document.head.appendChild(scriptElm);
     }
     // should only append this script once per document, and is not dynamic
