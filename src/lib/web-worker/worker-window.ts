@@ -613,9 +613,10 @@ export const createWindow = (
           });
           args = args.slice(1);
         }
-        if (env.$isNativeFrame$) {
-          // the main thread has no partytown window for a frame the browser loaded itself,
-          // only its iframe element: post to that element's real window, e.g. a consent store
+        if (!$isTopWindow$) {
+          // the main thread may have no partytown window for an iframe (one the browser loaded
+          // itself, e.g. a consent store, or an about:blank ad frame), but it has the iframe
+          // element: post to that element's real window
           callMethod(
             getOrCreateNodeInstance($parentWinId$, $winId$, NodeName.IFrame),
             ['contentWindow', 'postMessage'],

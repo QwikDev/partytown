@@ -198,8 +198,6 @@ export interface WebWorkerEnvironment {
   $isLoading$?: number;
   $runWindowLoadEvent$?: number;
   $isSameOrigin$?: boolean;
-  /** An iframe the browser loads itself (cross-origin without CORS): main knows only its element. */
-  $isNativeFrame$?: number;
   $isTopWindow$?: boolean;
   $propagateHistoryChange$?: boolean;
 }
