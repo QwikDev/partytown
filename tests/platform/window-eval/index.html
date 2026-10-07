@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Partytown Test Page" />
+    <title>Window Eval</title>
+    <script src="/~partytown/debug/partytown.js"></script>
+  </head>
+  <body>
+    <h1>Window Eval</h1>
+    <ul>
+      <li>
+        <strong>window.eval sees the page's globals</strong>
+        <code id="testWindowEval"></code>
+      </li>
+    </ul>
+
+    <script type="text/partytown">
+      window.adLibrary = { name: 'ad library' };
+      // as ad libraries run code they download
+      window.eval(
+        "document.getElementById('testWindowEval').textContent = adLibrary.name + ' ' + typeof window;"
+      );
+      document.body.classList.add('completed');
+    </script>
+
+    <hr />
+    <p><a href="/tests/">All Tests</a></p>
+    <hr />
+  </body>
+</html>

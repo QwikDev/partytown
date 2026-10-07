@@ -71,7 +71,7 @@ import { patchHTMLFormElement } from './worker-form';
 import { patchHTMLIFrameElement } from './worker-iframe';
 import { patchHTMLScriptElement } from './worker-script';
 import { patchSvgElement } from './worker-svg';
-import { resolveUrl } from './worker-exec';
+import { resolveUrl, run } from './worker-exec';
 import { createNodeListCstr } from './worker-serialization';
 import { createNamedNodeMapCstr } from './worker-named-node-map';
 
@@ -520,6 +520,13 @@ export const createWindow = (
 
       get documentElement() {
         return env.$documentElement$;
+      }
+
+      // Indirect eval, e.g. `window.eval(code)` as ad libraries run downloaded tags, must run
+      // in this window's scope like any Partytown script, not in the worker's global scope,
+      // which has no `window`, `document` or the page's globals. Like `run`, it returns nothing.
+      eval(code: string) {
+        run(env, code);
       }
 
       fetch(input: string | URL | Request, init: any) {
