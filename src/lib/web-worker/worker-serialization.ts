@@ -203,6 +203,21 @@ export const deserializeFromMain = (
           }
         }
       }
+      if (Array.isArray(obj.ports)) {
+        obj.ports = obj.ports.map((port: any) =>
+          typeof port === 'string' && port.startsWith('_pt_port_')
+            ? {
+                postMessage: (...args: any[]) =>
+                  callMethod(
+                    environments[winId!].$window$,
+                    [port, 'postMessage'],
+                    args,
+                    CallType.NonBlocking
+                  ),
+              }
+            : port
+        );
+      }
       if (obj.source === '_pt_opener_') {
         // a message that came from the opener window, e.g. GTM's Tag Assistant,
         // use the same opener reference the window getter returns, so identity

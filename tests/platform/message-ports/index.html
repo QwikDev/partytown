@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Partytown Test Page" />
+    <title>Message Ports</title>
+    <script src="/~partytown/debug/partytown.js"></script>
+  </head>
+  <body>
+    <h1>Message Ports</h1>
+    <ul>
+      <li>
+        <strong>reply through a MessagePort sent with a message</strong>
+        <code id="testPortReply"></code>
+      </li>
+    </ul>
+
+    <script type="text/partytown">
+      window.addEventListener('message', function (event) {
+        if (event.data && event.data.ping) {
+          // as an ad library answers its creative's channel
+          event.ports[0].postMessage('pong from the worker');
+        }
+      });
+      document.body.classList.add('completed');
+    </script>
+
+    <script>
+      const waitForWorker = setInterval(function () {
+        if (!document.body.classList.contains('completed')) return;
+        clearInterval(waitForWorker);
+        const channel = new MessageChannel();
+        channel.port1.onmessage = function (event) {
+          document.getElementById('testPortReply').textContent = event.data;
+        };
+        window.postMessage({ ping: true }, '*', [channel.port2]);
+      }, 50);
+    </script>
+
+    <hr />
+    <p><a href="/tests/">All Tests</a></p>
+    <hr />
+  </body>
+</html>
