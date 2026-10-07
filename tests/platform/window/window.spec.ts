@@ -117,6 +117,53 @@ const testPage = async (page: Page) => {
   const rand = await testCrypto.textContent();
   expect(isNaN(rand as any)).toBe(false);
 
+  const cssEscapeInputs = [
+    'a.b',
+    '#id',
+    '1a',
+    '-1a',
+    '-',
+    '--x',
+    '\u0000',
+    'a\u0001b',
+    '\u007f',
+    'a b',
+    'é',
+    '_-a',
+    '',
+  ];
+  const nativeCssEscape = await page.evaluate(
+    (inputs) => JSON.stringify(inputs.map((input) => CSS.escape(input))),
+    cssEscapeInputs
+  );
+  const testCssEscape = page.locator('#testCssEscape');
+  await expect.poll(() => testCssEscape.textContent()).toBe(nativeCssEscape);
+
+  const nativeCssSupports = await page.evaluate(() =>
+    JSON.stringify([
+      CSS.supports('display', 'grid'),
+      CSS.supports('display', 'not-a-display-value'),
+      CSS.supports('(display: flex)'),
+    ])
+  );
+  const testCssSupports = page.locator('#testCssSupports');
+  await expect.poll(() => testCssSupports.textContent()).toBe(nativeCssSupports);
+
+  const nativeCssMainThreadMembers = await page.evaluate(() => {
+    let escapeWithoutArgument;
+    try {
+      (CSS.escape as any)();
+      escapeWithoutArgument = 'no error';
+    } catch (e) {
+      escapeWithoutArgument = e instanceof TypeError ? 'TypeError' : String(e);
+    }
+    return JSON.stringify([typeof CSS.registerProperty, escapeWithoutArgument]);
+  });
+  const testCssMainThreadMembers = page.locator('#testCssMainThreadMembers');
+  await expect
+    .poll(() => testCssMainThreadMembers.textContent())
+    .toBe(nativeCssMainThreadMembers);
+
   const testIndexedDB = page.locator('#testIndexedDB');
   await expect(testIndexedDB).toHaveText('true');
 

@@ -37,7 +37,7 @@ import {
 } from './worker-constructors';
 import { callMethod, constructGlobal, getter, setter } from './worker-proxy';
 import { createCSSStyleDeclarationCstr } from './worker-css-style-declaration';
-import { createCSSStyleSheetConstructor } from './worker-style';
+import { createCSS, createCSSStyleSheetConstructor } from './worker-style';
 import { createImageConstructor } from './worker-image';
 import { createNavigator } from './worker-navigator';
 import { createNodeCstr } from './worker-node';
@@ -357,6 +357,7 @@ export const createWindow = (
         patchHTMLHtmlElement(win.HTMLHtmlElement, env);
         createCSSStyleSheetConstructor(win, 'CSSStyleSheet');
         createCSSStyleSheetConstructor(win, 'CSSMediaRule');
+        createCSS(win);
 
         definePrototypeNodeType(win.Comment, 8);
         definePrototypeNodeType(win.DocumentType, 10);
