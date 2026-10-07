@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Cross-Origin Frame</title>
+  </head>
+  <body>
+    <script>
+      // a cross-origin store, e.g. a consent tool's: answers whatever the page asks
+      window.addEventListener('message', function (event) {
+        if (event.data && event.data.ask) {
+          event.source.postMessage({ answer: 'answered ' + event.data.ask }, '*');
+        }
+      });
+      parent.postMessage({ ready: true }, '*');
+    </script>
+  </body>
+</html>

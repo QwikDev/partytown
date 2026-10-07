@@ -77,6 +77,11 @@ exports.createServer = function (port, enableAtomics) {
         }
       }
 
+      if (url.searchParams.has('corp')) {
+        // lets a page with COEP (atomics) embed this file from another origin
+        res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      }
+
       switch (path.extname(filePath)) {
         case '.js': {
           res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');

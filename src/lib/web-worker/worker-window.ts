@@ -613,6 +613,17 @@ export const createWindow = (
           });
           args = args.slice(1);
         }
+        if (env.$isNativeFrame$) {
+          // the main thread has no partytown window for a frame the browser loaded itself,
+          // only its iframe element: post to that element's real window, e.g. a consent store
+          callMethod(
+            getOrCreateNodeInstance($parentWinId$, $winId$, NodeName.IFrame),
+            ['contentWindow', 'postMessage'],
+            args,
+            CallType.NonBlockingNoSideEffect
+          );
+          return;
+        }
         callMethod(this, ['postMessage'], args, CallType.NonBlockingNoSideEffect);
       }
 

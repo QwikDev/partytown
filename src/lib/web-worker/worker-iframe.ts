@@ -84,6 +84,7 @@ export const patchHTMLIFrameElement = (WorkerHTMLIFrameElement: any, env: WebWor
           if (xhrStatus === 0) {
             // let the browser load the iframe natively, same as it would
             // without partytown, e.g. the recaptcha badge iframe
+            env.$isNativeFrame$ = 1;
             // worker-created iframes get a partytown srcdoc bootstrap which
             // takes precedence over src, remove it so the native src loads
             callMethod(this, ['removeAttribute'], ['srcdoc'], CallType.NonBlocking);

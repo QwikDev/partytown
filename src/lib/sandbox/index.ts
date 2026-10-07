@@ -55,5 +55,26 @@ syncCreateMessenger(receiveMessage).then((onMessageHandler) => {
     mainWindow.addEventListener<any>('pt1', (ev: CustomEvent) =>
       registerWindow(worker, getAndSetInstanceId(ev.detail.frameElement)!, ev.detail)
     );
+
+    if (window !== mainWindow) {
+      // The worker's posts to a page's iframe are made from this sandbox, so the frame's reply
+      // (`event.source.postMessage`) arrives here. Without Partytown the page made the post,
+      // so the reply goes on to the page, where the worker listens.
+      window.addEventListener('message', (ev) => {
+        const fromPageFrame = Array.from(mainWindow.document.querySelectorAll('iframe')).some(
+          (frame) => frame.contentWindow === ev.source
+        );
+        if (fromPageFrame) {
+          mainWindow.dispatchEvent(
+            new (mainWindow as any).MessageEvent('message', {
+              data: ev.data,
+              origin: ev.origin,
+              source: ev.source,
+              ports: ev.ports,
+            })
+          );
+        }
+      });
+    }
   }
 });

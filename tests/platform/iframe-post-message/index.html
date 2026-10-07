@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Partytown Test Page" />
+    <title>Iframe Post Message</title>
+    <script>
+      partytown = {
+        // the test server sends CORS headers; this makes the browser load the frame itself,
+        // as for a cross-origin page without them
+        loadScriptsOnMainThread: [/iframe-post-message\/frame\.html/],
+      };
+    </script>
+    <script src="/~partytown/debug/partytown.js"></script>
+  </head>
+  <body>
+    <h1>Iframe Post Message</h1>
+    <ul>
+      <li>
+        <strong>post a message to a cross-origin iframe the browser loaded itself</strong>
+        <code id="testNativeFramePostMessage"></code>
+      </li>
+    </ul>
+
+    <script type="text/partytown">
+      (function () {
+        const frame = document.createElement('iframe');
+        // another origin than the page (localhost)
+        frame.setAttribute(
+          'src',
+          'http://127.0.0.1:' + location.port + '/tests/platform/iframe-post-message/frame.html?corp'
+        );
+        window.addEventListener('message', function (event) {
+          if (event.data && event.data.ready) {
+            frame.contentWindow.postMessage({ ask: 'from the worker' }, '*');
+          }
+          if (event.data && event.data.answer) {
+            document.getElementById('testNativeFramePostMessage').textContent = event.data.answer;
+          }
+        });
+        document.body.appendChild(frame);
+        document.body.classList.add('completed');
+      })();
+    </script>
+
+    <hr />
+    <p><a href="/tests/">All Tests</a></p>
+    <hr />
+  </body>
+</html>
