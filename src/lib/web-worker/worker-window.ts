@@ -247,12 +247,16 @@ export const createWindow = (
                         const applyPath = [...this[ApplyPathKey], memberName];
                         const PropCstr: typeof WorkerBase = win[memberType];
 
-                        if (PropCstr) {
+                        if (PropCstr && PropCstr.prototype instanceof WorkerBase) {
                           setInstanceStateValue(
                             this,
                             memberName,
                             new PropCstr($winId$, instanceId, applyPath)
                           );
+                        } else if (PropCstr && memberName in self) {
+                          // a class partytown does not emulate is the worker's own, which
+                          // can't be constructed: use the worker's own object, e.g. caches
+                          setInstanceStateValue(this, memberName, (self as any)[memberName]);
                         }
                       }
                       return getInstanceStateValue(this, memberName);
