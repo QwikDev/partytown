@@ -5,5 +5,9 @@ test('native worker globals', async ({ page }) => {
   await page.waitForSelector('.completed');
 
   await expect(page.locator('#testCaches')).toHaveText('object');
-  await expect(page.locator('#testScheduler')).toHaveText('function');
+  // not every browser has scheduler.postTask (WebKit doesn't): expect what the page has
+  const hasScheduler = await page.evaluate(
+    () => typeof (window as any).scheduler?.postTask === 'function'
+  );
+  await expect(page.locator('#testScheduler')).toHaveText(hasScheduler ? 'function' : 'undefined');
 });
