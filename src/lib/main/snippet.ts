@@ -2,6 +2,7 @@ import {
   debug,
   emptyObjectValue,
   getOriginalBehavior,
+  randomId,
   resolvePartytownForwardProperty,
   trustedType,
 } from '../utils';
@@ -98,7 +99,9 @@ export function snippet(
 
   function loadSandbox(isAtomics?: number) {
     sandbox = doc.createElement(isAtomics ? 'script' : 'iframe');
-    win._pttab = Date.now();
+    // tabs that load their sandbox in the same millisecond (e.g. waiting for the same service
+    // worker activation) need different ids, or the service worker mixes up their requests
+    win._pttab = Date.now() + randomId();
     if (!isAtomics) {
       sandbox.style.display = 'block';
       sandbox.style.width = '0';
