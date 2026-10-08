@@ -113,6 +113,7 @@ export type PostMessageToWorker = (msg: MessageFromSandboxToWorker) => void;
 
 export interface MainWindowContext {
   $winId$: WinId;
+  $isEnvSent$?: number;
   $isInitialized$?: number;
   $startTime$?: number;
   $window$: MainWindow;
@@ -460,6 +461,13 @@ export interface PartytownConfig {
    */
   sandboxParent?: string;
   mainWindowAccessors?: string[];
+  /**
+   * Properties a worker script sets on DOM elements for main thread code to read, such as a
+   * function an iframe's inline `onload` calls: `['loadAds']`. Setting one also sets it on the
+   * real element, a function as a main thread function that calls back into the worker. Without
+   * it, a property the DOM does not define stays on the worker's copy of the element.
+   */
+  mainElementProperties?: string[];
   /**
    * Rarely, a script will add a named function to the global scope with the
    * intent that other scripts can call the named function (like Adobe Launch).

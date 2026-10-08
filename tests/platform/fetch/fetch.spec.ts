@@ -13,6 +13,9 @@ test('fetch', async ({ page }) => {
   const testFetchJson = page.locator('#testFetchJson');
   await expect(testFetchJson).toHaveText('{"mph":88}');
 
+  await page.waitForSelector('.testFetchRequest');
+  await expect(page.locator('#testFetchRequest')).toHaveText('POST bid');
+
   await page.waitForSelector('.testFetchCookie');
   const testFetchCookie = page.locator('#testFetchCookie');
   await expect(testFetchCookie).toContainText('server-test-fetch=1');

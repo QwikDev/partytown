@@ -11,6 +11,14 @@ import { mainForwardTrigger } from './main-forward-trigger';
 import { logMain, normalizedWinId } from '../log';
 
 export const readNextScript = (worker: PartytownWebWorker, winCtx: MainWindowContext) => {
+  if (!winCtx.$isEnvSent$) {
+    // The worker has no environment for this window yet. Scanning now would send
+    // a script to an undefined environment, where it fails and is marked as
+    // handled. The worker requests the first scan itself once it has created
+    // the environment, so nothing is skipped by returning here.
+    return;
+  }
+
   let $winId$ = winCtx.$winId$;
   let win = winCtx.$window$;
   let doc = win.document;
