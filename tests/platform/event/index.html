@@ -202,7 +202,11 @@
           })();
         </script>
         <script>
-          setTimeout(() => {
+          // the iframe posts once: wait until the worker's scripts, and so its message
+          // listener, have run (a fixed delay is too short on slow CI machines)
+          const waitForWorker = setInterval(() => {
+            if (!document.body.classList.contains('completed')) return;
+            clearInterval(waitForWorker);
             // simulating cross origin iframe by using a datauri
             // which won't have the same origin
             const crossOriginHtml = `
@@ -216,7 +220,7 @@
             iframe.hidden = true;
             iframe.src = dataUri;
             document.body.appendChild(iframe);
-          }, 1000);
+          }, 50);
         </script>
       </li>
 

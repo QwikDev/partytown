@@ -1,5 +1,10 @@
 import { test, expect, ConsoleMessage, Page } from '@playwright/test';
 
+// the pixel loads from the real Facebook servers through a proxy: a request that fails on the
+// network (WebKit logs it as a console error) is not a Partytown error
+const isPartytownError = (msg: ConsoleMessage) =>
+  msg.type() === 'error' && !msg.text().startsWith('Failed to load resource');
+
 const testPage = async (page: Page) => {
   const buttonSendEvent = page.locator('#buttonSendEvent');
   await buttonSendEvent.click();
@@ -27,7 +32,7 @@ test('facebook-pixel', async ({ page }) => {
 test('facebook-pixel multiple tabs', async ({ page, context }) => {
   const pageConsoleErrors: Array<ConsoleMessage> = [];
   page.on('console', msg => {
-    if (msg.type() === 'error') {
+    if (isPartytownError(msg)) {
       pageConsoleErrors.push(msg);
     }
   });
@@ -40,7 +45,7 @@ test('facebook-pixel multiple tabs', async ({ page, context }) => {
   const page2 = await context.newPage();
   const page2ConsoleErrors: Array<ConsoleMessage> = [];
   page2.on('console', msg => {
-    if (msg.type() === 'error') {
+    if (isPartytownError(msg)) {
       page2ConsoleErrors.push(msg);
     }
   });
@@ -62,7 +67,7 @@ test('facebook-pixel multiple tabs', async ({ page, context }) => {
   await testPage(page2);  
 
   expect(pageErrors.length).toBe(0);
-  expect(pageConsoleErrors.length).toBe(0);
+  expect(pageConsoleErrors.map(msg => msg.text())).toEqual([]);
   expect(page2Errors.length).toBe(0);
-  expect(page2ConsoleErrors.length).toBe(0);
+  expect(page2ConsoleErrors.map(msg => msg.text())).toEqual([]);
 });
