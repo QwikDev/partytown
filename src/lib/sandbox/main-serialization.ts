@@ -6,7 +6,7 @@ import {
   randomId,
   startsWith,
 } from '../utils';
-import { getInstance, getAndSetInstanceId } from './main-instances';
+import { getInstance, getAndSetInstanceId, getPageFrame } from './main-instances';
 import { mainRefs } from './main-constants';
 import {
   type PartytownWebWorker,
@@ -114,7 +114,8 @@ const serializeObjectForWorker = (
   includeEmptyStrings?: boolean,
   serializedObj?: SerializedObject,
   propName?: string,
-  propValue?: any
+  propValue?: any,
+  frameElm?: any
 ) => {
   serializedObj = {};
   if (!added.has(obj)) {
@@ -137,6 +138,14 @@ const serializeObjectForWorker = (
           // mark message events sent by the opener window, so the worker can
           // give them a source that replies to the real opener (Tag Assistant)
           propValue = '_pt_opener_';
+        } else if (
+          propName === 'source' &&
+          obj[propName] != null &&
+          (frameElm = getPageFrame(obj.source))
+        ) {
+          // a message from one of the page's iframes, e.g. an ad asking for consent: the worker
+          // gives it a source that replies to that iframe's window
+          propValue = '_pt_frame_' + getAndSetInstanceId(frameElm);
         } else if (propName === 'ports' && len(obj[propName] || [])) {
           // a message's MessagePorts can't be reached by a path from the window, so keep them
           // on it under a key the worker posts through, e.g. a creative's reply channel

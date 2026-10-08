@@ -65,3 +65,10 @@ export const setInstanceId = (instance: any, instanceId: InstanceId, now?: numbe
 };
 
 let lastCleanup = 0;
+
+// the page's iframe element whose window is `win`, e.g. the source of a message. The page is
+// read here, not from main-globals: importing that reads `window` and breaks unit tests in Node
+export const getPageFrame = (win: any) =>
+  Array.from((window.parent as Window).document.querySelectorAll('iframe')).find(
+    (frame) => frame.contentWindow === win
+  );

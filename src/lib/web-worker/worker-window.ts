@@ -51,6 +51,7 @@ import {
   getConstructorName,
   len,
   randomId,
+  trustedType,
 } from '../utils';
 import {
   getInstanceStateValue,
@@ -247,12 +248,16 @@ export const createWindow = (
                         const applyPath = [...this[ApplyPathKey], memberName];
                         const PropCstr: typeof WorkerBase = win[memberType];
 
-                        if (PropCstr) {
+                        if (PropCstr && PropCstr.prototype instanceof WorkerBase) {
                           setInstanceStateValue(
                             this,
                             memberName,
                             new PropCstr($winId$, instanceId, applyPath)
                           );
+                        } else if (PropCstr && memberName in self) {
+                          // a class partytown does not emulate is the worker's own, which
+                          // can't be constructed: use the worker's own object, e.g. caches
+                          setInstanceStateValue(this, memberName, (self as any)[memberName]);
                         }
                       }
                       return getInstanceStateValue(this, memberName);
@@ -537,6 +542,24 @@ export const createWindow = (
         return env.$documentElement$;
       }
 
+      // Indirect eval, e.g. `window.eval(code)` as ad libraries run downloaded tags, must run
+      // in this window's scope like any Partytown script, not in the worker's global scope,
+      // which has no `window`, `document` or the page's globals. Like native eval, it returns
+      // the code's completion value and passes anything but a string through.
+      eval(code: any) {
+        return typeof code === 'string'
+          ? new Function(
+              trustedType('createScript', `with(this){return eval(${JSON.stringify(code)})}`) as any
+            ).call(env.$window$)
+          : code;
+      }
+
+      // scripts run in `with(window){...}`: keep a bare `eval(...)` the native direct eval,
+      // which sees the script's local variables, instead of resolving to `window.eval`
+      get [Symbol.unscopables]() {
+        return { eval: true };
+      }
+
       fetch(input: string | URL | Request, init: any) {
         if (typeof input === 'string' || input instanceof URL) {
           return fetch(resolveUrl(env, String(input), 'fetch'), init);
@@ -654,6 +677,18 @@ export const createWindow = (
             $data$: JSON.stringify(args[1]),
           });
           args = args.slice(1);
+        }
+        if (!$isTopWindow$) {
+          // the main thread may have no partytown window for an iframe (one the browser loaded
+          // itself, e.g. a consent store, or an about:blank ad frame), but it has the iframe
+          // element: post to that element's real window
+          callMethod(
+            getOrCreateNodeInstance($parentWinId$, $winId$, NodeName.IFrame),
+            ['contentWindow', 'postMessage'],
+            args,
+            CallType.NonBlockingNoSideEffect
+          );
+          return;
         }
         callMethod(this, ['postMessage'], args, CallType.NonBlockingNoSideEffect);
       }
