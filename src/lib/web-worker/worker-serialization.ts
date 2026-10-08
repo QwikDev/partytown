@@ -23,7 +23,7 @@ import {
   webWorkerRefsByRefId,
   WinIdKey,
 } from './worker-constants';
-import { defineConstructorName, getConstructorName, len, noop } from '../utils';
+import { defineConstructorName, getConstructorName, len, noop, startsWith } from '../utils';
 import { getOrCreateNodeInstance } from './worker-constructors';
 import { setWorkerRef } from './worker-state';
 
@@ -205,13 +205,15 @@ export const deserializeFromMain = (
       }
       if (Array.isArray(obj.ports)) {
         obj.ports = obj.ports.map((port: any) =>
-          typeof port === 'string' && port.startsWith('_pt_port_')
+          typeof port === 'string' && startsWith(port, '_pt_port_')
             ? {
                 postMessage: (...args: any[]) =>
                   callMethod(
                     environments[winId!].$window$,
                     [port, 'postMessage'],
-                    args,
+                    // a cross-origin window's scripts get its id as the first postMessage
+                    // argument (see `run`), which a port does not take
+                    environments[args[0]] ? args.slice(1) : args,
                     CallType.NonBlocking
                   ),
               }

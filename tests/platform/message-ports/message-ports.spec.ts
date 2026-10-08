@@ -5,4 +5,5 @@ test('message ports', async ({ page }) => {
   await page.waitForSelector('.completed');
 
   await expect(page.locator('#testPortReply')).toHaveText('pong from the worker');
+  await expect(page.locator('#testFramePortReply')).toHaveText('pong from the iframe');
 });

@@ -93,15 +93,15 @@ export const serializeForWorker = (
   }
 };
 
-const messagePortKeys: string[] = [];
-const keepMessagePort = (port: any) => {
-  const key = '_pt_port_' + randomId();
-  // this code runs in the sandbox iframe, the page is its parent
-  const page = (window as any).parent;
-  page[key] = port;
+const messagePortKeys: [any, string][] = [];
+const keepMessagePort = (winId: WinId, port: any, win?: any, key?: string) => {
+  key = '_pt_port_' + randomId();
+  // kept on the window the message is for, which the worker posts through: the page or an iframe
+  (win = getInstance(winId, winId))[key] = port;
   // only the latest ports are kept: a reply comes right after its message
-  if (messagePortKeys.push(key) > 100) {
-    delete page[messagePortKeys.shift()!];
+  if (messagePortKeys.push([win, key]) > 100) {
+    [win, key] = messagePortKeys.shift()!;
+    delete win[key!];
   }
   return key;
 };
@@ -140,7 +140,7 @@ const serializeObjectForWorker = (
         } else if (propName === 'ports' && len(obj[propName] || [])) {
           // a message's MessagePorts can't be reached by a path from the window, so keep them
           // on it under a key the worker posts through, e.g. a creative's reply channel
-          propValue = Array.from(obj[propName]).map((port) => keepMessagePort(port));
+          propValue = Array.from(obj[propName]).map((port) => keepMessagePort(winId, port));
         } else {
           propValue = obj[propName];
         }

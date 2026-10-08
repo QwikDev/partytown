@@ -14,6 +14,10 @@
         <strong>reply through a MessagePort sent with a message</strong>
         <code id="testPortReply"></code>
       </li>
+      <li>
+        <strong>reply through a MessagePort sent to an iframe</strong>
+        <code id="testFramePortReply"></code>
+      </li>
     </ul>
 
     <script type="text/partytown">
@@ -23,18 +27,40 @@
           event.ports[0].postMessage('pong from the worker');
         }
       });
+      const frame = document.createElement('iframe');
+      frame.id = 'frame';
+      document.body.appendChild(frame);
+      const frameScript = frame.contentDocument.createElement('script');
+      frameScript.textContent = `
+        window.addEventListener('message', function (event) {
+          if (event.data && event.data.ping) {
+            event.ports[0].postMessage('pong from the iframe');
+          }
+        });`;
+      frame.contentDocument.body.appendChild(frameScript);
+      frame.contentDocument.body.className = 'ready';
       document.body.classList.add('completed');
     </script>
 
     <script>
-      const waitForWorker = setInterval(function () {
-        if (!document.body.classList.contains('completed')) return;
-        clearInterval(waitForWorker);
+      const ping = function (win, id) {
         const channel = new MessageChannel();
         channel.port1.onmessage = function (event) {
-          document.getElementById('testPortReply').textContent = event.data;
+          document.getElementById(id).textContent = event.data;
         };
-        window.postMessage({ ping: true }, '*', [channel.port2]);
+        win.postMessage({ ping: true }, '*', [channel.port2]);
+      };
+      const waitForWorker = setInterval(function () {
+        const frame = document.getElementById('frame');
+        if (
+          !document.body.classList.contains('completed') ||
+          !frame ||
+          frame.contentDocument.body.className !== 'ready'
+        )
+          return;
+        clearInterval(waitForWorker);
+        ping(window, 'testPortReply');
+        ping(frame.contentWindow, 'testFramePortReply');
       }, 50);
     </script>
 
