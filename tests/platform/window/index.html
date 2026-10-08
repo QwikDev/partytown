@@ -568,6 +568,57 @@
       </li>
 
       <li>
+        <strong>CSS.escape()</strong>
+        <code>
+          <span id="testCssEscape"></span>
+        </code>
+        <script type="text/partytown">
+          (function () {
+            const inputs = ['a.b', '#id', '1a', '-1a', '-', '--x', '\u0000', 'a\u0001b', '\u007f', 'a b', 'é', '_-a', ''];
+            const elm = document.getElementById('testCssEscape');
+            elm.textContent = JSON.stringify(inputs.map((input) => CSS.escape(input)));
+          })();
+        </script>
+      </li>
+
+      <li>
+        <strong>CSS.supports()</strong>
+        <code>
+          <span id="testCssSupports"></span>
+        </code>
+        <script type="text/partytown">
+          (function () {
+            const elm = document.getElementById('testCssSupports');
+            elm.textContent = JSON.stringify([
+              CSS.supports('display', 'grid'),
+              CSS.supports('display', 'not-a-display-value'),
+              CSS.supports('(display: flex)'),
+            ]);
+          })();
+        </script>
+      </li>
+
+      <li>
+        <strong>CSS members from the main thread</strong>
+        <code>
+          <span id="testCssMainThreadMembers"></span>
+        </code>
+        <script type="text/partytown">
+          (function () {
+            let escapeWithoutArgument;
+            try {
+              CSS.escape();
+              escapeWithoutArgument = 'no error';
+            } catch (e) {
+              escapeWithoutArgument = e instanceof TypeError ? 'TypeError' : String(e);
+            }
+            const elm = document.getElementById('testCssMainThreadMembers');
+            elm.textContent = JSON.stringify([typeof CSS.registerProperty, escapeWithoutArgument]);
+          })();
+        </script>
+      </li>
+
+      <li>
         <strong>window.indexedDB</strong>
         <code>
           <span id="testIndexedDB"></span>

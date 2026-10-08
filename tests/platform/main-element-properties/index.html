@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Partytown Test Page" />
+    <title>Main Element Properties</title>
+    <script>
+      partytown = {
+        mainElementProperties: ['onMainCall', 'loadAds'],
+      };
+    </script>
+    <script src="/~partytown/debug/partytown.js"></script>
+  </head>
+  <body>
+    <h1>Main Element Properties</h1>
+    <ul>
+      <li>
+        <strong>main thread calls a function a worker script set on an element</strong>
+        <code id="testMainCall"></code>
+      </li>
+      <li>
+        <strong>an iframe's inline onload calls a function set on the iframe</strong>
+        <code id="testIframeOnload"></code>
+      </li>
+      <li>
+        <strong>the worker reads back what it set</strong>
+        <code id="testWorkerRead"></code>
+      </li>
+    </ul>
+    <div id="target"></div>
+
+    <script type="text/partytown">
+      (function () {
+        const target = document.getElementById('target');
+        target.onMainCall = function (text) {
+          document.getElementById('testMainCall').textContent = text;
+        };
+        document.getElementById('testWorkerRead').textContent = typeof target.onMainCall;
+
+        // as ad libraries render into a friendly iframe
+        const frame = document.createElement('iframe');
+        frame.id = 'adFrame';
+        frame.loadAds = function () {
+          document.getElementById('testIframeOnload').textContent = 'called';
+        };
+        document.body.appendChild(frame);
+        const doc = frame.contentWindow.document;
+        doc.open();
+        doc.write(
+          '<body onload="parent.document.getElementById(\'adFrame\').loadAds()">ad</body>'
+        );
+        doc.close();
+
+        document.body.classList.add('completed');
+      })();
+    </script>
+
+    <script>
+      // main thread code, e.g. another library, calls what the worker script stored
+      const waitForHandler = setInterval(function () {
+        const target = document.getElementById('target');
+        if (typeof target.onMainCall === 'function') {
+          clearInterval(waitForHandler);
+          target.onMainCall('called');
+        }
+      }, 20);
+    </script>
+
+    <hr />
+    <p><a href="/tests/">All Tests</a></p>
+    <hr />
+  </body>
+</html>

@@ -2,7 +2,7 @@ import { definePrototypePropertyDescriptor, testIfMustLoadScriptOnMainThread } f
 import { getInstanceStateValue, setInstanceStateValue } from './worker-state';
 import { getter, setter } from './worker-proxy';
 import { HTMLSrcElementDescriptorMap } from './worker-src-element';
-import { resolveUrl } from './worker-exec';
+import { forwardLoadEvents, resolveUrl } from './worker-exec';
 import { StateProp, type WebWorkerEnvironment, type WorkerNode } from '../types';
 import { webWorkerCtx } from './worker-constants';
 
@@ -26,11 +26,13 @@ export const patchHTMLScriptElement = (WorkerHTMLScriptElement: any, env: WebWor
           setter(this, ['dataset', 'ptsrc'], orgUrl);
         }
 
-        if (this.type) {
+        // already handed to the main thread: don't add the listeners again
+        if (!isScriptJsType(this.type!)) {
           const shouldExecuteScriptViaMainThread = testIfMustLoadScriptOnMainThread(config, url);
 
           if (shouldExecuteScriptViaMainThread) {
             setter(this, ['type'], 'text/javascript');
+            forwardLoadEvents(this, this);
           }
         }
       },

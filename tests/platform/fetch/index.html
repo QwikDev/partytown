@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -7,8 +7,15 @@
     <title>fetch() / XMLHttpRequest</title>
     <style>
       body {
-        font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif,
-          Apple Color Emoji, Segoe UI Emoji;
+        font-family:
+          -apple-system,
+          BlinkMacSystemFont,
+          Segoe UI,
+          Helvetica,
+          Arial,
+          sans-serif,
+          Apple Color Emoji,
+          Segoe UI Emoji;
         font-size: 12px;
       }
       h1 {
@@ -87,6 +94,23 @@
             const data = await rsp.json();
             elm.textContent = JSON.stringify(data);
             elm.className = 'testFetchJson';
+          })();
+        </script>
+      </li>
+
+      <li>
+        <strong>fetch(Request) keeps its method and body</strong>
+        <code>
+          <span id="testFetchRequest"></span>
+        </code>
+        <script type="text/partytown">
+          (async function () {
+            // as prebid sends its bid requests
+            const request = new Request('/api/echo', { method: 'POST', body: 'bid' });
+            const elm = document.getElementById('testFetchRequest');
+            const data = await (await fetch(request)).json();
+            elm.textContent = data.method + ' ' + data.body;
+            elm.className = 'testFetchRequest';
           })();
         </script>
       </li>

@@ -81,6 +81,7 @@ function managlePropsPlugin(): Plugin {
     $initWindowMedia$: '',
     $interfaces$: '',
     $instanceId$: '',
+    $isEnvSent$: '',
     $isInitialized$: '',
     $isLoading$: '',
     $isPromise$: '',
