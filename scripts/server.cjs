@@ -23,6 +23,17 @@ exports.createServer = function (port, enableAtomics) {
         'Access-Control-Allow-Credentials': 'true',
       });
       return res.end();
+    } else if (url.pathname === '/api/echo') {
+      let body = '';
+      req.setEncoding('utf-8');
+      req.on('data', (chunk) => {
+        body += chunk;
+      });
+      req.on('end', () => {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ method: req.method, body }));
+      });
+      return;
     } else if (url.pathname.endsWith('post')) {
       res.writeHead(200);
       let body = '';
