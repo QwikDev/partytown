@@ -678,6 +678,18 @@ export const createWindow = (
           });
           args = args.slice(1);
         }
+        if (!$isTopWindow$) {
+          // the main thread may have no partytown window for an iframe (one the browser loaded
+          // itself, e.g. a consent store, or an about:blank ad frame), but it has the iframe
+          // element: post to that element's real window
+          callMethod(
+            getOrCreateNodeInstance($parentWinId$, $winId$, NodeName.IFrame),
+            ['contentWindow', 'postMessage'],
+            args,
+            CallType.NonBlockingNoSideEffect
+          );
+          return;
+        }
         callMethod(this, ['postMessage'], args, CallType.NonBlockingNoSideEffect);
       }
 

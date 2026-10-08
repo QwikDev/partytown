@@ -1,5 +1,5 @@
 import { debug, trustedType } from '../utils';
-import { getAndSetInstanceId } from './main-instances';
+import { getAndSetInstanceId, getPageFrame } from './main-instances';
 import { libPath, mainWindow } from './main-globals';
 import { logMain } from '../log';
 import { mainAccessHandler } from './main-access-handler';
@@ -55,5 +55,23 @@ syncCreateMessenger(receiveMessage).then((onMessageHandler) => {
     mainWindow.addEventListener<any>('pt1', (ev: CustomEvent) =>
       registerWindow(worker, getAndSetInstanceId(ev.detail.frameElement)!, ev.detail)
     );
+
+    if (window !== mainWindow) {
+      // The worker's posts to a page's iframe are made from this sandbox, so the frame's reply
+      // (`event.source.postMessage`) arrives here. Without Partytown the page made the post,
+      // so the reply goes on to the page, where the worker listens.
+      window.addEventListener('message', (ev) => {
+        if (getPageFrame(ev.source)) {
+          mainWindow.dispatchEvent(
+            new (mainWindow as any).MessageEvent('message', {
+              data: ev.data,
+              origin: ev.origin,
+              source: ev.source,
+              ports: ev.ports,
+            })
+          );
+        }
+      });
+    }
   }
 });
