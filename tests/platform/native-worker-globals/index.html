@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Partytown Test Page" />
+    <title>Native Worker Globals</title>
+    <script src="/~partytown/debug/partytown.js"></script>
+  </head>
+  <body>
+    <h1>Native Worker Globals</h1>
+    <ul>
+      <li>
+        <strong>window.caches</strong>
+        <code id="testCaches"></code>
+      </li>
+      <li>
+        <strong>window.scheduler</strong>
+        <code id="testScheduler"></code>
+      </li>
+    </ul>
+
+    <script type="text/partytown">
+      (function () {
+        // as ad libraries probe them
+        const describe = (read) => {
+          try {
+            const value = read();
+            return value ? typeof value : String(value);
+          } catch (e) {
+            return 'error';
+          }
+        };
+        document.getElementById('testCaches').textContent = describe(() => window.caches);
+        document.getElementById('testScheduler').textContent = describe(
+          () => window.scheduler && window.scheduler.postTask
+        );
+        document.body.classList.add('completed');
+      })();
+    </script>
+
+    <hr />
+    <p><a href="/tests/">All Tests</a></p>
+    <hr />
+  </body>
+</html>
