@@ -7,17 +7,16 @@
     "strict": true,
     "verbatimModuleSyntax": true,
     "esModuleInterop": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "outDir": "tsc",
     "declaration": true,
     "skipLibCheck": true,
     "sourceMap": false,
     "jsx": "react",
-    "baseUrl": ".",
     "paths": {
-      "@qwik.dev/partytown/integration": ["src/integration/index.ts"],
-      "@qwik.dev/partytown/services": ["src/integration/services.ts"],
-      "react": ["node_modules/react"]
+      "@qwik.dev/partytown/integration": ["./src/integration/index.ts"],
+      "@qwik.dev/partytown/services": ["./src/integration/services.ts"],
+      "react": ["./node_modules/react"]
     }
   },
   "include": ["src", "scripts", "tests/unit"]

@@ -179,7 +179,7 @@ export function snippet(
     // script because it contains an inline script. This action ensures that the
     // script can still be executed even when inline scripts are blocked
     // (assuming `unsafe-inline` is disabled and `nonce-*` is used instead).
-    script.nonce = config!.nonce;
+    script.nonce = config!.nonce as string;
     // mark the original so it can't fall back twice
     orgScript.type += '-x';
     doc.head.appendChild(script);

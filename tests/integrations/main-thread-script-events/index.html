@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Main Thread Script Events</title>
+    <script>
+      partytown = {
+        logScriptExecution: true,
+        loadScriptsOnMainThread: [/main-thread-script\.js/, /main-thread-missing\.js/],
+      };
+    </script>
+    <script src="/~partytown/debug/partytown.js"></script>
+    <script type="text/partytown">
+      (function () {
+        function record(id, value) {
+          document.getElementById(id).textContent += value;
+        }
+
+        // loads on the main thread; the worker-side handlers should still fire
+        var ok = document.createElement('script');
+        ok.src = './main-thread-script.js';
+        ok.onload = function () {
+          record('okOnload', 'load');
+        };
+        ok.onerror = function () {
+          record('okOnload', 'error');
+        };
+        ok.addEventListener('load', function () {
+          record('okListener', 'load');
+        });
+        document.head.appendChild(ok);
+
+        // also on the main thread, but 404s; handlers set before src
+        var missing = document.createElement('script');
+        missing.onload = function () {
+          record('missingOnerror', 'load');
+        };
+        missing.onerror = function () {
+          record('missingOnerror', 'error');
+        };
+        missing.addEventListener('error', function () {
+          record('missingListener', 'error');
+        });
+        missing.src = './main-thread-missing.js';
+        document.head.appendChild(missing);
+      })();
+    </script>
+  </head>
+  <body>
+    <h1>Main Thread Script Events</h1>
+    <ul>
+      <li><strong>onload (main-thread script)</strong> <code id="okOnload"></code></li>
+      <li><strong>load listener (main-thread script)</strong> <code id="okListener"></code></li>
+      <li>
+        <strong>onerror (missing main-thread script)</strong> <code id="missingOnerror"></code>
+      </li>
+      <li>
+        <strong>error listener (missing main-thread script)</strong>
+        <code id="missingListener"></code>
+      </li>
+    </ul>
+    <script type="text/partytown">
+      document.body.classList.add('completed');
+    </script>
+  </body>
+</html>

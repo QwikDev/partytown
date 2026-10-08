@@ -65,7 +65,15 @@ export const readMainPlatform = () => {
 
   const initialInterfaces: InterfaceInfo[] = [
     readImplementation('Window', mainWindow, forwardedGlobals),
-    readImplementation('Node', textNode),
+    // only what every node has: a text node also has Text members (e.g. `splitText`), which
+    // libraries use to tell text nodes from elements (preact)
+    readImplementation(
+      'Node',
+      textNode,
+      Object.keys(Object.getOwnPropertyDescriptors((mainWindow as any).Text.prototype)).concat(
+        Object.keys(Object.getOwnPropertyDescriptors((mainWindow as any).CharacterData.prototype))
+      )
+    ),
   ];
 
   const $config$ = serializeConfig(config);
