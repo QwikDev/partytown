@@ -82,6 +82,10 @@ exports.createServer = function (port, enableAtomics) {
           res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
           break;
         }
+        case '.css': {
+          res.setHeader('Content-Type', 'text/css; charset=UTF-8');
+          break;
+        }
         case '.gif': {
           res.setHeader('Content-Type', 'image/gif');
           break;

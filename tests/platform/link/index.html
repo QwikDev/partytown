@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Partytown Test Page" />
+    <title>Link</title>
+    <script src="/~partytown/debug/partytown.js"></script>
+  </head>
+  <body>
+    <h1>Link</h1>
+    <ul>
+      <li>
+        <strong>a stylesheet link added with the href property</strong>
+        <code id="testLinkHref"></code>
+      </li>
+      <li>
+        <strong>its styles apply</strong>
+        <code id="testLinkStyle">styled</code>
+      </li>
+    </ul>
+
+    <script type="text/partytown">
+      (function () {
+        // as a consent tool adds its theme
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = '/tests/platform/link/style.css';
+        document.head.appendChild(link);
+        document.getElementById('testLinkHref').textContent = new URL(link.href).pathname;
+        document.body.classList.add('completed');
+      })();
+    </script>
+
+    <hr />
+    <p><a href="/tests/">All Tests</a></p>
+    <hr />
+  </body>
+</html>
