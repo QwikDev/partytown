@@ -3,5 +3,5 @@
 /node_modules
 /react
 /tsc
-api.md
+*.api.md
 tests/platform/script/source-mapping-url.js

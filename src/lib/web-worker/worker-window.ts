@@ -37,7 +37,7 @@ import {
 } from './worker-constructors';
 import { callMethod, constructGlobal, getter, setter } from './worker-proxy';
 import { createCSSStyleDeclarationCstr } from './worker-css-style-declaration';
-import { createCSSStyleSheetConstructor } from './worker-style';
+import { createCSS, createCSSStyleSheetConstructor } from './worker-style';
 import { createImageConstructor } from './worker-image';
 import { createNavigator } from './worker-navigator';
 import { createNodeCstr } from './worker-node';
@@ -352,6 +352,20 @@ export const createWindow = (
         patchDocument(win.Document, env, isDocumentImplementation);
         patchDocumentFragment(win.DocumentFragment);
         patchHTMLAnchorElement(win.HTMLAnchorElement, env);
+        // every node has a no-op href so scripts walking up the tree don't access main; link
+        // and base elements have a real one, e.g. a stylesheet a consent tool adds
+        [win.HTMLLinkElement, win.HTMLBaseElement].map(
+          (Cstr) =>
+            Cstr &&
+            definePrototypeProperty(Cstr, 'href', {
+              get(this: WorkerNode) {
+                return getter(this, ['href']);
+              },
+              set(this: WorkerNode, value: string) {
+                setter(this, ['href'], value);
+              },
+            })
+        );
         patchHTMLFormElement(win.HTMLFormElement);
         patchHTMLIFrameElement(win.HTMLIFrameElement, env);
         patchHTMLScriptElement(win.HTMLScriptElement, env);
@@ -361,6 +375,7 @@ export const createWindow = (
         patchHTMLHtmlElement(win.HTMLHtmlElement, env);
         createCSSStyleSheetConstructor(win, 'CSSStyleSheet');
         createCSSStyleSheetConstructor(win, 'CSSMediaRule');
+        createCSS(win);
 
         definePrototypeNodeType(win.Comment, 8);
         definePrototypeNodeType(win.DocumentType, 10);
@@ -527,8 +542,35 @@ export const createWindow = (
       }
 
       fetch(input: string | URL | Request, init: any) {
-        input = typeof input === 'string' || input instanceof URL ? String(input) : input.url;
-        return fetch(resolveUrl(env, input, 'fetch'), init);
+        if (typeof input === 'string' || input instanceof URL) {
+          return fetch(resolveUrl(env, String(input), 'fetch'), init);
+        }
+        // a Request keeps its method, headers, body and credentials, only its URL is resolved,
+        // e.g. prebid's bid requests are POST Requests. Its body is read first: passed on as a
+        // stream it would need HTTP/2.
+        const request = input;
+        const url = resolveUrl(env, request.url, 'fetch');
+        return (request.body ? request.blob() : Promise.resolve(undefined)).then((body) =>
+          fetch(
+            url,
+            Object.assign(
+              {
+                method: request.method,
+                headers: request.headers,
+                body,
+                mode: request.mode,
+                credentials: request.credentials,
+                cache: request.cache,
+                redirect: request.redirect,
+                referrerPolicy: request.referrerPolicy,
+                integrity: request.integrity,
+                keepalive: request.keepalive,
+                signal: request.signal,
+              },
+              init
+            )
+          )
+        );
       }
 
       get frames() {
