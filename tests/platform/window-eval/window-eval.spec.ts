@@ -6,4 +6,10 @@ test('window eval', async ({ page }) => {
 
   const testWindowEval = page.locator('#testWindowEval');
   await expect(testWindowEval).toHaveText('ad library object');
+
+  const testWindowEvalResult = page.locator('#testWindowEvalResult');
+  await expect(testWindowEvalResult).toHaveText('11 5');
+
+  const testBareEval = page.locator('#testBareEval');
+  await expect(testBareEval).toHaveText('local object');
 });

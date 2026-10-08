@@ -14,6 +14,14 @@
         <strong>window.eval sees the page's globals</strong>
         <code id="testWindowEval"></code>
       </li>
+      <li>
+        <strong>window.eval returns the result</strong>
+        <code id="testWindowEvalResult"></code>
+      </li>
+      <li>
+        <strong>bare eval sees local variables</strong>
+        <code id="testBareEval"></code>
+      </li>
     </ul>
 
     <script type="text/partytown">
@@ -22,6 +30,12 @@
       window.eval(
         "document.getElementById('testWindowEval').textContent = adLibrary.name + ' ' + typeof window;"
       );
+      document.getElementById('testWindowEvalResult').textContent =
+        window.eval('adLibrary.name.length + 1') + ' ' + window.eval(5);
+      (function () {
+        var local = 'local';
+        document.getElementById('testBareEval').textContent = eval('local + " " + typeof document');
+      })();
       document.body.classList.add('completed');
     </script>
 

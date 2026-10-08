@@ -51,6 +51,7 @@ import {
   getConstructorName,
   len,
   randomId,
+  trustedType,
 } from '../utils';
 import {
   getInstanceStateValue,
@@ -71,7 +72,7 @@ import { patchHTMLFormElement } from './worker-form';
 import { patchHTMLIFrameElement } from './worker-iframe';
 import { patchHTMLScriptElement } from './worker-script';
 import { patchSvgElement } from './worker-svg';
-import { resolveUrl, run } from './worker-exec';
+import { resolveUrl } from './worker-exec';
 import { createNodeListCstr } from './worker-serialization';
 import { createNamedNodeMapCstr } from './worker-named-node-map';
 
@@ -539,9 +540,20 @@ export const createWindow = (
 
       // Indirect eval, e.g. `window.eval(code)` as ad libraries run downloaded tags, must run
       // in this window's scope like any Partytown script, not in the worker's global scope,
-      // which has no `window`, `document` or the page's globals. Like `run`, it returns nothing.
-      eval(code: string) {
-        run(env, code);
+      // which has no `window`, `document` or the page's globals. Like native eval, it returns
+      // the code's completion value and passes anything but a string through.
+      eval(code: any) {
+        return typeof code === 'string'
+          ? new Function(
+              trustedType('createScript', `with(this){return eval(${JSON.stringify(code)})}`) as any
+            ).call(env.$window$)
+          : code;
+      }
+
+      // scripts run in `with(window){...}`: keep a bare `eval(...)` the native direct eval,
+      // which sees the script's local variables, instead of resolving to `window.eval`
+      get [Symbol.unscopables]() {
+        return { eval: true };
       }
 
       fetch(input: string | URL | Request, init: any) {
