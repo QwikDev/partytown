@@ -1,5 +1,5 @@
 import { debug, trustedType } from '../utils';
-import { getAndSetInstanceId } from './main-instances';
+import { getAndSetInstanceId, getPageFrame } from './main-instances';
 import { libPath, mainWindow } from './main-globals';
 import { logMain } from '../log';
 import { mainAccessHandler } from './main-access-handler';
@@ -61,10 +61,7 @@ syncCreateMessenger(receiveMessage).then((onMessageHandler) => {
       // (`event.source.postMessage`) arrives here. Without Partytown the page made the post,
       // so the reply goes on to the page, where the worker listens.
       window.addEventListener('message', (ev) => {
-        const fromPageFrame = Array.from(mainWindow.document.querySelectorAll('iframe')).some(
-          (frame) => frame.contentWindow === ev.source
-        );
-        if (fromPageFrame) {
+        if (getPageFrame(ev.source)) {
           mainWindow.dispatchEvent(
             new (mainWindow as any).MessageEvent('message', {
               data: ev.data,

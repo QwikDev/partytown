@@ -1,5 +1,5 @@
 import { getConstructorName, getNodeName, isValidMemberName, startsWith } from '../utils';
-import { getInstance, getAndSetInstanceId } from './main-instances';
+import { getInstance, getAndSetInstanceId, getPageFrame } from './main-instances';
 import { mainRefs } from './main-constants';
 import {
   type PartytownWebWorker,
@@ -121,9 +121,7 @@ const serializeObjectForWorker = (
         } else if (
           propName === 'source' &&
           obj[propName] != null &&
-          (frameElm = Array.from((window as any).parent.document.querySelectorAll('iframe')).find(
-            (frame: any) => frame.contentWindow === obj.source
-          ))
+          (frameElm = getPageFrame(obj.source))
         ) {
           // a message from one of the page's iframes, e.g. an ad asking for consent: the worker
           // gives it a source that replies to that iframe's window

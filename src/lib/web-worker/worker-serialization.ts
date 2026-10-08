@@ -24,7 +24,7 @@ import {
   webWorkerRefsByRefId,
   WinIdKey,
 } from './worker-constants';
-import { defineConstructorName, getConstructorName, len, noop } from '../utils';
+import { defineConstructorName, getConstructorName, len, noop, startsWith } from '../utils';
 import { getOrCreateNodeInstance } from './worker-constructors';
 import { setWorkerRef } from './worker-state';
 
@@ -204,7 +204,7 @@ export const deserializeFromMain = (
           }
         }
       }
-      if (typeof obj.source === 'string' && obj.source.startsWith('_pt_frame_')) {
+      if (typeof obj.source === 'string' && startsWith(obj.source, '_pt_frame_')) {
         // a message from one of the page's iframes: replies go to that iframe's window
         const frameInstanceId = obj.source.slice(10);
         const frame = getOrCreateNodeInstance(winId!, frameInstanceId, NodeName.IFrame) as any;
