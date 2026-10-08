@@ -1,6 +1,7 @@
 import { VERSION } from '../build-modules/version';
 import { logWorker } from '../log';
 import {
+  CallType,
   type EventHandler,
   type InitializeScriptData,
   type InstanceId,
@@ -76,16 +77,7 @@ export const initNextScriptsInWebWorker = async (initScript: InitializeScriptDat
       const el = (env.$document$ as any).createElement('script');
       setter(el, ['type'], 'text/javascript');
       setter(el, ['src'], scriptSrc);
-      callMethod(
-        el,
-        ['addEventListener'],
-        ['load', () => runStateLoadHandlers(instance!, StateProp.loadHandlers)]
-      );
-      callMethod(
-        el,
-        ['addEventListener'],
-        ['error', () => runStateLoadHandlers(instance!, StateProp.errorHandlers)]
-      );
+      forwardLoadEvents(el, instance!);
       callMethod(env.$body$, ['appendChild'], [el]);
     }
   } else if (scriptContent) {
@@ -256,6 +248,22 @@ export const runStateLoadHandlers = (
   if (handlers) {
     setTimeout(() => handlers!.map((cb) => cb({ type })));
   }
+};
+
+// fire the worker-side load/error handlers when a script loads on the main thread
+export const forwardLoadEvents = (el: WorkerInstance, instance: WorkerInstance) => {
+  callMethod(
+    el,
+    ['addEventListener'],
+    ['load', () => runStateLoadHandlers(instance, StateProp.loadHandlers)],
+    CallType.NonBlocking
+  );
+  callMethod(
+    el,
+    ['addEventListener'],
+    ['error', () => runStateLoadHandlers(instance, StateProp.errorHandlers)],
+    CallType.NonBlocking
+  );
 };
 
 export const insertIframe = (winId: WinId, iframe: WorkerInstance) => {

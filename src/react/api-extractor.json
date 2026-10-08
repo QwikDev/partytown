@@ -7,7 +7,7 @@
   "mainEntryPointFilePath": "<projectFolder>/tsc/src/react/index.d.ts",
   "apiReport": {
     "enabled": true,
-    "reportFileName": "api.md",
+    "reportFileName": "api",
     "reportFolder": "<projectFolder>/src/react/",
     "reportTempFolder": "<projectFolder>/.cache/api-extractor/react/"
   },

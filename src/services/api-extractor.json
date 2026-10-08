@@ -7,7 +7,7 @@
   "mainEntryPointFilePath": "<projectFolder>/tsc/src/services/index.d.ts",
   "apiReport": {
     "enabled": true,
-    "reportFileName": "api.md",
+    "reportFileName": "api",
     "reportFolder": "<projectFolder>/src/services/",
     "reportTempFolder": "<projectFolder>/.cache/api-extractor/services/"
   },

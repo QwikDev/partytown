@@ -18,6 +18,8 @@ test('mutation-observer', async ({ page }) => {
   await expect(testMutationObserver).toHaveText('');
 
   await buttonObserve.click();
+  // the click handler runs in the worker; it renames the button right after observe()
+  await expect(buttonObserve).toHaveText('disconnect');
 
   await buttonAttr.click();
   await page.waitForSelector('.step1');
@@ -28,6 +30,7 @@ test('mutation-observer', async ({ page }) => {
   await expect(testMutationObserver).toHaveText('childList');
 
   await buttonObserve.click();
+  await expect(buttonObserve).toHaveText('observe');
   await expect(testMutationObserver).toHaveText('');
 
   await buttonAttr.click();

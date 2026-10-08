@@ -113,6 +113,7 @@ export type PostMessageToWorker = (msg: MessageFromSandboxToWorker) => void;
 
 export interface MainWindowContext {
   $winId$: WinId;
+  $isEnvSent$?: number;
   $isInitialized$?: number;
   $startTime$?: number;
   $window$: MainWindow;

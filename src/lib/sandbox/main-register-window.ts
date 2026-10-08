@@ -33,6 +33,7 @@ export const registerWindow = (
     };
 
     const sendInitEnvData = () => {
+      winCtxs[$winId$]!.$isEnvSent$ = 1;
       worker.postMessage([
         WorkerMessageType.InitializeEnvironment,
         {
