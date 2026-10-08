@@ -1,5 +1,39 @@
 # @qwik.dev/partytown
 
+## 0.15.0
+
+### Minor Changes
+
+- ✨ `mainElementProperties` config: properties a worker script sets on DOM elements (such as a function an iframe's inline `onload` calls) are also set on the real element, a function as a main thread function calling back into the worker. (by [@Varixo](https://github.com/Varixo) in [#776](https://github.com/QwikDev/partytown/pull/776))
+
+### Patch Changes
+
+- 🐞🩹 `fetch(request)` with a `Request` object keeps its method, headers, body and credentials instead of sending a GET to its URL (prebid's bid requests). (by [@Varixo](https://github.com/Varixo) in [#782](https://github.com/QwikDev/partytown/pull/782))
+
+- 🐞🩹 `postMessage` on any iframe's window from the worker goes through its iframe element, also for about:blank frames the main thread has no partytown window for. (by [@Varixo](https://github.com/Varixo) in [#779](https://github.com/QwikDev/partytown/pull/779))
+
+- 🐞🩹 `href` of `<link>` and `<base>` elements is read and set on the main thread again, so a stylesheet a worker script adds with `link.href = url` loads; the no-op `href` every node has (for scripts walking up the tree) hid it. (by [@Varixo](https://github.com/Varixo) in [#780](https://github.com/QwikDev/partytown/pull/780))
+
+- 🐞🩹 scripts loaded on the main thread via `loadScriptsOnMainThread` now fire the `load`/`error` handlers registered on them in the worker (`onload`, `onerror`, `addEventListener`), so loaders that wait for them (e.g. gtag's Google Ads `viewthroughconversion`) complete (by [@thegauravthakur](https://github.com/thegauravthakur) in [#771](https://github.com/QwikDev/partytown/pull/771))
+
+- 🐞🩹 a worker `message` listener can reply through the `MessagePort`s sent with the message (`event.ports[0].postMessage`), e.g. an ad library answering its creative's channel. (by [@Varixo](https://github.com/Varixo) in [#781](https://github.com/QwikDev/partytown/pull/781))
+
+- 🐞🩹 in a worker `message` listener, `event.source` of a message from one of the page's iframes is that iframe's window, so replies through `event.source.postMessage` reach it (e.g. a consent tool answering an ad's `__tcfapi` call). (by [@Varixo](https://github.com/Varixo) in [#779](https://github.com/QwikDev/partytown/pull/779))
+
+- 🐞🩹 worker scripts can talk to a cross-origin iframe the browser loaded itself (no CORS): `iframe.contentWindow.postMessage` reaches the frame, and the frame's reply to `event.source` reaches the page's `message` listeners instead of stopping at the partytown sandbox (e.g. a consent tool's consent store). (by [@Varixo](https://github.com/Varixo) in [#779](https://github.com/QwikDev/partytown/pull/779))
+
+- 🐞🩹 window properties whose class partytown does not emulate, such as `caches` and `scheduler`, return the worker's own object instead of throwing "Illegal constructor". (by [@Varixo](https://github.com/Varixo) in [#778](https://github.com/QwikDev/partytown/pull/778))
+
+- 🐞🩹 worker nodes get only the members every `Node` has: elements no longer inherit `Text` members such as `splitText`, which made libraries that detect text nodes by it (preact) treat elements as text nodes. (by [@Varixo](https://github.com/Varixo) in [#777](https://github.com/QwikDev/partytown/pull/777))
+
+- 🐞🩹 don't read partytown scripts before the window's environment has been sent to the worker. Scripts added during page load (e.g. by streaming SSR, picked up by the MutationObserver) or a `ptupdate` before `load` were sent to a worker with no environment for the window, failed, and were never run again (by [@thegauravthakur](https://github.com/thegauravthakur) in [#767](https://github.com/QwikDev/partytown/pull/767))
+
+- 🐞🩹 tabs that start Partytown in the same millisecond, e.g. waiting for the same service worker to activate, get different tab ids, so the service worker no longer sends one tab's requests to the other tab ("Error finding instance"). (by [@gioboa](https://github.com/gioboa) in [#783](https://github.com/QwikDev/partytown/pull/783))
+
+- 🐞🩹 `window.eval(code)` in a partytown script runs the code in the window's scope, like the script itself, instead of the worker's global scope where `window`, `document` and the page's globals are not defined (ad libraries run downloaded tags this way). (by [@Varixo](https://github.com/Varixo) in [#774](https://github.com/QwikDev/partytown/pull/774))
+
+- 🐞🩹 define `CSS` in the web worker: `CSS.escape()` runs in the worker, and every other member (`CSS.supports()`, `CSS.registerProperty()`, …) is forwarded to the main thread. Scripts like gtag that call `CSS.escape()` no longer throw (by [@thegauravthakur](https://github.com/thegauravthakur) in [#773](https://github.com/QwikDev/partytown/pull/773))
+
 ## 0.14.5
 
 ### Patch Changes
@@ -170,16 +204,13 @@
   **Here's a list of the changes:**
 
   ### FEATURES
-
   - add config fallback timeout (#620)
 
   ### FIXES
-
   - Same-origin iframe set/get cookie/localStorage bug (#600)
   - make sure unknown is mapped to HTMLUnknownElement cstr (#606)
 
   ### DOCS
-
   - making install commands consistent (#638)
   - Add example reverse proxy handler for Facebook Pixel (#648)
   - add integration module for Magento 2 (#594)
