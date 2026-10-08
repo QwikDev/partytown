@@ -36,6 +36,7 @@ export interface PartytownConfig {
     logSendBeaconRequests?: boolean;
     logSetters?: boolean;
     logStackTraces?: boolean;
+    mainElementProperties?: string[];
     // (undocumented)
     mainWindowAccessors?: string[];
     nonce?: string;
