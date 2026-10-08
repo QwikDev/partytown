@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Partytown Test Page" />
+    <title>Node Interface</title>
+    <script src="/~partytown/debug/partytown.js"></script>
+  </head>
+  <body>
+    <h1>Node Interface</h1>
+    <ul>
+      <li>
+        <strong>an element has no Text members (preact tells text nodes apart by splitText)</strong>
+        <code id="testElementSplitText"></code>
+      </li>
+      <li>
+        <strong>a text node keeps them</strong>
+        <code id="testTextSplitText"></code>
+      </li>
+    </ul>
+
+    <script type="text/partytown">
+      (function () {
+        const container = document.createElement('div');
+        container.innerHTML = 'text<b>bold</b>';
+        document.body.appendChild(container);
+        const [text, element] = [container.childNodes[0], container.childNodes[1]];
+        document.getElementById('testElementSplitText').textContent =
+          typeof element.splitText + ' ' + typeof element.data;
+        document.getElementById('testTextSplitText').textContent =
+          typeof text.splitText + ' ' + text.data;
+        document.body.classList.add('completed');
+      })();
+    </script>
+
+    <hr />
+    <p><a href="/tests/">All Tests</a></p>
+    <hr />
+  </body>
+</html>
