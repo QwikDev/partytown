@@ -215,6 +215,23 @@ export const deserializeFromMain = (
                 callMethod(frame, ['contentWindow', 'postMessage'], args, CallType.NonBlocking),
             };
       }
+      if (Array.isArray(obj.ports)) {
+        obj.ports = obj.ports.map((port: any) =>
+          typeof port === 'string' && startsWith(port, '_pt_port_')
+            ? {
+                postMessage: (...args: any[]) =>
+                  callMethod(
+                    environments[winId!].$window$,
+                    [port, 'postMessage'],
+                    // a cross-origin window's scripts get its id as the first postMessage
+                    // argument (see `run`), which a port does not take
+                    environments[args[0]] ? args.slice(1) : args,
+                    CallType.NonBlocking
+                  ),
+              }
+            : port
+        );
+      }
       if (obj.source === '_pt_opener_') {
         // a message that came from the opener window, e.g. GTM's Tag Assistant,
         // use the same opener reference the window getter returns, so identity

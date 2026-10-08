@@ -1,4 +1,11 @@
-import { getConstructorName, getNodeName, isValidMemberName, startsWith } from '../utils';
+import {
+  getConstructorName,
+  getNodeName,
+  isValidMemberName,
+  len,
+  randomId,
+  startsWith,
+} from '../utils';
 import { getInstance, getAndSetInstanceId, getPageFrame } from './main-instances';
 import { mainRefs } from './main-constants';
 import {
@@ -86,6 +93,19 @@ export const serializeForWorker = (
   }
 };
 
+const messagePortKeys: [any, string][] = [];
+const keepMessagePort = (winId: WinId, port: any, win?: any, key?: string) => {
+  key = '_pt_port_' + randomId();
+  // kept on the window the message is for, which the worker posts through: the page or an iframe
+  (win = getInstance(winId, winId))[key] = port;
+  // only the latest ports are kept: a reply comes right after its message
+  if (messagePortKeys.push([win, key]) > 100) {
+    [win, key] = messagePortKeys.shift()!;
+    delete win[key!];
+  }
+  return key;
+};
+
 const serializeObjectForWorker = (
   winId: WinId,
   obj: any,
@@ -126,6 +146,10 @@ const serializeObjectForWorker = (
           // a message from one of the page's iframes, e.g. an ad asking for consent: the worker
           // gives it a source that replies to that iframe's window
           propValue = '_pt_frame_' + getAndSetInstanceId(frameElm);
+        } else if (propName === 'ports' && len(obj[propName] || [])) {
+          // a message's MessagePorts can't be reached by a path from the window, so keep them
+          // on it under a key the worker posts through, e.g. a creative's reply channel
+          propValue = Array.from(obj[propName]).map((port) => keepMessagePort(winId, port));
         } else {
           propValue = obj[propName];
         }

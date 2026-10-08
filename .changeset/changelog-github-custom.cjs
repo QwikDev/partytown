@@ -160,7 +160,26 @@ var __spreadArray =
   };
 Object.defineProperty(exports, '__esModule', { value: true });
 // @ts-ignore
-var get_github_info_1 = require('@changesets/get-github-info');
+var github_info = require('@changesets/get-github-info');
+// @changesets/get-github-info 1.x renamed getInfo/getInfoFromPullRequest and returns
+// { commit, pull, author } with a markdownLink each: map it back to the old { links }
+var toLinks = function (info) {
+  return {
+    links: {
+      commit: info && info.commit ? info.commit.markdownLink : null,
+      pull: info && info.pull ? info.pull.markdownLink : null,
+      user: info && info.author ? info.author.markdownLink : null,
+    },
+  };
+};
+var get_github_info_1 = {
+  getInfo: function (options) {
+    return github_info.getCommitInfo(options).then(toLinks);
+  },
+  getInfoFromPullRequest: function (options) {
+    return github_info.getPullRequestInfo(options).then(toLinks);
+  },
+};
 var changelogFunctions = {
   getDependencyReleaseLine: function (changesets, dependenciesUpdated, options) {
     return __awaiter(void 0, void 0, void 0, function () {
