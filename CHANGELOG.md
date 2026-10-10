@@ -1,5 +1,11 @@
 # @qwik.dev/partytown
 
+## 1.0.0
+
+### Major Changes
+
+- 🎉 Partytown exits beta and is now stable: v1.0.0 (by [@gioboa](https://github.com/gioboa) in [#785](https://github.com/QwikDev/partytown/pull/785))
+
 ## 0.15.0
 
 ### Minor Changes
