@@ -11,7 +11,7 @@
 
 Partytown is a lazy-loaded library to help relocate resource intensive scripts into a [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API), and off of the [main thread](https://developer.mozilla.org/en-US/docs/Glossary/Main_thread). Its goal is to help speed up sites by dedicating the main thread to your code, and offloading third-party scripts to a web worker.
 
-> Note: Partytown is still in beta and not guaranteed to work in every scenario. Please see our [FAQ](https://partytown.qwik.dev/faq) and [Trade-Off](https://partytown.qwik.dev/trade-offs) sections for more info.
+> Note: Partytown is not guaranteed to work in every scenario. Please see our [FAQ](https://partytown.qwik.dev/faq) and [Trade-Off](https://partytown.qwik.dev/trade-offs) sections for more info.
 
 The philosophy is that the main thread should be dedicated to your code, and any scripts that are not required to be in the [critical path](https://developers.google.com/web/fundamentals/performance/critical-rendering-path) should be moved to a web worker. Main thread performance is, without question, more important than web worker thread performance.
 
