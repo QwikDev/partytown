@@ -16,15 +16,22 @@ export const mainForwardTrigger = (worker: PartytownWebWorker, $winId$: WinId, w
   let i: number;
   let mainForwardFn: typeof win;
 
-  let forwardCall = ($forward$: string[], args: any) =>
-    worker.postMessage([
-      WorkerMessageType.ForwardMainTrigger,
-      {
-        $winId$,
-        $forward$,
-        $args$: serializeForWorker($winId$, Array.from(args)),
-      },
-    ]);
+  let forwardCall = ($forward$: string[], args: any) => {
+    try {
+      worker.postMessage([
+        WorkerMessageType.ForwardMainTrigger,
+        {
+          $winId$,
+          $forward$,
+          $args$: serializeForWorker($winId$, Array.from(args)),
+        },
+      ]);
+    } catch (e) {
+      if (debug && config.logForwardedEvents) {
+        logMain(`Forward event failed: ${$forward$.join('.')}()`);
+      }
+    }
+  };
 
   win._ptf = undefined;
 
