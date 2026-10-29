@@ -1,5 +1,11 @@
 # @qwik.dev/partytown
 
+## 1.0.3
+
+### Patch Changes
+
+- 🐞🩹 don't throw from forwarded calls with a `source` property after the sandbox iframe is detached (by [@gioboa](https://github.com/gioboa) in [#797](https://github.com/QwikDev/partytown/pull/797))
+
 ## 1.0.2
 
 ### Patch Changes
