@@ -1,6 +1,6 @@
 import { CreatedKey, InstanceIdKey, instances, winCtxs, windowIds } from './main-constants';
 import { type InstanceId, type MainWindowContext, WinDocId, type WinId } from '../types';
-import { randomId } from '../utils';
+import { EMPTY_ARRAY, randomId } from '../utils';
 
 export const getAndSetInstanceId = (instance: any, instanceId?: InstanceId) => {
   if (instance) {
@@ -69,6 +69,6 @@ let lastCleanup = 0;
 // the page's iframe element whose window is `win`, e.g. the source of a message. The page is
 // read here, not from main-globals: importing that reads `window` and breaks unit tests in Node
 export const getPageFrame = (win: any) =>
-  Array.from((window.parent as Window).document.querySelectorAll('iframe')).find(
-    (frame) => frame.contentWindow === win
-  );
+  Array.from(
+    (window.parent as Window | null)?.document.querySelectorAll('iframe') || EMPTY_ARRAY
+  ).find((frame) => frame.contentWindow === win);
