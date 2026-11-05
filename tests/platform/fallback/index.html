@@ -31,7 +31,15 @@
         <strong>preserveBehavior keeps data pushed before the fallback</strong>
         <code id="testPreserved"></code>
       </li>
+      <li>
+        <strong>worker only scripts don't fall back</strong>
+        <code id="testWorkerOnly">not executed</code>
+      </li>
     </ul>
+
+    <script type="text/partytown" data-ptworkeronly>
+      document.getElementById('testWorkerOnly').textContent = 'executed initial';
+    </script>
 
     <script type="text/partytown">
       document.getElementById('testInitial').textContent = 'executed';
@@ -50,6 +58,13 @@
         s.type = 'text/partytown';
         s.innerHTML = "document.getElementById('testDynamic').textContent = 'executed';";
         document.body.appendChild(s);
+
+        var workerOnly = document.createElement('script');
+        workerOnly.type = 'text/partytown';
+        workerOnly.setAttribute('data-ptworkeronly', '');
+        workerOnly.innerHTML =
+          "document.getElementById('testWorkerOnly').textContent = 'executed dynamic';";
+        document.body.appendChild(workerOnly);
       }, 1000);
     </script>
 

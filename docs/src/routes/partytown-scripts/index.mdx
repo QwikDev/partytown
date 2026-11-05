@@ -20,6 +20,16 @@ The `type="text/partytown"` attribute does two things:
 1. Informs the browser to _not_ process the script. By giving the script a [type attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script#attr-type) which the browser does not recognize: "The embedded content is treated as a data block which won't be processed by the browser."
 2. Provides a query selector so Partytown can find all the scripts to run from within the web worker. When the document is ready and Partytown has initialized, Partytown will then query selector for all of the `script[type="text/partytown"]` script elements. You'll notice that after a script has been executed in the web worker, it'll then get an updated type attribute of `type="text/partytown-x"`.
 
+## Worker Only Scripts
+
+When Partytown falls back to the main thread (see [Browser Support](/browser-support)), every `type="text/partytown"` script runs as a regular script. Some scripts are only meant for the web worker, for example a script that patches the worker's `window` or `document` before the third-party scripts run. Add the `data-ptworkeronly` attribute to such a script so the fallback skips it. In the web worker, it runs like any other Partytown script.
+
+```html
+<script type="text/partytown" data-ptworkeronly>
+  // only runs in the web worker, never on the main thread
+</script>
+```
+
 ## Dynamically Appending Scripts
 
 Commonly, scripts will already be a part of the DOM when the document loads, and once the document is ready and the window has loaded, Partytown will find the scripts and start executing them in the web worker. However, if a script is dynamically appended to the DOM, _after_ Partytown has initialized, you can still dispatch the `ptupdate` custom event on window to notify Partytown there are new scripts to find.
