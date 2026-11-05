@@ -1,5 +1,11 @@
 # @qwik.dev/partytown
 
+## 1.0.4
+
+### Patch Changes
+
+- ✨ `text/partytown` scripts with the `data-ptworkeronly` attribute only run in the web worker, the main thread fallback skips them (by [@hoebbelsB](https://github.com/hoebbelsB) in [#799](https://github.com/QwikDev/partytown/pull/799))
+
 ## 1.0.3
 
 ### Patch Changes
