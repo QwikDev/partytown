@@ -29,5 +29,10 @@ test('fallback', async ({ page, baseURL }) => {
   const testPreserved = page.locator('#testPreserved');
   await expect(testPreserved).toHaveText('before fallback');
 
+  // scripts marked data-ptworkeronly must not run on the main thread, neither
+  // initial ones nor ones added in the same task as the dynamic script above
+  const testWorkerOnly = page.locator('#testWorkerOnly');
+  await expect(testWorkerOnly).toHaveText('not executed');
+
   expect(pageErrors).toEqual([]);
 });

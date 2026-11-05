@@ -93,6 +93,35 @@ test('fallback keeps the src of external scripts', ({ win, document, navigator, 
   assert.is(fallbackScripts[1].src, 'http://builder.io/analytics.js');
 });
 
+test('fallback skips worker only scripts', ({ win, document, navigator, top }) => {
+  const script = document.createElement('script');
+  script.type = 'text/partytown';
+  script.innerHTML = 'console.log(88)';
+  document.body.appendChild(script);
+
+  const workerOnlyScript = document.createElement('script');
+  workerOnlyScript.type = 'text/partytown';
+  workerOnlyScript.setAttribute('data-ptworkeronly', '');
+  workerOnlyScript.innerHTML = 'window.global = document';
+  document.body.appendChild(workerOnlyScript);
+
+  const workerOnlyExternalScript = document.createElement('script');
+  workerOnlyExternalScript.type = 'text/partytown';
+  workerOnlyExternalScript.setAttribute('data-ptworkeronly', '');
+  workerOnlyExternalScript.src = 'http://builder.io/worker-setup.js';
+  document.body.appendChild(workerOnlyExternalScript);
+
+  // no service worker support triggers the fallback
+  delete (navigator as any).serviceWorker;
+  snippet(win, document, navigator, top, false);
+
+  const fallbackScripts = document.head.querySelectorAll('script');
+  assert.is(fallbackScripts.length, 1);
+  assert.is(fallbackScripts[0].innerHTML, 'console.log(88)');
+  assert.is(workerOnlyScript.type, 'text/partytown');
+  assert.is(workerOnlyExternalScript.type, 'text/partytown');
+});
+
 test('fallback when service worker registration fulfills without a registration', ({
   win,
   document,

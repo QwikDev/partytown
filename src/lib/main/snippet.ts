@@ -181,6 +181,11 @@ export function snippet(
   }
 
   function fallbackScript(orgScript: HTMLScriptElement, script?: HTMLScriptElement) {
+    // scripts written for the worker, e.g. ones that patch the worker's
+    // window or document, must not run on the main thread
+    if (orgScript.hasAttribute('data-ptworkeronly')) {
+      return;
+    }
     script = doc.createElement('script');
     if (orgScript.src) {
       // external scripts must fall back through their src (#582)
