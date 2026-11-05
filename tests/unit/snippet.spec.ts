@@ -105,6 +105,12 @@ test('fallback skips worker only scripts', ({ win, document, navigator, top }) =
   workerOnlyScript.innerHTML = 'window.global = document';
   document.body.appendChild(workerOnlyScript);
 
+  const workerOnlyExternalScript = document.createElement('script');
+  workerOnlyExternalScript.type = 'text/partytown';
+  workerOnlyExternalScript.setAttribute('data-ptworkeronly', '');
+  workerOnlyExternalScript.src = 'http://builder.io/worker-setup.js';
+  document.body.appendChild(workerOnlyExternalScript);
+
   // no service worker support triggers the fallback
   delete (navigator as any).serviceWorker;
   snippet(win, document, navigator, top, false);
@@ -113,6 +119,7 @@ test('fallback skips worker only scripts', ({ win, document, navigator, top }) =
   assert.is(fallbackScripts.length, 1);
   assert.is(fallbackScripts[0].innerHTML, 'console.log(88)');
   assert.is(workerOnlyScript.type, 'text/partytown');
+  assert.is(workerOnlyExternalScript.type, 'text/partytown');
 });
 
 test('fallback when service worker registration fulfills without a registration', ({
