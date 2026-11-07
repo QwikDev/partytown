@@ -5,6 +5,8 @@ import {
   WorkerMessageType,
 } from '../types';
 
+const decoder = new TextDecoder();
+
 const syncSendMessageToMainAtomics = (
   webWorkerCtx: WebWorkerContext,
   accessReq: MainAccessRequest
@@ -21,13 +23,10 @@ const syncSendMessageToMainAtomics = (
   // Synchronously wait for response
   Atomics.wait(sharedData, 0, 0);
 
-  let dataLength = Atomics.load(sharedData, 0);
-  let accessRespStr = '';
-  let i = 0;
-
-  for (; i < dataLength; i++) {
-    accessRespStr += String.fromCharCode(sharedData[i + 1]);
-  }
+  // utf-8 byte length, the bytes follow the length slot. TextDecoder doesn't
+  // take a shared buffer's view, slice() copies it out
+  const dataLength = Atomics.load(sharedData, 0);
+  const accessRespStr = decoder.decode(new Uint8Array(sharedDataBuffer, 4, dataLength).slice());
 
   return JSON.parse(accessRespStr) as MainAccessResponse;
 };
