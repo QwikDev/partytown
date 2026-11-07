@@ -33,10 +33,13 @@ export const receiveMessageFromSandboxToServiceWorker = (ev: ExtendableMessageEv
   }
 };
 
-const getClientByTab = (clients: Client[], msgId: string) => {
+export const getClientByTab = (clients: Client[], msgId: string) => {
   const tabId = msgId.split('.').pop();
   let client = clients.find((a) => a.url.endsWith(`?${tabId}`));
-  if (!client) {
+  if (!client && tabId == 'undefined') {
+    // a sandbox from a snippet older than tab ids (#573), take the latest one.
+    // with a tab id, its sandbox is gone: answering from another tab's would
+    // return that page's DOM
     client = [...clients].sort((a, b) => {
       if (a.url > b.url) return -1;
       if (a.url < b.url) return 1;

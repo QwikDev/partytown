@@ -83,6 +83,7 @@ test('DEPRECATED_WINDOW_PROPERTIES contains expected entries', () => {
   assert.ok(DEPRECATED_WINDOW_PROPERTIES.has('AttributionReporting'));
   assert.ok(DEPRECATED_WINDOW_PROPERTIES.has('attributionReporting'));
   assert.ok(DEPRECATED_WINDOW_PROPERTIES.has('HTMLFencedFrameElement'));
+  assert.ok(DEPRECATED_WINDOW_PROPERTIES.has('fence'));
 });
 
 test.run();

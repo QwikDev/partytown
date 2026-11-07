@@ -14,19 +14,25 @@ const testPage = async (page: Page) => {
   const buttonAdd = page.locator('#buttonAdd');
   const buttonRemove = page.locator('#buttonRemove');
   const testInc = page.locator('#testInc');
+  // the worker adds and removes the listener asynchronously, wait for it
+  // before clicking inc
+  const testIncListener = page.locator('#testIncListener');
   await expect(testInc).toHaveText('0');
   await buttonInc.click();
   await expect(testInc).toHaveText('0');
   await buttonAdd.click();
+  await expect(testIncListener).toHaveText('added');
   await buttonInc.click();
   await expect(testInc).toHaveText('1');
   await buttonInc.click();
   await expect(testInc).toHaveText('2');
   await buttonRemove.click();
+  await expect(testIncListener).toHaveText('removed');
   await buttonInc.click();
   await buttonInc.click();
   await expect(testInc).toHaveText('2');
   await buttonAdd.click();
+  await expect(testIncListener).toHaveText('added');
   await buttonInc.click();
   await expect(testInc).toHaveText('3');
 

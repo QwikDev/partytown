@@ -73,6 +73,29 @@ exports.createServer = function (port, enableAtomics) {
       });
     }
 
+    if (
+      pathName.endsWith('partytown-sw.js') &&
+      (url.searchParams.has('bypassFrom') || url.searchParams.has('bypassAt'))
+    ) {
+      // tests/platform/sw-worker-bypass: the service worker lets the proxytown
+      // requests from the given index, or the one at it, reach the server
+      const from = Number(url.searchParams.get('bypassFrom') ?? Infinity);
+      const at = Number(url.searchParams.get('bypassAt') ?? -1);
+      const prelude = `var requestIndex = 0;
+        self.addEventListener('fetch', function (ev) {
+          if (ev.request.url.includes('proxytown')) {
+            var i = requestIndex++;
+            if (i >= ${from} || i == ${at}) ev.stopImmediatePropagation();
+          }
+        });
+      `;
+      res.writeHead(200, {
+        'Content-Type': 'application/javascript; charset=UTF-8',
+        'Cache-Control': 'max-age=0',
+      });
+      return res.end(prelude + fs.readFileSync(filePath, 'utf-8'));
+    }
+
     const readStream = fs.createReadStream(filePath);
     readStream.on('open', () => {
       res.setHeader('Cache-Control', 'max-age=0');
