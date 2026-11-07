@@ -37,11 +37,16 @@ const createMessengerAtomics: Messenger = async (receiveMessage) => {
       // web worker has requested the rest of the html/svg interfaces
       worker.postMessage([WorkerMessageType.MainInterfacesResponseToWorker, readMainInterfaces()]);
     } else if (msgType === WorkerMessageType.ForwardWorkerAccessRequest) {
+      const requestId = msg[2];
       receiveMessage(accessReq, (accessRsp) => {
-        // utf-8 after the length slot. chromium's encodeInto() rejects shared
-        // buffers, so encode() and copy
+        if (Atomics.load(sharedData, 0) !== requestId) {
+          // the worker timed out on this request, drop the late response
+          return;
+        }
+        // utf-8 after the request id and length slots. chromium's encodeInto()
+        // rejects shared buffers, so encode() and copy
         let encoded = encoder.encode(JSON.stringify(accessRsp));
-        const neededBytes = 4 + encoded.length;
+        const neededBytes = 8 + encoded.length;
         if (
           (sharedDataBuffer as any).growable &&
           sharedDataBuffer.byteLength < neededBytes &&
@@ -55,10 +60,12 @@ const createMessengerAtomics: Messenger = async (receiveMessage) => {
             JSON.stringify({ $msgId$: accessRsp.$msgId$, $error$: 'Response too large' })
           );
         }
-        new Uint8Array(sharedDataBuffer, 4).set(encoded);
-        // atomic, so the worker that reads the length also sees the bytes before it
-        Atomics.store(sharedData, 0, encoded.length);
-        Atomics.notify(sharedData, 0);
+        new Uint8Array(sharedDataBuffer, 8).set(encoded);
+        Atomics.store(sharedData, 1, encoded.length);
+        // fails if the worker timed out while the response was being written
+        if (Atomics.compareExchange(sharedData, 0, requestId, 0) === requestId) {
+          Atomics.notify(sharedData, 0);
+        }
       });
     } else {
       onMessageFromWebWorker(worker, msg);
