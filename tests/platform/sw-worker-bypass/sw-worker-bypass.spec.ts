@@ -20,6 +20,19 @@ const bypassWorkerRequests = async (page: Page, isBypassed: string) => {
     `;
     await route.fulfill({ body: prelude + sw, contentType: 'application/javascript' });
   });
+  // activate the service worker before the test page loads: in webkit, a sandbox
+  // loaded right when it activates is sometimes not controlled by it, so partytown
+  // falls back to the main thread without starting the worker or any request
+  await page.goto('/tests/');
+  await page.evaluate(async () => {
+    const reg = await navigator.serviceWorker.register('/~partytown/debug/partytown-sw.js', {
+      scope: '/~partytown/debug/',
+    });
+    const sw = (reg.installing || reg.waiting || reg.active)!;
+    while (sw.state != 'activated') {
+      await new Promise((resolve) => sw.addEventListener('statechange', resolve, { once: true }));
+    }
+  });
   const networkRequests: string[] = [];
   page.context().on('response', (rsp) => {
     if (rsp.url().includes('proxytown') && !rsp.fromServiceWorker()) {
