@@ -56,7 +56,8 @@ const createMessengerAtomics: Messenger = async (receiveMessage) => {
           );
         }
         new Uint8Array(sharedDataBuffer, 4).set(encoded);
-        sharedData[0] = encoded.length;
+        // atomic, so the worker that reads the length also sees the bytes before it
+        Atomics.store(sharedData, 0, encoded.length);
         Atomics.notify(sharedData, 0);
       });
     } else {

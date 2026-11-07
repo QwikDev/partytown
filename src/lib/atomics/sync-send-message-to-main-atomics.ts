@@ -20,12 +20,15 @@ const syncSendMessageToMainAtomics = (
   // Asynchronously call main
   webWorkerCtx.$postMessage$([WorkerMessageType.ForwardWorkerAccessRequest, accessReq]);
 
-  // Synchronously wait for response
-  Atomics.wait(sharedData, 0, 0);
+  // Synchronously wait for response. a wake up from the previous response's
+  // late notify still finds the length reset, wait again
+  let dataLength: number;
+  while (!(dataLength = Atomics.load(sharedData, 0))) {
+    Atomics.wait(sharedData, 0, 0);
+  }
 
   // utf-8 byte length, the bytes follow the length slot. TextDecoder doesn't
   // take a shared buffer's view, slice() copies it out
-  const dataLength = Atomics.load(sharedData, 0);
   const accessRespStr = decoder.decode(new Uint8Array(sharedDataBuffer, 4, dataLength).slice());
 
   return JSON.parse(accessRespStr) as MainAccessResponse;
