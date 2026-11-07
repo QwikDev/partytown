@@ -49,6 +49,8 @@ export const DEPRECATED_WINDOW_PROPERTIES = new Set([
   'AttributionReportingRequestOptions',
   'attributionSrc',
   'setAttributionReporting',
+  // reading window.fence triggers the "FencedFrame" deprecation, and a page's own window is never a fenced frame
+  'fence',
   // creating a <fencedframe> to read its interface triggers the "FencedFrame" deprecation
   'HTMLFencedFrameElement',
 ]);
