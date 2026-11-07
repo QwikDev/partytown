@@ -9,11 +9,13 @@ import { debug } from '../utils';
 // same as the service worker's timeout
 const timeout = debug ? 120000 : 10000;
 
+const decoder = new TextDecoder();
+
 let lastRequestId = 0;
 
 // sharedData[0] holds the id of the request the worker waits for. main sets it to 0
-// once it wrote that request's response length to sharedData[1] and the response
-// after it. on a timeout the worker clears it first, so main drops the late
+// once it wrote that request's response utf-8 byte length to sharedData[1] and
+// the bytes after it. on a timeout the worker clears it first, so main drops the late
 // response, see createMessengerAtomics
 const syncSendMessageToMainAtomics = (
   webWorkerCtx: WebWorkerContext,
@@ -44,12 +46,8 @@ const syncSendMessageToMainAtomics = (
   }
 
   const dataLength = Atomics.load(sharedData, 1);
-  let accessRespStr = '';
-  let i = 0;
-
-  for (; i < dataLength; i++) {
-    accessRespStr += String.fromCharCode(sharedData[i + 2]);
-  }
+  // TextDecoder doesn't take a shared buffer's view, slice() copies it out
+  const accessRespStr = decoder.decode(new Uint8Array(sharedDataBuffer, 8, dataLength).slice());
 
   return JSON.parse(accessRespStr) as MainAccessResponse;
 };

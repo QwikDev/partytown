@@ -20,6 +20,7 @@ const createMessengerAtomics: Messenger = async (receiveMessage) => {
     sharedDataBuffer = new SharedArrayBuffer(maxSize);
   }
   const sharedData = new Int32Array(sharedDataBuffer);
+  const encoder = new TextEncoder();
 
   return (worker: PartytownWebWorker, msg: MessageFromWorkerToSandbox) => {
     const msgType = msg[0];
@@ -42,16 +43,25 @@ const createMessengerAtomics: Messenger = async (receiveMessage) => {
           // the worker timed out on this request, drop the late response
           return;
         }
-        const stringifiedData = JSON.stringify(accessRsp);
-        const stringifiedDataLength = stringifiedData.length;
-        const neededBytes = (stringifiedDataLength + 2) * 4;
-        if ((sharedDataBuffer as any).growable && sharedDataBuffer.byteLength < neededBytes) {
-          (sharedDataBuffer as any).grow(Math.min(maxSize, neededBytes));
+        // utf-8 after the request id and length slots. chromium's encodeInto()
+        // rejects shared buffers, so encode() and copy
+        let encoded = encoder.encode(JSON.stringify(accessRsp));
+        const neededBytes = 8 + encoded.length;
+        if (
+          (sharedDataBuffer as any).growable &&
+          sharedDataBuffer.byteLength < neededBytes &&
+          neededBytes <= maxSize
+        ) {
+          (sharedDataBuffer as any).grow(neededBytes);
         }
-        for (let i = 0; i < stringifiedDataLength; i++) {
-          sharedData[i + 2] = stringifiedData.charCodeAt(i);
+        if (sharedDataBuffer.byteLength < neededBytes) {
+          // a cut response wouldn't parse
+          encoded = encoder.encode(
+            JSON.stringify({ $msgId$: accessRsp.$msgId$, $error$: 'Response too large' })
+          );
         }
-        Atomics.store(sharedData, 1, stringifiedDataLength);
+        new Uint8Array(sharedDataBuffer, 8).set(encoded);
+        Atomics.store(sharedData, 1, encoded.length);
         // fails if the worker timed out while the response was being written
         if (Atomics.compareExchange(sharedData, 0, requestId, 0) === requestId) {
           Atomics.notify(sharedData, 0);

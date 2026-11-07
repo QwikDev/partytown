@@ -54,6 +54,14 @@ test('returns the response', async () => {
   assert.equal(send('b').$rtnValue$, 'b');
 });
 
+test('keeps non-ascii text and grows the buffer for large responses', async () => {
+  const send = await setup(echo);
+  assert.equal(send('zażółć 😀').$rtnValue$, 'zażółć 😀');
+  // more than the initial 1MB buffer
+  const large = 'ż'.repeat(1024 * 1024);
+  assert.equal(send(large).$rtnValue$, large);
+});
+
 test('times out, then drops the late response while the next request waits', async () => {
   let lateA: (() => void) | undefined;
   const send = await setup((accessReq, cb) => {
