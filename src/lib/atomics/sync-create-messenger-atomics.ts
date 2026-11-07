@@ -36,27 +36,26 @@ const createMessengerAtomics: Messenger = async (receiveMessage) => {
       // web worker has requested the rest of the html/svg interfaces
       worker.postMessage([WorkerMessageType.MainInterfacesResponseToWorker, readMainInterfaces()]);
     } else if (msgType === WorkerMessageType.ForwardWorkerAccessRequest) {
+      const requestId = msg[2];
       receiveMessage(accessReq, (accessRsp) => {
-        if (Atomics.load(sharedData, 0) < 0) {
+        if (Atomics.load(sharedData, 0) !== requestId) {
           // the worker timed out on this request, drop the late response
-          Atomics.add(sharedData, 0, 1);
-          Atomics.notify(sharedData, 0);
           return;
         }
         const stringifiedData = JSON.stringify(accessRsp);
         const stringifiedDataLength = stringifiedData.length;
-        const neededBytes = (stringifiedDataLength + 1) * 4;
+        const neededBytes = (stringifiedDataLength + 2) * 4;
         if ((sharedDataBuffer as any).growable && sharedDataBuffer.byteLength < neededBytes) {
           (sharedDataBuffer as any).grow(Math.min(maxSize, neededBytes));
         }
         for (let i = 0; i < stringifiedDataLength; i++) {
-          sharedData[i + 1] = stringifiedData.charCodeAt(i);
+          sharedData[i + 2] = stringifiedData.charCodeAt(i);
         }
-        if (Atomics.compareExchange(sharedData, 0, 0, stringifiedDataLength) !== 0) {
-          // the worker timed out while the response was being written
-          Atomics.add(sharedData, 0, 1);
+        Atomics.store(sharedData, 1, stringifiedDataLength);
+        // fails if the worker timed out while the response was being written
+        if (Atomics.compareExchange(sharedData, 0, requestId, 0) === requestId) {
+          Atomics.notify(sharedData, 0);
         }
-        Atomics.notify(sharedData, 0);
       });
     } else {
       onMessageFromWebWorker(worker, msg);

@@ -39,7 +39,11 @@ export type MessageFromWorkerToSandbox =
       errorMsg: string,
     ]
   | [type: WorkerMessageType.InitializeNextScript, winId: WinId]
-  | [type: WorkerMessageType.ForwardWorkerAccessRequest, accessReq: MainAccessRequest]
+  | [
+      type: WorkerMessageType.ForwardWorkerAccessRequest,
+      accessReq: MainAccessRequest,
+      requestId: number,
+    ]
   | [type: WorkerMessageType.AsyncAccessRequest, accessReq: MainAccessRequest]
   | [type: WorkerMessageType.ServiceWorkerBypassed];
 

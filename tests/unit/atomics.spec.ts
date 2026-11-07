@@ -17,12 +17,13 @@ const syncSendMessageToMainAtomics =
 delete g.window;
 delete g.document;
 
-const setup = async (respondSync: boolean) => {
-  const pending: [any, (rsp: any) => void][] = [];
-  const onMessage = await createMessengerAtomics((accessReq: any, cb: any) => {
-    if (respondSync) cb({ $msgId$: accessReq.$msgId$, $rtnValue$: accessReq.$msgId$ } as any);
-    else pending.push([accessReq, cb]);
-  });
+type Respond = (accessReq: any, cb: (accessRsp: any) => void) => void;
+
+const echo: Respond = (accessReq, cb) =>
+  cb({ $msgId$: accessReq.$msgId$, $rtnValue$: accessReq.$msgId$ });
+
+const setup = async (respond: Respond) => {
+  const onMessage = await createMessengerAtomics(respond);
   let sharedDataBuffer: any;
   onMessage(
     { postMessage: (msg: any) => (sharedDataBuffer = msg[1].$sharedDataBuffer$) } as any,
@@ -32,37 +33,47 @@ const setup = async (respondSync: boolean) => {
     $sharedDataBuffer$: sharedDataBuffer,
     $postMessage$: (msg: any) => onMessage(null as any, msg),
   };
-  const send = (msgId: string) =>
-    syncSendMessageToMainAtomics(ctx, { $msgId$: msgId, $tasks$: [] });
-  const slot = () => Atomics.load(new Int32Array(sharedDataBuffer), 0);
-  return { send, slot, pending, setSync: (v: boolean) => (respondSync = v) };
+  return (msgId: string) => syncSendMessageToMainAtomics(ctx, { $msgId$: msgId, $tasks$: [] });
 };
 
-test('returns the response and resets the length', async () => {
-  const { send, slot } = await setup(true);
-  assert.equal(send('a').$rtnValue$, 'a');
-  assert.equal(slot(), 0);
-  assert.equal(send('b').$rtnValue$, 'b');
-});
-
-test('times out, then drops the late response', async () => {
-  const { send, slot, pending, setSync } = await setup(false);
+// the worker's clock jumps past the timeout while main doesn't answer
+const timingOut = <T>(fn: () => T) => {
   const now = Date.now;
   let t = 0;
   Date.now = () => (t += 1e6);
   try {
-    assert.equal(send('a').$error$, 'Timeout');
+    return fn();
   } finally {
     Date.now = now;
   }
-  assert.equal(slot(), -1);
+};
 
-  // late response for 'a' must not reach the next request
-  const [req, cb] = pending[0];
-  cb({ $msgId$: req.$msgId$, $rtnValue$: req.$msgId$ });
-  assert.equal(slot(), 0);
-  setSync(true);
+test('returns the response', async () => {
+  const send = await setup(echo);
+  assert.equal(send('a').$rtnValue$, 'a');
   assert.equal(send('b').$rtnValue$, 'b');
+});
+
+test('times out, then drops the late response while the next request waits', async () => {
+  let lateA: (() => void) | undefined;
+  const send = await setup((accessReq, cb) => {
+    if (accessReq.$msgId$ == 'a') {
+      lateA = () => echo(accessReq, cb);
+    } else {
+      // main answers in order: a's late response comes first
+      lateA!();
+      echo(accessReq, cb);
+    }
+  });
+  assert.equal(timingOut(() => send('a')).$error$, 'Timeout');
+  assert.equal(send('b').$rtnValue$, 'b');
+});
+
+test('a request main never answers does not affect the next ones', async () => {
+  const send = await setup((accessReq, cb) => accessReq.$msgId$ != 'a' && echo(accessReq, cb));
+  assert.equal(timingOut(() => send('a')).$error$, 'Timeout');
+  assert.equal(send('b').$rtnValue$, 'b');
+  assert.equal(send('c').$rtnValue$, 'c');
 });
 
 test.run();
