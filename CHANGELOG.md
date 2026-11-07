@@ -1,5 +1,17 @@
 # @qwik.dev/partytown
 
+## 1.0.5
+
+### Patch Changes
+
+- perf: in atomics mode, main thread responses go through the shared buffer as utf-8 bytes instead of one 4-byte slot per character, roughly 3–20x faster and up to 4x less memory, and a response larger than the buffer's 1GB limit now returns an error instead of a cut, unparsable response (by [@Varixo](https://github.com/Varixo) in [#803](https://github.com/QwikDev/partytown/pull/803))
+
+- 🐞🩹 in atomics mode, the worker no longer blocks forever when the main thread doesn't answer: a blocking main access now times out like the service worker's (10s, 120s in debug), and the late response is dropped instead of being read by the next request (by [@Varixo](https://github.com/Varixo) in [#802](https://github.com/QwikDev/partytown/pull/802))
+
+- 🐞🩹 don't read `window.fence` while reading the main window's members — in Chrome, reading it triggers the "FencedFrame" deprecation that Lighthouse reports under "Uses deprecated APIs", which skipping `HTMLFencedFrameElement` in #788 did not cover (by [@Varixo](https://github.com/Varixo) in [#801](https://github.com/QwikDev/partytown/pull/801))
+
+- 🐞🩹 when the service worker can't find the sandbox of the tab a request came from, e.g. right after that tab closed or navigated, it now answers `NoParty` instead of sending the request to another tab's sandbox, which returned that page's DOM. Sandboxes loaded by a snippet older than tab ids (#573) still go to the latest one (by [@Varixo](https://github.com/Varixo) in [#805](https://github.com/QwikDev/partytown/pull/805))
+
 ## 1.0.4
 
 ### Patch Changes
