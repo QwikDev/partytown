@@ -28,7 +28,8 @@ test.beforeEach(({ baseURL }) => {
   test.skip(new URL(baseURL!).port === '4003', 'service-worker mode only');
 });
 
-test('falls back when proxytown requests reach the server', async ({ page }) => {
+for (let n = 0; n < 8; n++) {
+test('falls back when proxytown requests reach the server' + ' #' + n, async ({ page }) => {
   const networkRequests = await gotoBypassingWorkerRequests(page, 'bypassFrom=0');
 
   // well before the 10s fallbackTimeout
@@ -36,8 +37,10 @@ test('falls back when proxytown requests reach the server', async ({ page }) => 
   await expect(page.locator('#testRuns')).toHaveText('run;');
   expect(networkRequests.length).toBeGreaterThan(0);
 });
+}
 
-test('does not run scripts twice that finished in the worker', async ({ page }) => {
+for (let n = 0; n < 8; n++) {
+test('does not run scripts twice that finished in the worker' + ' #' + n, async ({ page }) => {
   // the first script's 3 requests are answered, then they reach the server:
   // only the scripts that didn't finish fall back to the main thread
   const networkRequests = await gotoBypassingWorkerRequests(page, 'bypassFrom=3');
@@ -47,8 +50,10 @@ test('does not run scripts twice that finished in the worker', async ({ page }) 
   await expect(page.locator('#testRuns')).toHaveText('run;');
   expect(networkRequests.length).toBeGreaterThan(0);
 });
+}
 
-test('keeps the worker after partytown initialized', async ({ page }) => {
+for (let n = 0; n < 8; n++) {
+test('keeps the worker after partytown initialized' + ' #' + n, async ({ page }) => {
   // a single request well after initialization reaches the server
   const networkRequests = await gotoBypassingWorkerRequests(page, 'bypassAt=10');
   await page.waitForSelector('.completed');
@@ -57,6 +62,7 @@ test('keeps the worker after partytown initialized', async ({ page }) => {
   const ticksAfterFailure = await ticks(page);
   await expect.poll(() => ticks(page)).toBeGreaterThan(ticksAfterFailure + 3);
 });
+}
 
 test('falls back without any proxytown request when the worker has no controller', async ({
   page,
