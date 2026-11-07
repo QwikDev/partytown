@@ -20,6 +20,7 @@ const createMessengerAtomics: Messenger = async (receiveMessage) => {
     sharedDataBuffer = new SharedArrayBuffer(maxSize);
   }
   const sharedData = new Int32Array(sharedDataBuffer);
+  const encoder = new TextEncoder();
 
   return (worker: PartytownWebWorker, msg: MessageFromWorkerToSandbox) => {
     const msgType = msg[0];
@@ -37,16 +38,26 @@ const createMessengerAtomics: Messenger = async (receiveMessage) => {
       worker.postMessage([WorkerMessageType.MainInterfacesResponseToWorker, readMainInterfaces()]);
     } else if (msgType === WorkerMessageType.ForwardWorkerAccessRequest) {
       receiveMessage(accessReq, (accessRsp) => {
-        const stringifiedData = JSON.stringify(accessRsp);
-        const stringifiedDataLength = stringifiedData.length;
-        const neededBytes = (stringifiedDataLength + 1) * 4;
-        if ((sharedDataBuffer as any).growable && sharedDataBuffer.byteLength < neededBytes) {
-          (sharedDataBuffer as any).grow(Math.min(maxSize, neededBytes));
+        // utf-8 after the length slot. chromium's encodeInto() rejects shared
+        // buffers, so encode() and copy
+        let encoded = encoder.encode(JSON.stringify(accessRsp));
+        const neededBytes = 4 + encoded.length;
+        if (
+          (sharedDataBuffer as any).growable &&
+          sharedDataBuffer.byteLength < neededBytes &&
+          neededBytes <= maxSize
+        ) {
+          (sharedDataBuffer as any).grow(neededBytes);
         }
-        for (let i = 0; i < stringifiedDataLength; i++) {
-          sharedData[i + 1] = stringifiedData.charCodeAt(i);
+        if (sharedDataBuffer.byteLength < neededBytes) {
+          // a cut response wouldn't parse
+          encoded = encoder.encode(
+            JSON.stringify({ $msgId$: accessRsp.$msgId$, $error$: 'Response too large' })
+          );
         }
-        sharedData[0] = stringifiedDataLength;
+        new Uint8Array(sharedDataBuffer, 4).set(encoded);
+        // atomic, so the worker that reads the length also sees the bytes before it
+        Atomics.store(sharedData, 0, encoded.length);
         Atomics.notify(sharedData, 0);
       });
     } else {
