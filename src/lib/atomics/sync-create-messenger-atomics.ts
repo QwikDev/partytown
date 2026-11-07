@@ -37,6 +37,12 @@ const createMessengerAtomics: Messenger = async (receiveMessage) => {
       worker.postMessage([WorkerMessageType.MainInterfacesResponseToWorker, readMainInterfaces()]);
     } else if (msgType === WorkerMessageType.ForwardWorkerAccessRequest) {
       receiveMessage(accessReq, (accessRsp) => {
+        if (Atomics.load(sharedData, 0) < 0) {
+          // the worker timed out on this request, drop the late response
+          Atomics.add(sharedData, 0, 1);
+          Atomics.notify(sharedData, 0);
+          return;
+        }
         const stringifiedData = JSON.stringify(accessRsp);
         const stringifiedDataLength = stringifiedData.length;
         const neededBytes = (stringifiedDataLength + 1) * 4;
@@ -46,7 +52,10 @@ const createMessengerAtomics: Messenger = async (receiveMessage) => {
         for (let i = 0; i < stringifiedDataLength; i++) {
           sharedData[i + 1] = stringifiedData.charCodeAt(i);
         }
-        sharedData[0] = stringifiedDataLength;
+        if (Atomics.compareExchange(sharedData, 0, 0, stringifiedDataLength) !== 0) {
+          // the worker timed out while the response was being written
+          Atomics.add(sharedData, 0, 1);
+        }
         Atomics.notify(sharedData, 0);
       });
     } else {
