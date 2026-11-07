@@ -2,30 +2,23 @@ import { test, expect, type Page } from '@playwright/test';
 
 // the sandbox is controlled by the service worker, but some of the worker's
 // proxytown requests still reach the server, as seen in iOS Safari (#794).
-// `isBypassed` gets the index of each proxytown request the service worker sees
-const bypassWorkerRequests = async (page: Page, isBypassed: string) => {
+// the test server lets them through its service worker, see scripts/server.cjs:
+// `bypass` is `bypassFrom=<i>` or `bypassAt=<i>`, the index of the proxytown
+// request the service worker sees. playwright can't route the service worker
+// script for this: webkit's update checks skip the route, get the original
+// script and replace the service worker mid-test
+const gotoBypassingWorkerRequests = async (page: Page, bypass: string) => {
   test.skip(
     page.context().browser()?.browserType().name() == 'firefox',
-    "playwright can't route the service worker script in firefox"
+    "not checked in firefox since it doesn't need playwright's routing anymore"
   );
-  await page.context().route('**/partytown-sw.js*', async (route) => {
-    const sw = await (await route.fetch()).text();
-    const prelude = `
-      var requestIndex = 0;
-      self.addEventListener('fetch', function (ev) {
-        if (ev.request.url.includes('proxytown') && (${isBypassed})(requestIndex++)) {
-          ev.stopImmediatePropagation();
-        }
-      });
-    `;
-    await route.fulfill({ body: prelude + sw, contentType: 'application/javascript' });
-  });
   const networkRequests: string[] = [];
   page.context().on('response', (rsp) => {
     if (rsp.url().includes('proxytown') && !rsp.fromServiceWorker()) {
       networkRequests.push(rsp.url());
     }
   });
+  await page.goto(`/tests/platform/sw-worker-bypass/?${bypass}`);
   return networkRequests;
 };
 
@@ -36,8 +29,7 @@ test.beforeEach(({ baseURL }) => {
 });
 
 test('falls back when proxytown requests reach the server', async ({ page }) => {
-  const networkRequests = await bypassWorkerRequests(page, '() => true');
-  await page.goto('/tests/platform/sw-worker-bypass/');
+  const networkRequests = await gotoBypassingWorkerRequests(page, 'bypassFrom=0');
 
   // well before the 10s fallbackTimeout
   await page.waitForSelector('.completed', { timeout: 3000 });
@@ -48,8 +40,7 @@ test('falls back when proxytown requests reach the server', async ({ page }) => 
 test('does not run scripts twice that finished in the worker', async ({ page }) => {
   // the first script's 3 requests are answered, then they reach the server:
   // only the scripts that didn't finish fall back to the main thread
-  const networkRequests = await bypassWorkerRequests(page, '(i) => i >= 3');
-  await page.goto('/tests/platform/sw-worker-bypass/');
+  const networkRequests = await gotoBypassingWorkerRequests(page, 'bypassFrom=3');
 
   await page.waitForSelector('.completed', { timeout: 3000 });
   await page.waitForTimeout(1000);
@@ -59,8 +50,7 @@ test('does not run scripts twice that finished in the worker', async ({ page }) 
 
 test('keeps the worker after partytown initialized', async ({ page }) => {
   // a single request well after initialization reaches the server
-  const networkRequests = await bypassWorkerRequests(page, '(i) => i == 10');
-  await page.goto('/tests/platform/sw-worker-bypass/');
+  const networkRequests = await gotoBypassingWorkerRequests(page, 'bypassAt=10');
   await page.waitForSelector('.completed');
 
   await expect.poll(() => networkRequests.length).toBe(1);

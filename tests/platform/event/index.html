@@ -80,20 +80,26 @@
         <button id="buttonAdd">add</button>
         <button id="buttonRemove">remove</button>
         <code id="testInc">0</code>
+        <code id="testIncListener"></code>
         <script type="text/partytown">
           (function () {
             let count = 0;
             const buttonAdd = document.getElementById('buttonAdd');
             const buttonInc = document.getElementById('buttonInc');
             const buttonRemove = document.getElementById('buttonRemove');
+            const testIncListener = document.getElementById('testIncListener');
             function inc() {
               document.getElementById('testInc').textContent = ++count;
             }
+            // main applies the worker's calls in order, so once the status
+            // shows up, the listener change before it has been applied too
             buttonAdd.addEventListener('click', (ev) => {
               buttonInc.addEventListener('click', inc);
+              testIncListener.textContent = 'added';
             });
             buttonRemove.addEventListener('click', (ev) => {
               buttonInc.removeEventListener('click', inc);
+              testIncListener.textContent = 'removed';
             });
           })();
         </script>
