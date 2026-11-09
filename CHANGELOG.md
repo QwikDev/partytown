@@ -1,5 +1,11 @@
 # @qwik.dev/partytown
 
+## 1.0.6
+
+### Patch Changes
+
+- 🐞🩹 serialize TrustedScript and TrustedScriptURL values as strings for the main thread (by [@gioboa](https://github.com/gioboa) in [#808](https://github.com/QwikDev/partytown/pull/808))
+
 ## 1.0.5
 
 ### Patch Changes
