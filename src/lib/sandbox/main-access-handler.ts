@@ -215,6 +215,8 @@ const applyToInstance = (
               args[1] = trustedType('createHTML', args[1]);
             } else if (previous === 'write' || previous === 'writeln') {
               args = args.map((arg) => trustedType('createHTML', arg));
+            } else if (previous === 'register') {
+              args[0] = trustedType('createScriptURL', args[0]);
             }
           }
 
