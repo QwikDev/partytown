@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta http-equiv="Content-Security-Policy" content="require-trusted-types-for 'script'; trusted-types partytown" />
+  <meta http-equiv="Content-Security-Policy" content="require-trusted-types-for 'script'; trusted-types partytown repro" />
   <title>Trusted Types</title>
   <script>partytown = { debug: true };</script>
   <script src="/~partytown/debug/partytown.js"></script>
@@ -12,6 +12,13 @@
     d.innerHTML = '<i>html set from worker</i>';
     document.body.appendChild(d);
     d.insertAdjacentHTML('beforeend', '<em>adjacent html</em>');
+    var policy = trustedTypes.createPolicy('repro', { createScriptURL: (v) => v });
+    var url = policy.createScriptURL('/script-url.js');
+    document.getElementById('out').setAttribute('data-url', url);
+    navigator.serviceWorker.register(policy.createScriptURL('/tests/platform/trusted-types/sw.js')).then(
+      () => document.getElementById('out').setAttribute('data-sw', 'registered'),
+      (e) => document.getElementById('out').setAttribute('data-sw', String(e))
+    );
     document.body.classList.add('completed');
   </script>
 </head>

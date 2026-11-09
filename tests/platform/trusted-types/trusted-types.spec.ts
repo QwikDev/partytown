@@ -15,6 +15,10 @@ test('trusted types', async ({ page }) => {
   // html set from the worker must pass Trusted Types enforcement
   await expect(page.locator('i')).toHaveText('html set from worker');
   await expect(page.locator('em')).toHaveText('adjacent html');
+  // TrustedScriptURL must reach the main thread as its string value
+  await expect(out).toHaveAttribute('data-url', '/script-url.js');
+  // a string script url must be re-wrapped for the enforced register() sink
+  await expect(out).toHaveAttribute('data-sw', 'registered');
 
   expect(errors).toEqual([]);
 });

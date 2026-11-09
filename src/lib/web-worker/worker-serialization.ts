@@ -66,7 +66,7 @@ export const serializeForMain = (
           SerializedType.Event,
           serializeObjectForMain($winId$, $instanceId$, value, false, added),
         ];
-      } else if (supportsTrustedHTML && value instanceof TrustedHTML) {
+      } else if (trustedTypes.some((T) => value instanceof T)) {
         // https://developer.mozilla.org/en-US/docs/Web/API/Trusted_Types_API
         return [SerializedType.Primitive, value.toString()];
       } else if (value instanceof ArrayBuffer) {
@@ -87,7 +87,9 @@ export const serializeForMain = (
   }
 };
 
-const supportsTrustedHTML = typeof TrustedHTML === 'function';
+const trustedTypes = ['TrustedHTML', 'TrustedScript', 'TrustedScriptURL']
+  .map((n) => (globalThis as any)[n])
+  .filter((T) => typeof T === 'function');
 
 const serializeObjectForMain = (
   winId: WinId,
@@ -371,4 +373,3 @@ const Attr = class {
   }
 };
 
-declare const TrustedHTML: any;
